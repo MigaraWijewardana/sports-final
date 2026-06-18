@@ -42,23 +42,26 @@
             color: #FFB81C; 
             padding-left: 25px;
         }
+
+        /* Prevent scrolling when mobile menu is open */
+        body.menu-open { overflow: hidden; }
     </style>
 </head>
-<body class="bg-[#1A0524] text-white font-['Poppins'] antialiased bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#561269]/40 via-[#1A0524] to-[#1A0524] relative min-h-screen pb-20">
+<body class="bg-[#1A0524] text-white font-['Poppins'] antialiased bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#561269]/40 via-[#1A0524] to-[#1A0524] relative min-h-screen pb-20 overflow-x-hidden">
 
-    <div class="fixed bottom-6 right-6 z-50">
-        <a href="booklet.html" target="_blank" class="glass-card flex items-center gap-3 px-5 py-3 rounded-full border border-[#FFB81C]/50 hover:bg-[#FFB81C] hover:text-[#1A0524] group transition-all duration-300 shadow-[0_0_20px_rgba(255,184,28,0.3)]">
+    <div class="fixed bottom-6 right-6 z-40 hidden sm:block">
+        <a href="#" target="_blank" class="glass-card flex items-center gap-3 px-5 py-3 rounded-full border border-[#FFB81C]/50 hover:bg-[#FFB81C] hover:text-[#1A0524] group transition-all duration-300 shadow-[0_0_20px_rgba(255,184,28,0.3)]">
             <i class="fa-solid fa-file-pdf text-[#FFB81C] group-hover:text-[#1A0524] text-xl"></i>
-            <span class="font-bold tracking-wide uppercase text-sm">Delegate Booklet</span>
+            <span class="font-bold tracking-wide uppercase text-sm">Event Guidelines</span>
         </a>
     </div>
 
-    <nav class="flex items-center justify-between p-6 max-w-7xl mx-auto relative z-50">
+    <nav class="flex items-center justify-between p-4 md:p-6 max-w-7xl mx-auto relative z-50">
         <div class="logo flex items-center gap-4">
-            <img src="/public/images/logo.png" class="h-12 object-contain" alt="Logo">
+            <img src="/public/images/logo.png" class="h-10 md:h-12 object-contain" alt="Logo">
         </div>
 
-        <ul class="hidden md:flex gap-8 list-none font-bold uppercase tracking-widest text-sm items-center">
+        <ul class="hidden lg:flex gap-8 list-none font-bold uppercase tracking-widest text-sm items-center">
             <li><a href="index.html" class="hover:text-[#FFB81C] transition-colors">Home</a></li>
             
             <li class="dropdown relative">
@@ -85,263 +88,327 @@
             <li><a href="games.html" class="hover:text-[#FFB81C] transition-colors">GAMES</a></li>
             <li><a href="#contact" class="hover:text-[#FFB81C] transition-colors">CONTACT</a></li>
         </ul>
-        <a href="/oc.html" class="hidden md:inline-flex items-center text-[10px] font-mono tracking-[0.2em] uppercase text-[#FFB81C] hover:text-white transition-all bg-[#FFB81C]/10 px-5 py-2.5 rounded border border-[#FFB81C]/30 hover:border-[#FFB81C] hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
-            <i class="fa-solid fa-terminal mr-2" style="color: #FFB81C;"></i> Meet the OC
-        </a>
+
+        <div class="flex items-center gap-4">
+            <a href="/oc.html" class="hidden md:inline-flex items-center text-[10px] font-mono tracking-[0.2em] uppercase text-[#FFB81C] hover:text-white transition-all bg-[#FFB81C]/10 px-5 py-2.5 rounded border border-[#FFB81C]/30 hover:border-[#FFB81C] hover:shadow-[0_0_15px_rgba(0,229,255,0.4)]">
+                <i class="fa-solid fa-terminal mr-2" style="color: #FFB81C;"></i> Meet the OC
+            </a>
+            
+            <button id="mobile-menu-btn" class="lg:hidden text-[#FFB81C] text-3xl focus:outline-none z-50">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
     </nav>
 
-    <section class="relative min-h-[85vh] flex flex-col justify-center items-center text-center px-4 pt-10 pb-20">
-        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-[#561269] rounded-full blur-[150px] -z-10"></div>
-        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#FFB81C]/10 rounded-full blur-[120px] -z-10"></div>
+    <div id="mobile-menu" class="fixed inset-0 bg-[#1A0524]/95 backdrop-blur-xl z-[100] transform translate-x-full transition-transform duration-300 flex flex-col pt-24 px-8 pb-8 overflow-y-auto">
+        <button id="close-menu-btn" class="absolute top-6 right-6 text-white/50 hover:text-[#FFB81C] text-4xl focus:outline-none transition-colors">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
 
-        <div class="z-10 w-full max-w-5xl">
+        <ul class="flex flex-col gap-8 font-freshman tracking-widest text-white text-2xl">
+            <li><a href="index.html" class="mobile-link block hover:text-[#FFB81C] transition-colors">HOME</a></li>
+            
+            <li>
+                <span class="text-[#FFB81C] text-sm font-mono block mb-3 uppercase tracking-widest">REGISTRATION</span>
+                <ul class="pl-4 border-l-2 border-[#FFB81C]/30 flex flex-col gap-4 text-lg font-sans font-bold uppercase tracking-wider">
+                    <li><a href="/register/lcvp.html" class="mobile-link text-white/80 hover:text-white">Team Registration</a></li>
+                    <li><a href="#teams" class="mobile-link text-white/80 hover:text-white">Delegate Registration</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <span class="text-[#FFB81C] text-sm font-mono block mb-3 uppercase tracking-widest">TEAMS</span>
+                <ul class="pl-4 border-l-2 border-[#FFB81C]/30 flex flex-col gap-4 text-lg font-sans font-bold uppercase tracking-wider">
+                    <li><a href="/teams/roster.html?team=igv" class="mobile-link text-white/80 hover:text-white">iGV Roster</a></li>
+                    <li><a href="/teams/roster.html?team=igt" class="mobile-link text-white/80 hover:text-white">iGT Roster</a></li>
+                    <li><a href="/teams/roster.html?team=ogv" class="mobile-link text-white/80 hover:text-white">oGV Roster</a></li>
+                    <li><a href="/teams/roster.html?team=ogt" class="mobile-link text-white/80 hover:text-white">oGT Roster</a></li>
+                    <li><a href="/teams/roster.html?team=eb" class="mobile-link text-white/80 hover:text-white">EB Roster</a></li>
+                    <li><a href="/teams/roster.html?team=ig" class="mobile-link text-white/80 hover:text-white">IG Roster</a></li>
+                    <li><a href="/teams/roster.html?team=alumni" class="mobile-link text-white/80 hover:text-white">Alumni Roster</a></li>
+                </ul>
+            </li>
+
+            <li><a href="games.html" class="mobile-link block hover:text-[#FFB81C] transition-colors">GAMES</a></li>
+            <li><a href="#contact" class="mobile-link block hover:text-[#FFB81C] transition-colors">CONTACT</a></li>
+            <li><a href="/oc.html" class="mobile-link block text-[#FFB81C] mt-4 border-t border-white/10 pt-6">MEET THE OC <i class="fa-solid fa-terminal text-sm ml-2"></i></a></li>
+            <li><a href="#" class="mobile-link block text-[#def5ff]/60 text-sm font-sans font-bold mt-2"><i class="fa-solid fa-file-pdf mr-2"></i> Event Guidelines</a></li>
+        </ul>
+    </div>
+
+    <section class="relative min-h-[85vh] flex flex-col justify-center items-center text-center px-4 pt-4 pb-20">
+        <div class="absolute top-1/4 left-1/4 w-64 md:w-96 h-64 md:h-96 bg-[#561269] rounded-full blur-[100px] md:blur-[150px] -z-10"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-64 md:w-96 h-64 md:h-96 bg-[#FFB81C]/10 rounded-full blur-[80px] md:blur-[120px] -z-10"></div>
+
+        <div class="z-10 w-full max-w-5xl mt-12 md:mt-0">
             <div class="inline-block bg-white/10 backdrop-blur-md border border-white/20 px-4 py-1.5 rounded-full mb-6">
-                <span class="text-xs font-bold uppercase tracking-widest text-[#def5ff]"><i class="fa-solid fa-location-dot mr-2 text-[#FFB81C]"></i>Location to be Revealed</span>
+                <span class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#def5ff]"><i class="fa-solid fa-location-dot mr-2 text-[#FFB81C]"></i>Location to be Revealed</span>
             </div>
 
-            <h1 class="font-freshman text-5xl sm:text-7xl md:text-8xl text-white text-glow-white mb-6 uppercase leading-tight">
+            <h1 class="font-freshman text-4xl sm:text-6xl md:text-8xl text-white text-glow-white mb-6 uppercase leading-tight px-2">
                 AWAKEN YOUR <br><span class="text-[#FFB81C] text-glow-gold">COMPETITIVENESS</span>
             </h1>
 
-            <div class="grid grid-cols-4 gap-3 sm:gap-6 max-w-3xl mx-auto w-full mb-10">
-                <div class="glass-card p-4 sm:p-6 flex flex-col items-center">
-                    <span id="days" class="font-freshman text-4xl sm:text-6xl text-white drop-shadow-md">00</span>
-                    <span class="text-[10px] sm:text-sm font-bold uppercase tracking-[0.2em] text-[#FFB81C] mt-2">Days</span>
+            <div class="grid grid-cols-4 gap-2 sm:gap-6 max-w-3xl mx-auto w-full mb-10">
+                <div class="glass-card p-3 sm:p-6 flex flex-col items-center">
+                    <span id="days" class="font-freshman text-2xl sm:text-6xl text-white drop-shadow-md">00</span>
+                    <span class="text-[8px] sm:text-sm font-bold uppercase tracking-[0.2em] text-[#FFB81C] mt-1 sm:mt-2">Days</span>
                 </div>
-                <div class="glass-card p-4 sm:p-6 flex flex-col items-center">
-                    <span id="hours" class="font-freshman text-4xl sm:text-6xl text-white drop-shadow-md">00</span>
-                    <span class="text-[10px] sm:text-sm font-bold uppercase tracking-[0.2em] text-[#FFB81C] mt-2">Hours</span>
+                <div class="glass-card p-3 sm:p-6 flex flex-col items-center">
+                    <span id="hours" class="font-freshman text-2xl sm:text-6xl text-white drop-shadow-md">00</span>
+                    <span class="text-[8px] sm:text-sm font-bold uppercase tracking-[0.2em] text-[#FFB81C] mt-1 sm:mt-2">Hours</span>
                 </div>
-                <div class="glass-card p-4 sm:p-6 flex flex-col items-center">
-                    <span id="minutes" class="font-freshman text-4xl sm:text-6xl text-white drop-shadow-md">00</span>
-                    <span class="text-[10px] sm:text-sm font-bold uppercase tracking-[0.2em] text-[#FFB81C] mt-2">Mins</span>
+                <div class="glass-card p-3 sm:p-6 flex flex-col items-center">
+                    <span id="minutes" class="font-freshman text-2xl sm:text-6xl text-white drop-shadow-md">00</span>
+                    <span class="text-[8px] sm:text-sm font-bold uppercase tracking-[0.2em] text-[#FFB81C] mt-1 sm:mt-2">Mins</span>
                 </div>
-                <div class="glass-card p-4 sm:p-6 flex flex-col items-center">
-                    <span id="seconds" class="font-freshman text-4xl sm:text-6xl text-[#def5ff] drop-shadow-md">00</span>
-                    <span class="text-[10px] sm:text-sm font-bold uppercase tracking-[0.2em] text-[#def5ff] mt-2">Secs</span>
-                </div>
-            </div>
-
-            <div class="mb-12 max-w-4xl mx-auto w-full">
-                <span class="text-[10px] font-mono tracking-[0.3em] uppercase text-white/50 block mb-4">Live Draft Board Tracker</span>
-                <div class="flex flex-wrap justify-center gap-3 sm:gap-5">
-                    <div class="glass-card px-4 py-2 flex flex-col items-center border border-white/10 min-w-[80px]" id="card-igv">
-                        <span class="font-freshman text-2xl text-white" id="count-igv">0</span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-igv">iGV</span>
-                    </div>
-                    <div class="glass-card px-4 py-2 flex flex-col items-center border border-white/10 min-w-[80px]" id="card-igt">
-                        <span class="font-freshman text-2xl text-white" id="count-igt">0</span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-igt">iGT</span>
-                    </div>
-                    <div class="glass-card px-4 py-2 flex flex-col items-center border border-white/10 min-w-[80px]" id="card-ogv">
-                        <span class="font-freshman text-2xl text-white" id="count-ogv">0</span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-ogv">oGV</span>
-                    </div>
-                    <div class="glass-card px-4 py-2 flex flex-col items-center border border-white/10 min-w-[80px]" id="card-ogt">
-                        <span class="font-freshman text-2xl text-white" id="count-ogt">0</span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-ogt">oGT</span>
-                    </div>
-                    <div class="glass-card px-4 py-2 flex flex-col items-center border border-white/10 min-w-[80px]" id="card-ig">
-                        <span class="font-freshman text-2xl text-white" id="count-ig">0</span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-ig">IG</span>
-                    </div>
-                    <div class="glass-card px-4 py-2 flex flex-col items-center border border-white/10 min-w-[80px]" id="card-alumni">
-                        <span class="font-freshman text-2xl text-white" id="count-alumni">0</span>
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-alumni">Alumni</span>
-                    </div>
+                <div class="glass-card p-3 sm:p-6 flex flex-col items-center">
+                    <span id="seconds" class="font-freshman text-2xl sm:text-6xl text-[#def5ff] drop-shadow-md">00</span>
+                    <span class="text-[8px] sm:text-sm font-bold uppercase tracking-[0.2em] text-[#def5ff] mt-1 sm:mt-2">Secs</span>
                 </div>
             </div>
 
-            <a href="#teams" class="inline-block bg-white text-[#1A0524] font-bold text-lg px-12 py-4 rounded-full shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:bg-[#FFB81C] transition-all transform hover:-translate-y-1 uppercase tracking-widest">
+            <div class="mb-10 sm:mb-12 max-w-4xl mx-auto w-full px-2">
+                <span class="text-[9px] sm:text-[10px] font-mono tracking-[0.3em] uppercase text-white/50 block mb-4">Live Draft Board Tracker</span>
+                <div class="flex flex-wrap justify-center gap-2 sm:gap-4">
+                    <div class="glass-card px-3 py-2 flex flex-col items-center border border-white/10 min-w-[60px] sm:min-w-[80px]" id="card-igv">
+                        <span class="font-freshman text-xl sm:text-2xl text-white" id="count-igv">0</span>
+                        <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-igv">iGV</span>
+                    </div>
+                    <div class="glass-card px-3 py-2 flex flex-col items-center border border-white/10 min-w-[60px] sm:min-w-[80px]" id="card-igt">
+                        <span class="font-freshman text-xl sm:text-2xl text-white" id="count-igt">0</span>
+                        <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-igt">iGT</span>
+                    </div>
+                    <div class="glass-card px-3 py-2 flex flex-col items-center border border-white/10 min-w-[60px] sm:min-w-[80px]" id="card-ogv">
+                        <span class="font-freshman text-xl sm:text-2xl text-white" id="count-ogv">0</span>
+                        <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-ogv">oGV</span>
+                    </div>
+                    <div class="glass-card px-3 py-2 flex flex-col items-center border border-white/10 min-w-[60px] sm:min-w-[80px]" id="card-ogt">
+                        <span class="font-freshman text-xl sm:text-2xl text-white" id="count-ogt">0</span>
+                        <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-ogt">oGT</span>
+                    </div>
+                    <div class="glass-card px-3 py-2 flex flex-col items-center border border-white/10 min-w-[60px] sm:min-w-[80px]" id="card-ig">
+                        <span class="font-freshman text-xl sm:text-2xl text-white" id="count-ig">0</span>
+                        <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-ig">IG</span>
+                    </div>
+                    <div class="glass-card px-3 py-2 flex flex-col items-center border border-white/10 min-w-[60px] sm:min-w-[80px]" id="card-alumni">
+                        <span class="font-freshman text-xl sm:text-2xl text-white" id="count-alumni">0</span>
+                        <span class="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-[#FFB81C]" id="label-alumni">Alumni</span>
+                    </div>
+                </div>
+            </div>
+
+            <a href="#teams" class="inline-block bg-white text-[#1A0524] font-bold text-sm sm:text-lg px-8 sm:px-12 py-3 sm:py-4 rounded-full shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:bg-[#FFB81C] transition-all transform hover:-translate-y-1 uppercase tracking-widest">
                 REGISTER NOW
             </a>
         </div>
     </section>
 
-    <section id="about" class="max-w-6xl mx-auto px-4 py-20 relative z-10">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
-            <div>
-                <h2 class="font-freshman text-4xl text-[#FFB81C] mb-6">WHAT IS SPORTS LCM?</h2>
-                <p class="text-[#def5ff]/80 text-lg leading-relaxed mb-6">
-Sports LCM is a dynamic event by AIESEC in USJ designed to bring members together through teamwork and healthy competition. The initiative focuses on 
-<br> <ul class="text-[#def5ff]/80 text-lg leading-relaxed mb-6">
-    <li><i class="fa-solid fa-check text-[#FFB81C] mt-1"></i>&nbsp; Building Connections</li>
-    <li><i class="fa-solid fa-check text-[#FFB81C] mt-1"></i>&nbsp; Developing Leaders</li>
-    <li> <i class="fa-solid fa-check text-[#FFB81C] mt-1"></i>&nbsp; Enhancing Well-being</li>
-</ul>
-</p>
-                <div class="flex gap-4">
+    <section id="about" class="max-w-6xl mx-auto px-4 py-16 md:py-20 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-10 md:mb-20">
+            <div class="text-center md:text-left">
+                <h2 class="font-freshman text-3xl md:text-4xl text-[#FFB81C] mb-6">WHAT IS SPORTS LCM?</h2>
+                <div class="text-[#def5ff]/80 text-base md:text-lg leading-relaxed mb-6">
+                    Sports LCM is a dynamic event by AIESEC in USJ designed to bring members together through teamwork and healthy competition. The initiative focuses on:
+                    <ul class="text-left max-w-md mx-auto md:mx-0 mt-4 space-y-2">
+                        <li><i class="fa-solid fa-check text-[#FFB81C] mr-2"></i> Building Connections</li>
+                        <li><i class="fa-solid fa-check text-[#FFB81C] mr-2"></i> Developing Leaders</li>
+                        <li><i class="fa-solid fa-check text-[#FFB81C] mr-2"></i> Enhancing Well-being</li>
+                    </ul>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center sm:items-start gap-4 mt-8 bg-white/5 p-6 rounded-2xl border border-white/10 text-left">
                     <div class="w-12 h-12 rounded-full glass-card flex items-center justify-center text-[#FFB81C] text-xl shrink-0"><i class="fa-solid fa-bolt"></i></div>
-                    <div>
-                        <h4 class="font-bold text-white text-lg">Our Vision</h4>
-                        <p class="text-sm text-[#def5ff]/70">To create an energetic, inclusive environment through sports. Breaking barriers and igniting passion and unity.</p>
+                    <div class="text-center sm:text-left">
+                        <h4 class="font-bold text-white text-lg mb-1">Our Vision</h4>
+                        <p class="text-sm text-[#def5ff]/70 leading-relaxed">To create an energetic, inclusive environment through sports. Breaking barriers and igniting passion and unity.</p>
                     </div>
                 </div>
             </div>
             
-            <div class="glass-card p-8 border-[#FFB81C]/20">
-                <h3 class="font-freshman text-2xl text-white mb-6">WHAT TO EXPECT</h3>
-                <ul class="space-y-4">
-                    <li class="flex items-start gap-3">
-                        <i class="fa-solid fa-check text-[#FFB81C] mt-1"></i>
-                        <p class="text-[#def5ff]/90 text-sm">High-stakes futsal tournament for the front offices of AIESEC in USJ.</p>
+            <div class="glass-card p-6 md:p-8 border-[#FFB81C]/20">
+                <h3 class="font-freshman text-xl md:text-2xl text-white mb-6 text-center md:text-left">WHAT TO EXPECT</h3>
+                <ul class="space-y-6">
+                    <li class="flex items-start gap-4">
+                        <div class="mt-1 bg-[#FFB81C]/10 p-2 rounded shrink-0"><i class="fa-solid fa-futbol text-[#FFB81C]"></i></div>
+                        <p class="text-[#def5ff]/90 text-sm leading-relaxed">High-stakes futsal tournament for the front offices of AIESEC in USJ.</p>
                     </li>
-                    <li class="flex items-start gap-3">
-                        <i class="fa-solid fa-check text-[#FFB81C] mt-1"></i>
-                        <p class="text-[#def5ff]/90 text-sm">Interactive mini-games and strategy challenges designed to test intellect alongside physical prowess.</p>
+                    <li class="flex items-start gap-4">
+                        <div class="mt-1 bg-[#FFB81C]/10 p-2 rounded shrink-0"><i class="fa-solid fa-chess-knight text-[#FFB81C]"></i></div>
+                        <p class="text-[#def5ff]/90 text-sm leading-relaxed">Interactive mini-games and strategy challenges designed to test intellect alongside physical prowess.</p>
                     </li>
-                    <li class="flex items-start gap-3">
-                        <i class="fa-solid fa-check text-[#FFB81C] mt-1"></i>
-                        <p class="text-[#def5ff]/90 text-sm">A dedicated zone for networking, and cross-functional bonding.</p>
+                    <li class="flex items-start gap-4">
+                        <div class="mt-1 bg-[#FFB81C]/10 p-2 rounded shrink-0"><i class="fa-solid fa-network-wired text-[#FFB81C]"></i></div>
+                        <p class="text-[#def5ff]/90 text-sm leading-relaxed">A dedicated zone for networking, and cross-functional bonding.</p>
                     </li>
                 </ul>
             </div>
         </div>
     </section>
 
-    <section id="teams" class="py-20 overflow-hidden bg-[#1A0524]">
-        <div class="text-center mb-32 px-4">
-            <h2 class="font-freshman text-6xl sm:text-8xl text-white uppercase">JOIN YOUR <span class="text-[#FFB81C]">FUNCTION</span></h2>
-            <p class="text-[#def5ff]/60 mt-8 text-xl uppercase tracking-[0.5em]">Pledge your allegiance to join the team roster.</p>
+    <section id="teams" class="py-16 md:py-20 overflow-hidden bg-[#1A0524]">
+        <div class="text-center mb-16 md:mb-32 px-4">
+            <h2 class="font-freshman text-4xl sm:text-6xl md:text-8xl text-white uppercase">JOIN YOUR <span class="text-[#FFB81C]">FUNCTION</span></h2>
+            <p class="text-[#def5ff]/60 mt-4 md:mt-8 text-sm md:text-xl uppercase tracking-widest md:tracking-[0.5em]">Pledge your allegiance to join the team roster.</p>
         </div>
 
-        <div class="relative py-40 bg-[#561269]/20 transform -skew-y-3 mb-20">
-            <div class="max-w-7xl mx-auto px-10 flex flex-col md:flex-row items-center justify-between gap-20 transform skew-y-3">
+        <div class="relative py-24 md:py-40 bg-[#561269]/20 transform -skew-y-3 mb-12 md:mb-20">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-20 transform skew-y-3 relative z-10">
                 <div class="flex-1 text-center md:text-left">
-                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
-                    <h3 class="font-freshman text-9xl text-white mb-6 drop-shadow-2xl">iGV</h3>
-                    <p class="text-[#def5ff]/60 max-w-md text-lg mb-12 italic">"Current mascot status: <span class="text-[#FFB81C]">Drafting phase initiated...</span>"</p>
-                    <a href="/register/delegate.html?entity=iGV" class="inline-block px-16 py-6 border-4 border-[#FFB81C] text-[#FFB81C] text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join iGV</a>
+                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-xs md:text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
+                    <h3 class="font-freshman text-7xl md:text-9xl text-white mb-4 md:mb-6 drop-shadow-2xl">iGV</h3>
+                    <p class="text-[#def5ff]/60 max-w-md mx-auto md:mx-0 text-base md:text-lg mb-8 md:mb-12 italic">"Current mascot status: <span class="text-[#FFB81C]">Drafting phase initiated...</span>"</p>
+                    <a href="/register/delegate.html?entity=iGV" class="inline-block px-10 md:px-16 py-4 md:py-6 border-2 md:border-4 border-[#FFB81C] text-[#FFB81C] text-sm md:text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join iGV</a>
                 </div>
-                <div class="relative"><img src="/public/images/mascots/panther.png" class="w-96 opacity-20 brightness-0" alt="Mascot"><span class="absolute -bottom-10 left-0 text-white/10 font-freshman text-9xl select-none">01</span></div>
+                <div class="relative w-full md:w-auto flex justify-center mt-10 md:mt-0">
+                    <img src="/public/images/mascots/panther.png" class="w-48 md:w-96 opacity-20 brightness-0" alt="Mascot">
+                    <span class="absolute -bottom-6 md:-bottom-10 left-1/2 md:left-0 transform -translate-x-1/2 md:translate-x-0 text-white/10 font-freshman text-6xl md:text-9xl select-none">01</span>
+                </div>
             </div>
         </div>
 
-        <div class="relative py-40 bg-white/5 transform skew-y-3 mb-20">
-            <div class="max-w-7xl mx-auto px-10 flex flex-col md:flex-row-reverse items-center justify-between gap-20 transform -skew-y-3">
+        <div class="relative py-24 md:py-40 bg-white/5 transform skew-y-3 mb-12 md:mb-20">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row-reverse items-center justify-between gap-12 md:gap-20 transform -skew-y-3 relative z-10">
                 <div class="flex-1 text-center md:text-right">
-                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
-                    <h3 class="font-freshman text-9xl text-white mb-6 drop-shadow-2xl">iGT</h3>
-                    <p class="text-[#def5ff]/60 max-w-md text-lg mb-12 italic ml-auto">"Current mascot status: <span class="text-[#FFB81C]">Drafting phase initiated...</span>"</p>
-                    <a href="/register/delegate.html?entity=iGT" class="inline-block px-16 py-6 border-4 border-[#FFB81C] text-[#FFB81C] text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join iGT</a>
+                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-xs md:text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
+                    <h3 class="font-freshman text-7xl md:text-9xl text-white mb-4 md:mb-6 drop-shadow-2xl">iGT</h3>
+                    <p class="text-[#def5ff]/60 max-w-md mx-auto md:ml-auto md:mr-0 text-base md:text-lg mb-8 md:mb-12 italic">"Current mascot status: <span class="text-[#FFB81C]">Drafting phase initiated...</span>"</p>
+                    <a href="/register/delegate.html?entity=iGT" class="inline-block px-10 md:px-16 py-4 md:py-6 border-2 md:border-4 border-[#FFB81C] text-[#FFB81C] text-sm md:text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join iGT</a>
                 </div>
-                <div class="relative"><img src="/public/images/mascots/panther.png" class="w-96 opacity-20 brightness-0" alt="Mascot"><span class="absolute -bottom-10 left-0 text-white/10 font-freshman text-9xl select-none">02</span></div>
+                <div class="relative w-full md:w-auto flex justify-center mt-10 md:mt-0">
+                    <img src="/public/images/mascots/panther.png" class="w-48 md:w-96 opacity-20 brightness-0" alt="Mascot">
+                    <span class="absolute -bottom-6 md:-bottom-10 left-1/2 md:left-0 transform -translate-x-1/2 md:translate-x-0 text-white/10 font-freshman text-6xl md:text-9xl select-none">02</span>
+                </div>
             </div>
         </div>
 
-        <div class="relative py-40 bg-[#561269]/20 transform -skew-y-3 mb-20">
-            <div class="max-w-7xl mx-auto px-10 flex flex-col md:flex-row items-center justify-between gap-20 transform skew-y-3">
+        <div class="relative py-24 md:py-40 bg-[#561269]/20 transform -skew-y-3 mb-12 md:mb-20">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-20 transform skew-y-3 relative z-10">
                 <div class="flex-1 text-center md:text-left">
-                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
-                    <h3 class="font-freshman text-9xl text-white mb-6 drop-shadow-2xl">oGV</h3>
-                    <p class="text-[#def5ff]/60 max-w-md text-lg mb-12 italic">"Current mascot status: <span class="text-[#FFB81C]">Drafting phase initiated...</span>"</p>
-                    <a href="/register/delegate.html?entity=oGV" class="inline-block px-16 py-6 border-4 border-[#FFB81C] text-[#FFB81C] text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join oGV</a>
+                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-xs md:text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
+                    <h3 class="font-freshman text-7xl md:text-9xl text-white mb-4 md:mb-6 drop-shadow-2xl">oGV</h3>
+                    <p class="text-[#def5ff]/60 max-w-md mx-auto md:mx-0 text-base md:text-lg mb-8 md:mb-12 italic">"Current mascot status: <span class="text-[#FFB81C]">Drafting phase initiated...</span>"</p>
+                    <a href="/register/delegate.html?entity=oGV" class="inline-block px-10 md:px-16 py-4 md:py-6 border-2 md:border-4 border-[#FFB81C] text-[#FFB81C] text-sm md:text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join oGV</a>
                 </div>
-                <div class="relative"><img src="/public/images/mascots/panther.png" class="w-96 opacity-20 brightness-0" alt="Mascot"><span class="absolute -bottom-10 left-0 text-white/10 font-freshman text-9xl select-none">03</span></div>
+                <div class="relative w-full md:w-auto flex justify-center mt-10 md:mt-0">
+                    <img src="/public/images/mascots/panther.png" class="w-48 md:w-96 opacity-20 brightness-0" alt="Mascot">
+                    <span class="absolute -bottom-6 md:-bottom-10 left-1/2 md:left-0 transform -translate-x-1/2 md:translate-x-0 text-white/10 font-freshman text-6xl md:text-9xl select-none">03</span>
+                </div>
             </div>
         </div>
 
-        <div class="relative py-40 bg-white/5 transform skew-y-3 mb-20">
-            <div class="max-w-7xl mx-auto px-10 flex flex-col md:flex-row-reverse items-center justify-between gap-20 transform -skew-y-3">
+        <div class="relative py-24 md:py-40 bg-white/5 transform skew-y-3 mb-12 md:mb-20">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row-reverse items-center justify-between gap-12 md:gap-20 transform -skew-y-3 relative z-10">
                 <div class="flex-1 text-center md:text-right">
-                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
-                    <h3 class="font-freshman text-9xl text-white mb-6 drop-shadow-2xl">oGT</h3>
-                    <p class="text-[#def5ff]/60 max-w-md text-lg mb-12 italic ml-auto">"Current mascot status: <span class="text-[#FFB81C]">Drafting phase initiated...</span>"</p>
-                    <a href="/register/delegate.html?entity=oGT" class="inline-block px-16 py-6 border-4 border-[#FFB81C] text-[#FFB81C] text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join oGT</a>
+                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-xs md:text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
+                    <h3 class="font-freshman text-7xl md:text-9xl text-white mb-4 md:mb-6 drop-shadow-2xl">oGT</h3>
+                    <p class="text-[#def5ff]/60 max-w-md mx-auto md:ml-auto md:mr-0 text-base md:text-lg mb-8 md:mb-12 italic">"Current mascot status: <span class="text-[#FFB81C]">Drafting phase initiated...</span>"</p>
+                    <a href="/register/delegate.html?entity=oGT" class="inline-block px-10 md:px-16 py-4 md:py-6 border-2 md:border-4 border-[#FFB81C] text-[#FFB81C] text-sm md:text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join oGT</a>
                 </div>
-                <div class="relative"><img src="/public/images/mascots/panther.png" class="w-96 opacity-20 brightness-0" alt="Mascot"><span class="absolute -bottom-10 left-0 text-white/10 font-freshman text-9xl select-none">04</span></div>
+                <div class="relative w-full md:w-auto flex justify-center mt-10 md:mt-0">
+                    <img src="/public/images/mascots/panther.png" class="w-48 md:w-96 opacity-20 brightness-0" alt="Mascot">
+                    <span class="absolute -bottom-6 md:-bottom-10 left-1/2 md:left-0 transform -translate-x-1/2 md:translate-x-0 text-white/10 font-freshman text-6xl md:text-9xl select-none">04</span>
+                </div>
             </div>
         </div>
 
-        <div class="relative py-40 bg-[#561269]/20 transform -skew-y-3 mb-20">
-            <div class="max-w-7xl mx-auto px-10 flex flex-col md:flex-row items-center justify-between gap-20 transform skew-y-3">
+        <div class="relative py-24 md:py-40 bg-[#561269]/20 transform -skew-y-3 mb-12 md:mb-20">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-20 transform skew-y-3 relative z-10">
                 <div class="flex-1 text-center md:text-left">
-                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
-                    <h3 class="font-freshman text-9xl text-white mb-6 drop-shadow-2xl">EB</h3>
-                    <p class="text-[#def5ff]/60 max-w-md text-lg mb-12 italic">"Identity: <span class="text-[#FFB81C]">The Griffins</span>"</p>
-                    <a href="/register/delegate.html?entity=EB" class="inline-block px-16 py-6 border-4 border-[#FFB81C] text-[#FFB81C] text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join EB</a>
+                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-xs md:text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
+                    <h3 class="font-freshman text-7xl md:text-9xl text-white mb-4 md:mb-6 drop-shadow-2xl">EB</h3>
+                    <p class="text-[#def5ff]/60 max-w-md mx-auto md:mx-0 text-base md:text-lg mb-8 md:mb-12 italic">"Identity: <span class="text-[#FFB81C]">The Griffins</span>"</p>
+                    <a href="/register/delegate.html?entity=EB" class="inline-block px-10 md:px-16 py-4 md:py-6 border-2 md:border-4 border-[#FFB81C] text-[#FFB81C] text-sm md:text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join EB</a>
                 </div>
-                <div class="relative"><img src="/public/images/mascots/panther.png" class="w-96 opacity-20 brightness-0" alt="Mascot"><span class="absolute -bottom-10 left-0 text-white/10 font-freshman text-9xl select-none">05</span></div>
+                <div class="relative w-full md:w-auto flex justify-center mt-10 md:mt-0">
+                    <img src="/public/images/mascots/panther.png" class="w-48 md:w-96 opacity-20 brightness-0" alt="Mascot">
+                    <span class="absolute -bottom-6 md:-bottom-10 left-1/2 md:left-0 transform -translate-x-1/2 md:translate-x-0 text-white/10 font-freshman text-6xl md:text-9xl select-none">05</span>
+                </div>
             </div>
         </div>
 
-        <div class="relative py-40 bg-white/5 transform skew-y-3 mb-20">
-            <div class="max-w-7xl mx-auto px-10 flex flex-col md:flex-row-reverse items-center justify-between gap-20 transform -skew-y-3">
+        <div class="relative py-24 md:py-40 bg-white/5 transform skew-y-3 mb-12 md:mb-20">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row-reverse items-center justify-between gap-12 md:gap-20 transform -skew-y-3 relative z-10">
                 <div class="flex-1 text-center md:text-right">
-                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
-                    <h3 class="font-freshman text-9xl text-white mb-6 drop-shadow-2xl">IG</h3>
-                    <p class="text-[#def5ff]/60 max-w-md text-lg mb-12 italic ml-auto">"Identity: <span class="text-[#FFB81C]">Initiative Group - Saegis Campus</span>"</p>
-                    <a href="/register/delegate.html?entity=IG" class="inline-block px-16 py-6 border-4 border-[#FFB81C] text-[#FFB81C] text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join IG</a>
+                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-xs md:text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
+                    <h3 class="font-freshman text-7xl md:text-9xl text-white mb-4 md:mb-6 drop-shadow-2xl">IG</h3>
+                    <p class="text-[#def5ff]/60 max-w-md mx-auto md:ml-auto md:mr-0 text-base md:text-lg mb-8 md:mb-12 italic">"Identity: <span class="text-[#FFB81C]">Initiative Group - Saegis Campus</span>"</p>
+                    <a href="/register/delegate.html?entity=IG" class="inline-block px-10 md:px-16 py-4 md:py-6 border-2 md:border-4 border-[#FFB81C] text-[#FFB81C] text-sm md:text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join IG</a>
                 </div>
-                <div class="relative"><img src="/public/images/mascots/panther.png" class="w-96 opacity-20 brightness-0" alt="Mascot"><span class="absolute -bottom-10 left-0 text-white/10 font-freshman text-9xl select-none">06</span></div>
+                <div class="relative w-full md:w-auto flex justify-center mt-10 md:mt-0">
+                    <img src="/public/images/mascots/panther.png" class="w-48 md:w-96 opacity-20 brightness-0" alt="Mascot">
+                    <span class="absolute -bottom-6 md:-bottom-10 left-1/2 md:left-0 transform -translate-x-1/2 md:translate-x-0 text-white/10 font-freshman text-6xl md:text-9xl select-none">06</span>
+                </div>
             </div>
         </div>
 
-        <div class="relative py-40 bg-[#561269]/20 transform -skew-y-3 mb-20">
-            <div class="max-w-7xl mx-auto px-10 flex flex-col md:flex-row items-center justify-between gap-20 transform skew-y-3">
+        <div class="relative py-24 md:py-40 bg-[#561269]/20 transform -skew-y-3 mb-12 md:mb-20">
+            <div class="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-20 transform skew-y-3 relative z-10">
                 <div class="flex-1 text-center md:text-left">
-                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
-                    <h3 class="font-freshman text-9xl text-white mb-6 drop-shadow-2xl">ALUMNI</h3>
-                    <p class="text-[#def5ff]/60 max-w-md text-lg mb-12 italic">"Status: <span class="text-[#FFB81C]">Registration Open</span>"</p>
-                    <a href="/register/delegate.html?entity=Alumni" class="inline-block px-16 py-6 border-4 border-[#FFB81C] text-[#FFB81C] text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join Alumni</a>
+                    <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-xs md:text-sm mb-4 block">Status: <span class="text-white">Active</span></span>
+                    <h3 class="font-freshman text-7xl md:text-9xl text-white mb-4 md:mb-6 drop-shadow-2xl">ALUMNI</h3>
+                    <p class="text-[#def5ff]/60 max-w-md mx-auto md:mx-0 text-base md:text-lg mb-8 md:mb-12 italic">"Status: <span class="text-[#FFB81C]">Registration Open</span>"</p>
+                    <a href="/register/delegate.html?entity=Alumni" class="inline-block px-10 md:px-16 py-4 md:py-6 border-2 md:border-4 border-[#FFB81C] text-[#FFB81C] text-sm md:text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all">Join Alumni</a>
                 </div>
-                <div class="relative"><img src="/public/images/mascots/panther.png" class="w-96 opacity-20 brightness-0" alt="Mascot"><span class="absolute -bottom-10 left-0 text-white/10 font-freshman text-9xl select-none">07</span></div>
+                <div class="relative w-full md:w-auto flex justify-center mt-10 md:mt-0">
+                    <img src="/public/images/mascots/panther.png" class="w-48 md:w-96 opacity-20 brightness-0" alt="Mascot">
+                    <span class="absolute -bottom-6 md:-bottom-10 left-1/2 md:left-0 transform -translate-x-1/2 md:translate-x-0 text-white/10 font-freshman text-6xl md:text-9xl select-none">07</span>
+                </div>
             </div>
         </div>
     </section>
 
-    <section id="contact" class="max-w-7xl mx-auto px-4 py-20 mb-10 relative z-10">
-        <div class="text-center mb-16">
-            <span class="text-[#FFB81C] text-lg font-bold lowercase tracking-widest">get in touch</span>
-            <h2 class="font-freshman text-5xl sm:text-7xl text-white mt-3 uppercase">THE <span class="text-[#FFB81C]">COMMAND</span> CENTER</h2>
-            <p class="text-[#def5ff]/80 mt-4 text-base sm:text-lg max-w-2xl mx-auto">Got questions about registrations, the arena, or the event rules? Reach out directly to the core organizing committee.</p>
+    <section id="contact" class="max-w-7xl mx-auto px-4 py-16 md:py-20 mb-10 relative z-10">
+        <div class="text-center mb-12 md:mb-16">
+            <span class="text-[#FFB81C] text-sm md:text-lg font-bold lowercase tracking-widest">get in touch</span>
+            <h2 class="font-freshman text-4xl sm:text-5xl md:text-7xl text-white mt-3 uppercase">THE <span class="text-[#FFB81C]">COMMAND</span> CENTER</h2>
+            <p class="text-[#def5ff]/80 mt-4 text-sm md:text-lg max-w-2xl mx-auto px-4">Got questions about registrations, the arena, or the event rules? Reach out directly to the core organizing committee.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="glass-card p-8 flex flex-col items-center text-center group border-white/10 hover:border-[#FFB81C]/50 transition-all duration-300">
-                <div class="w-32 h-32 rounded-full border-4 border-[#561269] group-hover:border-[#FFB81C] overflow-hidden mb-6 transition-colors duration-300 shadow-xl bg-white/5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 px-4 md:px-0">
+            <div class="glass-card p-6 md:p-8 flex flex-col items-center text-center group border-white/10 hover:border-[#FFB81C]/50 transition-all duration-300">
+                <div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-[#561269] group-hover:border-[#FFB81C] overflow-hidden mb-4 md:mb-6 transition-colors duration-300 shadow-xl bg-white/5">
                     <img src="/public/images/oc-profiles/duwasha.png" alt="OCVP Photo" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                 </div>
-                <h3 class="font-freshman text-2xl text-white tracking-wider mb-1">Duwasha <br> Algama</h3>
-                <span class="text-[#FFB81C] text-xs font-bold uppercase tracking-widest mb-6 block leading-snug">OCVP Delegates<br>& Event</span>
+                <h3 class="font-freshman text-xl md:text-2xl text-white tracking-wider mb-1">Duwasha <br> Algama</h3>
+                <span class="text-[#FFB81C] text-[10px] md:text-xs font-bold uppercase tracking-widest mb-4 md:mb-6 block leading-snug">OCVP Delegates<br>& Event</span>
                 <div class="flex flex-row justify-center gap-4 w-full mt-auto pt-2">
-                    <a href="tel:+94704533048" class="w-12 h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#FFB81C] border border-white/10 hover:border-[#FFB81C] transition-all duration-300 group/phone">
-                        <i class="fa-solid fa-phone text-[#def5ff] group-hover/phone:text-[#1A0524] text-lg transition-colors"></i>
+                    <a href="tel:+94700000000" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#FFB81C] border border-white/10 hover:border-[#FFB81C] transition-all duration-300 group/phone">
+                        <i class="fa-solid fa-phone text-[#def5ff] group-hover/phone:text-[#1A0524] text-base md:text-lg transition-colors"></i>
                     </a>
-                    <a href="https://wa.me/94704533048?text=Hi%20Duwasha...%20Sup%3F" target="_blank" class="w-12 h-12 flex items-center justify-center rounded-full bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 group/wa">
-                        <i class="fa-brands fa-whatsapp text-[#25D366] group-hover/wa:text-white text-2xl transition-colors"></i>
+                    <a href="https://wa.me/94700000000" target="_blank" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 group/wa">
+                        <i class="fa-brands fa-whatsapp text-[#25D366] group-hover/wa:text-white text-xl md:text-2xl transition-colors"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="glass-card p-8 flex flex-col items-center text-center group border-white/10 hover:border-[#FFB81C]/50 transition-all duration-300">
-                <div class="w-32 h-32 rounded-full border-4 border-[#561269] group-hover:border-[#FFB81C] overflow-hidden mb-6 transition-colors duration-300 shadow-xl bg-white/5">
+            <div class="glass-card p-6 md:p-8 flex flex-col items-center text-center group border-white/10 hover:border-[#FFB81C]/50 transition-all duration-300">
+                <div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-[#561269] group-hover:border-[#FFB81C] overflow-hidden mb-4 md:mb-6 transition-colors duration-300 shadow-xl bg-white/5">
                     <img src="/public/images/oc-profiles/migara.png" alt="OCP Photo" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                 </div>
-                <h3 class="font-freshman text-2xl text-white tracking-wider mb-1">Migara <br> Wijewardana</h3>
-                <span class="text-[#FFB81C] text-sm font-bold uppercase tracking-widest mb-6 block">OCP</span>
+                <h3 class="font-freshman text-xl md:text-2xl text-white tracking-wider mb-1">Migara <br> Wijewardana</h3>
+                <span class="text-[#FFB81C] text-xs md:text-sm font-bold uppercase tracking-widest mb-4 md:mb-6 block">OCP</span>
                 <div class="flex flex-row justify-center gap-4 w-full mt-auto pt-2">
-                    <a href="tel:+94710131784" class="w-12 h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#FFB81C] border border-white/10 hover:border-[#FFB81C] transition-all duration-300 group/phone">
-                        <i class="fa-solid fa-phone text-[#def5ff] group-hover/phone:text-[#1A0524] text-lg transition-colors"></i>
+                    <a href="tel:+94700000000" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#FFB81C] border border-white/10 hover:border-[#FFB81C] transition-all duration-300 group/phone">
+                        <i class="fa-solid fa-phone text-[#def5ff] group-hover/phone:text-[#1A0524] text-base md:text-lg transition-colors"></i>
                     </a>
-                    <a href="https://wa.me/94710131784?text=Hi%20Migara%20Wijewardana...%20Sup%3F" target="_blank" class="w-12 h-12 flex items-center justify-center rounded-full bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 group/wa">
-                        <i class="fa-brands fa-whatsapp text-[#25D366] group-hover/wa:text-white text-2xl transition-colors"></i>
+                    <a href="https://wa.me/94700000000" target="_blank" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 group/wa">
+                        <i class="fa-brands fa-whatsapp text-[#25D366] group-hover/wa:text-white text-xl md:text-2xl transition-colors"></i>
                     </a>
                 </div>
             </div>
 
-            <div class="glass-card p-8 flex flex-col items-center text-center group border-white/10 hover:border-[#FFB81C]/50 transition-all duration-300">
-                <div class="w-32 h-32 rounded-full border-4 border-[#561269] group-hover:border-[#FFB81C] overflow-hidden mb-6 transition-colors duration-300 shadow-xl bg-white/5">
+            <div class="glass-card p-6 md:p-8 flex flex-col items-center text-center group border-white/10 hover:border-[#FFB81C]/50 transition-all duration-300">
+                <div class="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-[#561269] group-hover:border-[#FFB81C] overflow-hidden mb-4 md:mb-6 transition-colors duration-300 shadow-xl bg-white/5">
                     <img src="/public/images/oc-profiles/melani.png" alt="OCVP Photo" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500">
                 </div>
-                <h3 class="font-freshman text-2xl text-white tracking-wider mb-1">Melani <br> Dassanayake</h3>
-                <span class="text-[#FFB81C] text-xs font-bold uppercase tracking-widest mb-6 block leading-snug">OCVP Delegates<br>& Event</span>
+                <h3 class="font-freshman text-xl md:text-2xl text-white tracking-wider mb-1">Melani <br> Dassanayake</h3>
+                <span class="text-[#FFB81C] text-[10px] md:text-xs font-bold uppercase tracking-widest mb-4 md:mb-6 block leading-snug">OCVP Delegates<br>& Event</span>
                 <div class="flex flex-row justify-center gap-4 w-full mt-auto pt-2">
-                    <a href="tel:+94725007922" class="w-12 h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#FFB81C] border border-white/10 hover:border-[#FFB81C] transition-all duration-300 group/phone">
-                        <i class="fa-solid fa-phone text-[#def5ff] group-hover/phone:text-[#1A0524] text-lg transition-colors"></i>
+                    <a href="tel:+94700000000" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/5 hover:bg-[#FFB81C] border border-white/10 hover:border-[#FFB81C] transition-all duration-300 group/phone">
+                        <i class="fa-solid fa-phone text-[#def5ff] group-hover/phone:text-[#1A0524] text-base md:text-lg transition-colors"></i>
                     </a>
-                    <a href="https://wa.me/94725007922?text=Hi%20Melanie...%20Sup%3F" target="_blank" class="w-12 h-12 flex items-center justify-center rounded-full bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 group/wa">
-                        <i class="fa-brands fa-whatsapp text-[#25D366] group-hover/wa:text-white text-2xl transition-colors"></i>
+                    <a href="https://wa.me/94700000000" target="_blank" class="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-[#25D366]/10 hover:bg-[#25D366] border border-[#25D366]/30 hover:border-[#25D366] transition-all duration-300 group/wa">
+                        <i class="fa-brands fa-whatsapp text-[#25D366] group-hover/wa:text-white text-xl md:text-2xl transition-colors"></i>
                     </a>
                 </div>
             </div>
@@ -350,11 +417,9 @@ Sports LCM is a dynamic event by AIESEC in USJ designed to bring members togethe
 
     <footer class="border-t border-white/10 pt-12 pb-8 bg-[#1A0524] mt-auto">
         <div class="max-w-7xl mx-auto px-4 flex flex-col items-center text-center">
-            <img src="/public/images/logo.png" alt="Logo" class="h-12 w-12 mb-4 opacity-50 grayscale">
-            <p class="font-freshman text-2xl text-white tracking-widest mb-2">SPORTS <span class="text-[#FFB81C]">LCM</span></p>
-            <p class="text-xs text-[#def5ff]/50 max-w-md uppercase tracking-wider mb-6">&copy; 2026. Designed for the ultimate AIESEC Local Committee experience.</p>
-            <div class="flex gap-4">
-            </div>
+            <img src="/public/images/logo.png" alt="Logo" class="h-10 md:h-12 w-10 md:w-12 mb-4 opacity-50 grayscale">
+            <p class="font-freshman text-xl md:text-2xl text-white tracking-widest mb-2">SPORTS <span class="text-[#FFB81C]">LCM</span></p>
+            <p class="text-[10px] md:text-xs text-[#def5ff]/50 max-w-md uppercase tracking-wider mb-6">&copy; 2026. Designed for the ultimate AIESEC Local Committee experience.</p>
         </div>
     </footer>
 
@@ -363,7 +428,29 @@ Sports LCM is a dynamic event by AIESEC in USJ designed to bring members togethe
     <script src="/src/js/firebase.js"></script>
 
     <script>
-        // Countdown Timer Logic (Target: June 28, 2026, 08:00 AM)
+        // --- Mobile Menu Interaction Script ---
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('translate-x-full');
+            document.body.classList.toggle('menu-open');
+        }
+
+        mobileBtn.addEventListener('click', toggleMenu);
+        closeBtn.addEventListener('click', toggleMenu);
+
+        // Close menu when a link is clicked
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('translate-x-full');
+                document.body.classList.remove('menu-open');
+            });
+        });
+
+        // Countdown Timer Logic
         const targetDate = new Date("2026-06-28T08:00:00").getTime();
         
         setInterval(() => {
@@ -393,7 +480,6 @@ Sports LCM is a dynamic event by AIESEC in USJ designed to bring members togethe
         const trackedFactions = ["iGV", "iGT", "oGV", "oGT", "IG", "Alumni"];
 
         async function initLiveTracker() {
-            // 1. Fetch any custom team colors
             const teamColorsMap = {};
             try {
                 const teamsSnap = await db.collection("teams").get();
@@ -407,7 +493,6 @@ Sports LCM is a dynamic event by AIESEC in USJ designed to bring members togethe
                 console.error("Error fetching team colors for tracker:", error);
             }
 
-            // Apply custom colors to UI components if they exist
             trackedFactions.forEach(faction => {
                 const customColor = teamColorsMap[faction];
                 if (customColor) {
@@ -417,13 +502,12 @@ Sports LCM is a dynamic event by AIESEC in USJ designed to bring members togethe
                     
                     if(labelEl) labelEl.style.color = customColor;
                     if(cardEl) {
-                        cardEl.style.borderColor = customColor + "40"; // Adding hex opacity
+                        cardEl.style.borderColor = customColor + "40"; 
                         cardEl.style.boxShadow = `0 0 15px ${customColor}30`;
                     }
                 }
             });
 
-            // 2. Listen to Delegates collection and update counts live
             db.collection("delegates").onSnapshot(snapshot => {
                 const counterMap = { "iGV": 0, "iGT": 0, "oGV": 0, "oGT": 0, "IG": 0, "Alumni": 0 };
                 
@@ -434,7 +518,6 @@ Sports LCM is a dynamic event by AIESEC in USJ designed to bring members togethe
                     }
                 });
 
-                // Write counts to DOM
                 trackedFactions.forEach(faction => {
                     const countEl = document.getElementById(`count-${faction.toLowerCase()}`);
                     if(countEl) countEl.innerText = counterMap[faction];
@@ -444,7 +527,6 @@ Sports LCM is a dynamic event by AIESEC in USJ designed to bring members togethe
             });
         }
 
-        // Initialize tracker once DOM and Firebase are ready
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof db !== 'undefined') {
                 initLiveTracker();
