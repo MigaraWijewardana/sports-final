@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPORTS LCM | The Games</title>
+    <link rel="icon" href="/public/images/logo.png" type="image/png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/src/styles/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Dropdown Architecture */
+        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: #1A0524; border: 1px solid #FFB81C; border-radius: 8px; width: 240px; z-index: 1000; padding: 10px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .dropdown-menu li a { display: block; padding: 12px 20px; color: white; text-decoration: none; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transition: 0.3s; }
+        .dropdown-menu li a:hover { background: rgba(255, 184, 28, 0.2); color: #FFB81C; padding-left: 25px; }
+        
+        /* Game Card Hover Effects */
+        .game-card:hover .game-icon { transform: scale(1.2) rotate(-5deg); color: #FFB81C; }
+        .game-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, #1A0524 10%, transparent); z-index: 1; pointer-events: none; }
+    </style>
+</head>
+<body class="bg-[#1A0524] text-white font-['Poppins'] antialiased bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#561269]/40 via-[#1A0524] to-[#1A0524] relative min-h-screen flex flex-col">
+
+    <nav class="flex items-center justify-between p-6 max-w-7xl mx-auto w-full relative z-50">
+        <div class="logo flex items-center gap-4">
+            <img src="/public/images/logo.png" class="h-12 object-contain" alt="Logo">
+        </div>
+
+        <ul class="hidden md:flex gap-8 list-none font-bold uppercase tracking-widest text-sm items-center">
+            <li><a href="index.html" class="hover:text-[#FFB81C] transition-colors">Home</a></li>
+            
+            <li class="dropdown relative">
+                <a href="#" class="hover:text-[#FFB81C] transition-colors flex items-center gap-1">REGISTRATION <i class="fa-solid fa-caret-down text-xs"></i></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/register/lcvp.html">Team Registration</a></li>
+                    <li><a href="index.html#teams">Delegate Registration</a></li>
+                </ul>
+            </li>
+
+            <li class="dropdown relative">
+                <a href="#teams" class="hover:text-[#FFB81C] transition-colors flex items-center gap-1">TEAMS <i class="fa-solid fa-caret-down text-xs"></i></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/teams/roster.html?team=igv">iGV</a></li>
+                    <li><a href="/teams/roster.html?team=igt">iGT</a></li>
+                    <li><a href="/teams/roster.html?team=ogv">oGV</a></li>
+                    <li><a href="/teams/roster.html?team=ogt">oGT</a></li>
+                    <li><a href="/teams/roster.html?team=eb">EB</a></li>
+                    <li><a href="/teams/roster.html?team=ig">IG</a></li>
+                    <li><a href="/teams/roster.html?team=alumni">Alumni</a></li>
+                </ul>
+            </li>
+
+            <li><a href="games.html" class="text-[#FFB81C] transition-colors">GAMES</a></li>
+            <li><a href="index.html#contact" class="hover:text-[#FFB81C] transition-colors">CONTACT</a></li>
+        </ul>
+    </nav>
+
+    <header class="relative pt-20 pb-16 text-center px-4 overflow-hidden border-b border-white/10">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgwem0yMCAyMGMtMS4xIDAtMi0uOS0yLTJzLjktMiAyLTIgMiAuOSAyIDItLjkgMi0yIDJ6IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvc3ZnPg==')] opacity-30"></div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto">
+            <span class="text-[#FFB81C] font-bold tracking-[0.5em] uppercase text-sm mb-4 block">The Proving Grounds</span>
+            <h1 class="font-freshman text-6xl sm:text-8xl text-white uppercase leading-none drop-shadow-2xl mb-6">
+                ARENA <span class="text-[#FFB81C]">DISCIPLINES</span>
+            </h1>
+            <p class="text-[#def5ff]/60 text-lg sm:text-xl font-light max-w-2xl mx-auto">
+                Prepare your champions. The arena features a mix of high-stakes physical tournaments and strategic mental warfare.
+            </p>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-20 w-full">
+        
+        <div class="mb-16 border border-white/10 bg-black/40 rounded-3xl p-10 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-[#FFB81C]/5 opacity-50"></div>
+            <div class="relative z-10">
+                <i class="fa-solid fa-sitemap text-4xl text-[#FFB81C] mb-4"></i>
+                <h3 class="font-freshman text-3xl text-white uppercase mb-2">TOURNAMENT BRACKETS</h3>
+                <p class="text-[#def5ff]/60 max-w-lg mx-auto text-sm mb-6 uppercase tracking-widest">Matchups will be generated and broadcasted across the network once the drafting phase is complete.</p>
+                <a href="index.html#teams" class="inline-block px-8 py-3 bg-[#FFB81C] text-[#1A0524] font-bold uppercase tracking-widest rounded-lg hover:bg-white transition-colors shadow-[0_0_15px_rgba(255,184,28,0.4)]">Check Registration Status</a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            
+            <a href="futsal.html">
+            <div class="game-card relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-10 h-[400px] flex flex-col justify-end group transition-all duration-500 hover:border-[#FFB81C]/50 hover:shadow-[0_0_30px_rgba(255,184,28,0.2)]">
+                <i class="fa-solid fa-futbol game-icon absolute top-10 right-10 text-8xl text-white/5 transition-all duration-700 z-0"></i>
+                <div class="relative z-10">
+                    <span class="inline-block px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/50 rounded text-[10px] font-bold uppercase tracking-widest mb-4">High Intensity</span>
+                    <h2 class="font-freshman text-5xl text-white uppercase mb-2">FUTSAL</h2>
+                    <p class="text-[#def5ff]/70 text-sm max-w-md">Fast-paced, 5-v-5 combat on the pitch. Agility, teamwork, and raw stamina will decide the ultimate victor of the nets.</p>
+                </div>
+            </div>
+            </a>
+
+            <a href="netball.html">
+            <div class="game-card relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-10 h-[400px] flex flex-col justify-end group transition-all duration-500 hover:border-[#FFB81C]/50 hover:shadow-[0_0_30px_rgba(255,184,28,0.2)]">
+                <i class="fa-solid fa-basketball game-icon absolute top-10 right-10 text-8xl text-white/5 transition-all duration-700 z-0"></i>
+                <div class="relative z-10">
+                    <span class="inline-block px-3 py-1 bg-[#3498db]/20 text-[#3498db] border border-[#3498db]/50 rounded text-[10px] font-bold uppercase tracking-widest mb-4">Strategic Play</span>
+                    <h2 class="font-freshman text-5xl text-white uppercase mb-2">NETBALL</h2>
+                    <p class="text-[#def5ff]/70 text-sm max-w-md">Precision passing and tactical positioning. Control the court and execute flawless shooting under immense pressure.</p>
+                </div>
+            </div>
+            </a>
+
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <a href="track.html">
+            <div class="game-card relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 h-[350px] flex flex-col justify-end group transition-all duration-500 hover:border-[#FFB81C]/50">
+                <i class="fa-solid fa-person-running game-icon absolute top-8 right-8 text-7xl text-white/5 transition-all duration-700 z-0"></i>
+                <div class="relative z-10">
+                    <h3 class="font-freshman text-3xl text-white uppercase mb-2">TRACK & FIELD</h3>
+                    <p class="text-[#def5ff]/70 text-sm">Pure speed and explosive power. Sprints, relays, and field events to test the physical limits of your faction.</p>
+                </div>
+            </div>
+            </a>
+
+            <a href="minigames.html">
+            <div class="game-card relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 h-[350px] flex flex-col justify-end group transition-all duration-500 hover:border-[#FFB81C]/50">
+                <i class="fa-solid fa-chess-knight game-icon absolute top-8 right-8 text-7xl text-white/5 transition-all duration-700 z-0"></i>
+                <div class="relative z-10">
+                    <h3 class="font-freshman text-3xl text-white uppercase mb-2">MINI-GAMES</h3>
+                    <p class="text-[#def5ff]/70 text-sm">Not all battles are won with muscle. Strategy, puzzles, and teamwork challenges designed to break ties and test intellect.</p>
+                </div>
+            </div>
+            </a>
+
+            <a href="arcade.html">
+            <div class="game-card relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 h-[350px] flex flex-col justify-end group transition-all duration-500 hover:border-[#FFB81C]/50">
+                <i class="fa-solid fa-gamepad game-icon absolute top-8 right-8 text-7xl text-white/5 transition-all duration-700 z-0"></i>
+                <div class="relative z-10">
+                    <h3 class="font-freshman text-3xl text-white uppercase mb-2">ARCADE HUB</h3>
+                    <p class="text-[#def5ff]/70 text-sm">The recovery zone. E-Sports, casual gaming, and interactive networking areas for cross-faction bonding.</p>
+                </div>
+            </div>
+            </a>
+
+        </div>
+
+    </main>
+
+    <footer class="border-t border-white/10 pt-12 pb-8 bg-[#1A0524] mt-auto">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center text-center">
+            <img src="/public/images/logo.png" alt="Logo" class="h-12 w-12 mb-4 opacity-50 grayscale">
+            <p class="font-freshman text-2xl text-white tracking-widest mb-2">SPORTS <span class="text-[#FFB81C]">LCM</span></p>
+            <p class="text-xs text-[#def5ff]/50 max-w-md uppercase tracking-wider mb-6">&copy; 2026. Designed for the ultimate AIESEC Local Committee experience.</p>
+            <div class="flex gap-4">
+                 </div>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCVP | COMMAND CENTER</title>
+    <link rel="icon" type="image/png" href="/public/images/logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/src/styles/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
+    <style>
+        :root {
+            --accent-color: #FFB81C;
+        }
+        
+        /* Game Character Animations */
+        @keyframes hologramFloat {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        @keyframes characterSelectFlash {
+            0% { transform: scale(0.8) translateY(50px); opacity: 0; filter: brightness(2) blur(10px); }
+            40% { transform: scale(1.1) translateY(-20px); opacity: 1; filter: brightness(1.5) blur(0px); }
+            100% { transform: scale(1) translateY(0); opacity: 1; filter: brightness(1) drop-shadow(0 0 20px var(--accent-color)); }
+        }
+
+        .animate-float {
+            animation: hologramFloat 4s ease-in-out infinite;
+        }
+
+        .animate-character-select {
+            animation: characterSelectFlash 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Scanline Grid Background */
+        .scanline-grid {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="bg-[#1A0524] text-white min-h-screen flex flex-col font-['Poppins'] transition-all duration-700" style="background-image: radial-gradient(ellipse at top, #56126940, #1A0524, #1A0524);">
+
+    <!-- Minimal Back Nav -->
+    <nav class="w-full p-6 absolute top-0 z-50">
+        <a href="../index.html" class="inline-flex items-center text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+            <i class="fa-solid fa-arrow-left mr-3"></i> Abort / Return
+        </a>
+    </nav>
+
+    <main class="flex-grow flex items-center justify-center p-4 pt-24 z-10 w-full max-w-7xl mx-auto">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch bg-black/40 rounded-3xl border border-white/10 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl min-h-[700px]">
+            
+            <!-- LEFT: HOLOGRAM CHARACTER CHAMBER -->
+            <div id="visual-zone" class="relative flex flex-col items-center justify-center p-10 border-r border-white/10 scanline-grid overflow-hidden group">
+                
+                <!-- Default State -->
+                <div id="default-branding" class="z-10 text-center transition-all duration-500">
+                    <i class="fa-solid fa-user-astronaut text-6xl text-white/10 mb-6 animate-pulse"></i>
+                    <h1 class="font-freshman text-3xl sm:text-5xl text-white/30 uppercase leading-tight tracking-[0.2em]">AWAITING <br>CHAMPION</h1>
+                </div>
+                
+                <!-- Active Character State -->
+                <div id="dynamic-theme-box" class="hidden z-10 w-full h-full flex flex-col items-center justify-between py-10">
+                    <h2 id="live-fo-title" class="text-white/50 font-bold uppercase tracking-[0.4em] text-xs z-20 bg-black/50 px-4 py-1 rounded-full border border-white/10"></h2>
+                    
+                    <!-- The Hologram Stage -->
+                    <div class="relative w-full flex justify-center items-center flex-grow mt-10">
+                        <!-- Floor Glow -->
+                        <div class="absolute bottom-0 w-64 h-16 rounded-[100%] opacity-30 blur-2xl" style="background-color: var(--accent-color);"></div>
+                        <!-- Cyber Ring -->
+                        <div class="absolute bottom-4 w-56 h-12 rounded-[100%] border-2 opacity-50 shadow-[0_0_20px_var(--accent-color)]" style="border-color: var(--accent-color); transform: rotateX(70deg);"></div>
+                        
+                        <!-- Mascot Graphic -->
+                        <img id="team-mascot-img" src="" class="absolute bottom-10 max-h-80 sm:max-h-96 object-contain animate-float z-10 drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]">
+                    </div>
+
+                    <div id="team-name-display" class="font-freshman text-4xl sm:text-5xl uppercase tracking-[0.2em] mt-auto z-20 text-center" style="color: var(--accent-color); text-shadow: 0 0 20px var(--accent-color);"></div>
+                </div>
+            </div>
+
+            <!-- RIGHT: THE CONSOLE -->
+            <div class="p-10 sm:p-14 flex flex-col justify-center relative">
+                
+                <!-- PHASE 1: LOGIN -->
+                <div id="login-container" class="w-full max-w-md mx-auto">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_#ef4444]"></span>
+                        <span class="text-xs font-bold tracking-widest text-red-500 uppercase">System Locked</span>
+                    </div>
+                    <h2 class="font-freshman text-4xl mb-4 text-white uppercase">AUTHORIZATION <br><span class="text-[#FFB81C]">REQUIRED</span></h2>
+                    <p class="text-[#def5ff]/50 mb-10 text-sm uppercase tracking-widest border-l-2 border-white/20 pl-4">Insert command key to initialize character selection protocol.</p>
+                    
+                    <div class="space-y-4">
+                        <input type="password" id="fo-password" placeholder="ENTER ACCESS KEY" class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-6 py-4 text-white font-mono focus:ring-2 focus:ring-[#FFB81C] transition-all uppercase tracking-[0.3em] text-center shadow-inner">
+                        <button id="login-btn" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-4 rounded-lg hover:bg-white transition-all uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(255,184,28,0.3)]">Decrypt Protocol</button>
+                        <p id="login-error" class="hidden text-red-400 text-xs text-center uppercase tracking-widest font-bold mt-4 bg-red-500/10 py-2 rounded">Access Denied: Invalid Key</p>
+                    </div>
+                </div>
+
+                <!-- PHASE 2: REGISTRATION -->
+                <div id="registration-container" class="hidden w-full max-w-md mx-auto space-y-8 animate-fade-in">
+                    <div class="border-b border-white/10 pb-6">
+                        <h2 id="welcome-text" class="font-freshman text-3xl uppercase text-white">WELCOME, <br><span class="text-[#FFB81C]">COMMANDER</span></h2>
+                    </div>
+                    
+                    <form id="team-form" class="space-y-6">
+                        <select id="lcvp-name" required class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 text-white appearance-none cursor-pointer font-bold tracking-wider text-sm">
+                            <option value="" disabled selected>Identify Yourself...</option>
+                        </select>
+                        
+                        <input type="text" id="team-name" placeholder="ENTER TEAM NAME" required class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 text-white uppercase tracking-widest font-bold text-sm placeholder:text-white/20">
+                        
+                        <!-- Color Swatches -->
+                        <div class="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
+                            <label class="text-[10px] uppercase tracking-[0.2em] text-[#def5ff]/60 font-bold block">Aura Selection</label>
+                            <div id="color-picker" class="grid grid-cols-4 gap-3">
+                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Red" style="background-color: #e74c3c;"></div>
+                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Blue" style="background-color: #3498db;"></div>
+                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Yellow" style="background-color: #f1c40f;"></div>
+                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Green" style="background-color: #2ecc71;"></div>
+                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Cyan" style="background-color: #00bcd4;"></div>
+                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="White" style="background-color: #ffffff;"></div>
+                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Black" style="background-color: #333333;"></div>
+                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Orange" style="background-color: #e67e22;"></div>
+                            </div>
+                            <input type="hidden" id="team-color">
+                        </div>
+
+                        <!-- Mascot Dropdown -->
+                        <div class="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
+                            <label class="text-[10px] uppercase tracking-[0.2em] text-[#def5ff]/60 font-bold block">Champion Selection</label>
+                            <select id="team-mascot" required class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 text-white cursor-pointer transition-all font-bold tracking-wider text-sm">
+                                <option value="" disabled selected>Select a mascot...</option>
+                                <option value="Panthers">Panthers</option>
+                                <option value="Tigers">Tigers</option>
+                                <option value="Elephant">Elephant</option>
+                                <option value="Stallion">Stallion</option>
+                                <option value="Phoenix">Phoenix</option>
+                                <option value="Raven">Raven</option>
+                                <option value="Wolf">Wolf</option>
+                                <option value="Fox">Fox</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" id="submit-btn" class="w-full bg-white text-[#1A0524] font-bold py-4 rounded-lg mt-6 hover:bg-[#FFB81C] transition-all uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(255,255,255,0.2)]">Lock In Champion</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../src/js/firebase.js"></script>
+    <script src="../src/js/lcvp.js"></script>
+</body>
+</html>
