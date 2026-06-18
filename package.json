@@ -1,0 +1,22 @@
+{
+  "name": "sports-lcm",
+  "version": "1.0.0",
+  "description": "SPORTS LCM - AIESEC in USJ Futsal and Strategy Arena",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server",
+    "deploy": "firebase deploy --only hosting"
+  },
+  "keywords": [
+    "aiesec",
+    "sports",
+    "lcm",
+    "tournament",
+    "esports"
+  ],
+  "author": "Migara Wijewardana",
+  "license": "ISC",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
