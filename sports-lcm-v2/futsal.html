@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPORTS LCM | Futsal Arena</title>
+    <link rel="icon" href="/public/images/logo.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/src/styles/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --pitch-color: #1a3a20;
+            --line-color: rgba(255, 255, 255, 0.4);
+        }
+
+        #game-container {
+            width: 800px;
+            height: 450px;
+            background-color: var(--pitch-color);
+            position: relative;
+            overflow: hidden;
+            border: 4px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0,0,0,0.5);
+            margin: 0 auto;
+            user-select: none;
+        }
+
+        /* Pitch Markings */
+        .pitch-line { position: absolute; background: var(--line-color); }
+        .center-line { width: 4px; height: 100%; left: 50%; transform: translateX(-50%); top: 0; }
+        .center-circle { width: 100px; height: 100px; border: 4px solid var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; background: transparent; }
+        .center-dot { width: 8px; height: 8px; background: var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; }
+        .penalty-area-left { width: 100px; height: 200px; border: 4px solid var(--line-color); border-left: none; left: 0; top: 50%; transform: translateY(-50%); position: absolute; }
+        .penalty-area-right { width: 100px; height: 200px; border: 4px solid var(--line-color); border-right: none; right: 0; top: 50%; transform: translateY(-50%); position: absolute; }
+
+        /* Goals */
+        .goal { position: absolute; width: 20px; height: 120px; background: rgba(255,255,255,0.2); top: 50%; transform: translateY(-50%); border: 2px solid #fff; }
+        .goal-left { left: 0; border-left: none; box-shadow: inset -10px 0 20px rgba(86, 18, 105, 0.5); }
+        .goal-right { right: 0; border-right: none; box-shadow: inset 10px 0 20px rgba(255, 184, 28, 0.5); }
+
+        /* Physics Objects */
+        .entity {
+            position: absolute;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            transition: filter 0.2s;
+        }
+
+        .player {
+            width: 44px;
+            height: 44px;
+            background-size: 80%;
+            background-position: center;
+            background-repeat: no-repeat;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .player.team-purple { 
+            background-color: #561269; 
+            border: 3px solid #b84dd9; 
+            background-image: url('/public/images/mascots/panthers.png');
+        }
+        
+        .player.team-gold { 
+            background-color: #1A0524; 
+            border: 3px solid #FFB81C; 
+            background-image: url('/public/images/mascots/tigers.png');
+        }
+
+        .player:hover { filter: brightness(1.3); }
+
+        .ball {
+            width: 24px;
+            height: 24px;
+            background-color: #fff;
+            border: 2px solid #000;
+            background-image: radial-gradient(circle at 30% 30%, #fff, #ccc);
+            z-index: 5;
+        }
+
+        /* Aiming Line */
+        #aim-line {
+            position: absolute;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            transform-origin: left center;
+            display: none;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        #aim-arrow {
+            position: absolute;
+            right: -10px;
+            top: -6px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 16px;
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body class="bg-[#1A0524] text-white font-['Poppins'] min-h-screen flex flex-col pt-10">
+
+    <nav class="w-full px-6 absolute top-6 z-50">
+        <a href="games.html" class="inline-flex items-center text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+            <i class="fa-solid fa-arrow-left mr-3"></i> Leave Arena
+        </a>
+    </nav>
+
+    <div class="text-center mb-6">
+        <h1 class="font-freshman text-5xl text-white tracking-widest uppercase text-glow-white">FUTSAL <span class="text-[#FFB81C]">SHOWDOWN</span></h1>
+        <p class="text-[#def5ff]/60 text-sm mt-2">DRAG AND RELEASE TO STRIKE. FIRST TO DOMINATE THE PITCH WINS.</p>
+    </div>
+
+    <div class="max-w-3xl mx-auto w-full flex justify-between items-center bg-black/60 border border-white/10 rounded-2xl p-4 mb-6 shadow-2xl backdrop-blur-md">
+        <div class="flex items-center gap-4 w-1/3">
+            <img src="/public/images/mascots/panthers.png" class="w-12 h-12 object-contain filter drop-shadow-[0_0_10px_#561269]">
+            <div class="text-left">
+                <p class="text-xs font-bold text-[#b84dd9] uppercase tracking-widest">Team Purple</p>
+                <span id="score-purple" class="font-freshman text-4xl">0</span>
+            </div>
+        </div>
+
+        <div class="text-center w-1/3 flex flex-col items-center">
+            <span id="match-phase" class="text-xs font-bold text-[#def5ff]/50 uppercase tracking-widest mb-1">1st Half</span>
+            <div id="timer" class="font-freshman text-4xl text-white tracking-widest bg-white/10 px-6 py-2 rounded-lg border border-white/20">03:00</div>
+            <button id="start-btn" class="mt-3 bg-[#FFB81C] text-[#1A0524] text-xs font-bold px-4 py-1 rounded uppercase tracking-widest hover:bg-white transition-colors">Start Match</button>
+        </div>
+
+        <div class="flex items-center gap-4 w-1/3 justify-end">
+            <div class="text-right">
+                <p class="text-xs font-bold text-[#FFB81C] uppercase tracking-widest">Team Gold</p>
+                <span id="score-gold" class="font-freshman text-4xl">0</span>
+            </div>
+            <img src="/public/images/mascots/tigers.png" class="w-12 h-12 object-contain filter drop-shadow-[0_0_10px_#FFB81C]">
+        </div>
+    </div>
+
+    <div id="game-container">
+        <div class="pitch-line center-line"></div>
+        <div class="center-circle"></div>
+        <div class="center-dot"></div>
+        <div class="penalty-area-left"></div>
+        <div class="penalty-area-right"></div>
+        
+        <div class="goal goal-left" id="goal-left"></div>
+        <div class="goal goal-right" id="goal-right"></div>
+
+        <div id="aim-line"><i class="fa-solid fa-caret-up" id="aim-arrow"></i></div>
+
+        </div>
+
+    <div id="overlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden backdrop-blur-sm">
+        <div class="text-center bg-[#1A0524] p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)]">
+            <h2 id="overlay-title" class="font-freshman text-6xl text-white mb-4">HALF TIME</h2>
+            <p id="overlay-subtitle" class="text-[#def5ff]/70 tracking-widest uppercase mb-8">Switching Sides...</p>
+            <button id="resume-btn" class="bg-[#FFB81C] text-[#1A0524] font-bold px-8 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const width = 800;
+        const height = 450;
+        const goalTop = height / 2 - 60;
+        const goalBottom = height / 2 + 60;
+
+        let isPlaying = false;
+        let timeRemaining = 180; // 3 minutes
+        let isFirstHalf = true;
+        let scorePurple = 0;
+        let scoreGold = 0;
+        let timerInterval;
+        let aiInterval; // The bot's brain
+
+        // Physics Constants
+        const FRICTION = 0.98;
+        const BOUNCE = 0.7;
+        const PLAYER_MASS = 2;
+        const BALL_MASS = 1;
+
+        let entities = [];
+        let activePlayer = null;
+        let isDragging = false;
+        let dragStartX, dragStartY;
+
+        const aimLine = document.getElementById('aim-line');
+
+        class Entity {
+            constructor(id, type, team, x, y, radius, mass) {
+                this.id = id;
+                this.type = type; 
+                this.team = team; 
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.radius = radius;
+                this.mass = mass;
+                
+                this.el = document.createElement('div');
+                this.el.className = `entity ${type} ${team ? 'team-' + team : ''}`;
+                this.el.style.width = `${radius * 2}px`;
+                this.el.style.height = `${radius * 2}px`;
+                container.appendChild(this.el);
+
+                if (type === 'player') {
+                    this.el.addEventListener('mousedown', (e) => startDrag(e, this));
+                }
+            }
+
+            update() {
+                this.vx *= FRICTION;
+                this.vy *= FRICTION;
+                
+                if (Math.abs(this.vx) < 0.1) this.vx = 0;
+                if (Math.abs(this.vy) < 0.1) this.vy = 0;
+
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Wall Collisions & Scoring
+                if (this.x - this.radius < 0) { 
+                    if (this.type === 'ball' && this.y > goalTop && this.y < goalBottom) {
+                        scoreGoal('gold');
+                        return;
+                    }
+                    this.x = this.radius; this.vx *= -BOUNCE; 
+                }
+                if (this.x + this.radius > width) { 
+                    if (this.type === 'ball' && this.y > goalTop && this.y < goalBottom) {
+                        scoreGoal('purple');
+                        return;
+                    }
+                    this.x = width - this.radius; this.vx *= -BOUNCE; 
+                }
+                if (this.y - this.radius < 0) { this.y = this.radius; this.vy *= -BOUNCE; }
+                if (this.y + this.radius > height) { this.y = height - this.radius; this.vy *= -BOUNCE; }
+
+                this.el.style.left = `${this.x}px`;
+                this.el.style.top = `${this.y}px`;
+            }
+        }
+
+        function setupFormation() {
+            entities.forEach(e => e.el.remove());
+            entities = [];
+
+            // Ball
+            entities.push(new Entity('ball', 'ball', null, width/2, height/2, 12, BALL_MASS));
+
+            // Human is always Purple (Left), AI is always Gold (Right)
+            const leftPositions = [ [60, 225], [180, 120], [180, 330], [320, 160], [320, 290] ];
+            const rightPositions = [ [740, 225], [620, 120], [620, 330], [480, 160], [480, 290] ];
+
+            leftPositions.forEach((pos, i) => entities.push(new Entity(`p${i}`, 'player', 'purple', pos[0], pos[1], 22, PLAYER_MASS)));
+            rightPositions.forEach((pos, i) => entities.push(new Entity(`g${i}`, 'player', 'gold', pos[0], pos[1], 22, PLAYER_MASS)));
+        }
+
+        // --- Human Controls ---
+        function startDrag(e, player) {
+            if (!isPlaying) return;
+            if (player.team !== 'purple') return; // RESTRICT TO PURPLE ONLY
+            if (Math.abs(player.vx) > 1 || Math.abs(player.vy) > 1) return;
+            
+            isDragging = true;
+            activePlayer = player;
+            const rect = container.getBoundingClientRect();
+            dragStartX = e.clientX - rect.left;
+            dragStartY = e.clientY - rect.top;
+            
+            aimLine.style.display = 'block';
+            updateAimLine(dragStartX, dragStartY);
+        }
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const rect = container.getBoundingClientRect();
+            updateAimLine(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            aimLine.style.display = 'none';
+
+            const rect = container.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+
+            let dx = dragStartX - endX;
+            let dy = dragStartY - endY;
+            
+            const distance = Math.sqrt(dx*dx + dy*dy);
+            const maxPower = 15;
+            if (distance > 0) {
+                const scale = Math.min(distance * 0.1, maxPower) / distance;
+                activePlayer.vx = dx * scale;
+                activePlayer.vy = dy * scale;
+            }
+            activePlayer = null;
+        });
+
+        function updateAimLine(mouseX, mouseY) {
+            if(!activePlayer) return;
+            const dx = dragStartX - mouseX;
+            const dy = dragStartY - mouseY;
+            const distance = Math.min(Math.sqrt(dx*dx + dy*dy), 150); 
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            aimLine.style.left = `${activePlayer.x}px`;
+            aimLine.style.top = `${activePlayer.y}px`;
+            aimLine.style.width = `${distance}px`;
+            aimLine.style.transform = `translateY(-50%) rotate(${angle}deg)`;
+            
+            if(distance > 100) aimLine.style.background = 'rgba(231, 76, 60, 0.8)';
+            else if (distance > 50) aimLine.style.background = 'rgba(241, 196, 15, 0.8)';
+            else aimLine.style.background = 'rgba(255, 255, 255, 0.5)';
+        }
+
+        // --- AI OPPONENT LOGIC (TEAM GOLD) ---
+        function startAI() {
+            if (aiInterval) clearInterval(aiInterval);
+            aiInterval = setInterval(aiTakeTurn, 1500); // AI assesses and attacks every 1.5 seconds
+        }
+
+        function stopAI() {
+            if (aiInterval) clearInterval(aiInterval);
+        }
+
+        function aiTakeTurn() {
+            if (!isPlaying) return;
+            
+            const goldPlayers = entities.filter(e => e.team === 'gold');
+            const ball = entities.find(e => e.type === 'ball');
+            if (!ball || goldPlayers.length === 0) return;
+
+            // 1. Find the gold player closest to the ball
+            let closest = null;
+            let minDist = Infinity;
+            
+            goldPlayers.forEach(p => {
+                if (Math.abs(p.vx) > 1 || Math.abs(p.vy) > 1) return; // Wait until they stop moving to strike
+                
+                let dx = ball.x - p.x;
+                let dy = ball.y - p.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = p;
+                }
+            });
+
+            if (closest) {
+                // 2. Decide where to aim
+                let targetX = ball.x;
+                let targetY = ball.y;
+                
+                // If ball is on the left side (Purple's side), AI tries to blast it straight into the goal
+                if (ball.x < width / 2) {
+                    targetX -= 50; // Aim "through" the ball towards the left goal
+                }
+
+                let dx = targetX - closest.x;
+                let dy = targetY - closest.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist > 0) {
+                    // Add a tiny bit of random error so the AI isn't perfect
+                    dx += (Math.random() - 0.5) * 40;
+                    dy += (Math.random() - 0.5) * 40;
+                    dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    const power = Math.min((minDist * 0.08), 14); // Strike power
+                    closest.vx = (dx / dist) * power;
+                    closest.vy = (dy / dist) * power;
+                    
+                    // Visual flash so you know the AI struck
+                    closest.el.style.filter = 'brightness(2) drop-shadow(0 0 10px #FFB81C)';
+                    setTimeout(() => { closest.el.style.filter = ''; }, 300);
+                }
+            }
+        }
+
+        // --- Physics Engine ---
+        function resolveCollisions() {
+            for (let i = 0; i < entities.length; i++) {
+                for (let j = i + 1; j < entities.length; j++) {
+                    let e1 = entities[i];
+                    let e2 = entities[j];
+
+                    let dx = e2.x - e1.x;
+                    let dy = e2.y - e1.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let minDistance = e1.radius + e2.radius;
+
+                    if (distance < minDistance) {
+                        let overlap = minDistance - distance;
+                        let nx = dx / distance;
+                        let ny = dy / distance;
+
+                        e1.x -= nx * (overlap / 2);
+                        e1.y -= ny * (overlap / 2);
+                        e2.x += nx * (overlap / 2);
+                        e2.y += ny * (overlap / 2);
+
+                        let kx = (e1.vx - e2.vx);
+                        let ky = (e1.vy - e2.vy);
+                        let p = 2 * (nx * kx + ny * ky) / (e1.mass + e2.mass);
+
+                        e1.vx = e1.vx - p * e2.mass * nx * BOUNCE;
+                        e1.vy = e1.vy - p * e2.mass * ny * BOUNCE;
+                        e2.vx = e2.vx + p * e1.mass * nx * BOUNCE;
+                        e2.vy = e2.vy + p * e1.mass * ny * BOUNCE;
+                    }
+                }
+            }
+        }
+
+        function gameLoop() {
+            if (!isPlaying) return;
+            resolveCollisions();
+            entities.forEach(e => e.update());
+            requestAnimationFrame(gameLoop);
+        }
+
+        // --- Game Logic ---
+        function scoreGoal(team) {
+            isPlaying = false;
+            stopAI(); // Halt the bot
+            
+            if (team === 'purple') scorePurple++;
+            if (team === 'gold') scoreGold++;
+            
+            document.getElementById('score-purple').innerText = scorePurple;
+            document.getElementById('score-gold').innerText = scoreGold;
+
+            container.style.backgroundColor = team === 'purple' ? '#561269' : '#FFB81C';
+            setTimeout(() => {
+                container.style.backgroundColor = 'var(--pitch-color)';
+                setupFormation();
+                isPlaying = true;
+                startAI(); // Restart the bot
+                gameLoop();
+            }, 1000);
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function triggerHalftime() {
+            isPlaying = false;
+            stopAI();
+            clearInterval(timerInterval);
+            isFirstHalf = false;
+            
+            const overlay = document.getElementById('overlay');
+            document.getElementById('overlay-title').innerText = "HALF TIME";
+            document.getElementById('overlay-subtitle').innerText = "Regroup your squad.";
+            document.getElementById('resume-btn').innerText = "Start 2nd Half";
+            
+            document.getElementById('match-phase').innerText = "2nd Half";
+            timeRemaining = 90; 
+            document.getElementById('timer').innerText = formatTime(timeRemaining);
+            
+            overlay.classList.remove('hidden');
+        }
+
+        function triggerGameOver() {
+            isPlaying = false;
+            stopAI();
+            clearInterval(timerInterval);
+            
+            const overlay = document.getElementById('overlay');
+            document.getElementById('overlay-title').innerText = "FULL TIME";
+            
+            let winner = "DRAW";
+            if (scorePurple > scoreGold) winner = "TEAM PURPLE WINS!";
+            if (scoreGold > scorePurple) winner = "TEAM GOLD WINS!";
+            
+            document.getElementById('overlay-subtitle').innerText = winner;
+            document.getElementById('resume-btn').innerText = "Play Again";
+            document.getElementById('resume-btn').onclick = () => location.reload();
+            
+            overlay.classList.remove('hidden');
+        }
+
+        document.getElementById('resume-btn').addEventListener('click', () => {
+            document.getElementById('overlay').classList.add('hidden');
+            setupFormation();
+            isPlaying = true;
+            startTimer();
+            startAI();
+            gameLoop();
+        });
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                document.getElementById('timer').innerText = formatTime(timeRemaining);
+                
+                if (timeRemaining === 90 && isFirstHalf) triggerHalftime();
+                else if (timeRemaining === 0) triggerGameOver();
+            }, 1000);
+        }
+
+        document.getElementById('start-btn').addEventListener('click', function() {
+            this.style.display = 'none';
+            setupFormation();
+            isPlaying = true;
+            startTimer();
+            startAI(); // Unleash the bot
+            gameLoop();
+        });
+
+        // Init layout
+        setupFormation();
+        entities.forEach(e => {
+            e.el.style.left = `${e.x}px`;
+            e.el.style.top = `${e.y}px`;
+        });
+    </script>
+</body>
+</html>

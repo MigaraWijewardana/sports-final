@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
+@font-face {
+    font-family: 'Freshman';
+    src: url('/src/fonts/freshman.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    /* Super dark purple background for maximum contrast */
+    @apply bg-[#1A0524] text-white font-['Poppins'] antialiased selection:bg-[#FFB81C] selection:text-[#1A0524];
+  }
+  
+  h1, h2, h3, h4, h5, h6, .font-freshman {
+    font-family: 'Freshman', sans-serif;
+    letter-spacing: 0.05em;
+  }
+}
+
+@layer utilities {
+  /* The Gen-Z Frosted Glass Effect */
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] rounded-2xl transition-all duration-300;
+  }
+  .glass-card:hover {
+    @apply bg-white/10 border-white/30 shadow-[0_8px_32px_0_rgba(255,255,255,0.1)];
+  }
+
+  /* Text glowing highlights */
+  .text-glow-white {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  }
+  .text-glow-gold {
+    text-shadow: 0 0 20px rgba(255, 184, 28, 0.6);
+  }
+}
+
+/* Smooth custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #1A0524; }
+::-webkit-scrollbar-thumb { background: #FFB81C; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #FFFFFF; }
+
+.nav-links { display: flex; list-style: none; gap: 20px; }
+
+.dropdown { position: relative; }
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #1A0524; /* Your Deep Amethyst */
+    border: 1px solid var(--accent-color);
+    padding: 10px 0;
+    width: 200px;
+    display: none;
+    border-radius: 8px;
+}
+
+.dropdown:hover .dropdown-menu { display: block; }
+
+.dropdown-menu li a {
+    display: block;
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+}
+
+.dropdown-menu li a:hover {
+    background: var(--accent-color);
+    color: #1A0524;
+}
+
+/* Button style for the main register link */
+.cta-link {
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    padding: 8px 16px;
+    border-radius: 4px;
+}

@@ -1,0 +1,51 @@
+<nav class="sticky top-0 z-50 bg-[#561269]/95 backdrop-blur-md border-b border-[#def5ff]/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+            <!-- Brand Identity -->
+            <div class="flex items-center">
+                <a href="/index.html" class="font-freshman text-2xl tracking-widest text-[#FFB81C] uppercase drop-shadow-md">
+                    SPORTS <span class="text-[#def5ff]">LCM</span>
+                </a>
+            </div>
+            
+            <!-- Desktop Links -->
+            <div class="hidden md:flex space-x-6 text-sm font-semibold tracking-wide text-[#def5ff]">
+                <a href="/index.html" class="hover:text-[#FFB81C] transition">Home</a>
+                <a href="/about/index.html" class="hover:text-[#FFB81C] transition">About</a>
+                <a href="/teams/index.html" class="hover:text-[#FFB81C] transition">Mascots</a>
+                <a href="/register/delegate.html" class="hover:text-[#FFB81C] transition">Register</a>
+                <a href="/arcade/index.html" class="hover:text-[#FFB81C] transition">Arcade</a>
+                <a href="/oc/index.html" class="hover:text-[#FFB81C] transition">OC Crew</a>
+                <a href="/contact/index.html" class="hover:text-[#FFB81C] transition">Contact</a>
+            </div>
+
+            <!-- Mobile Hamburger Button -->
+            <div class="md:hidden">
+                <button id="global-menu-btn" class="text-[#FFB81C] hover:text-[#def5ff] focus:outline-none p-2">
+                    <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Dropdown -->
+    <div id="global-mobile-menu" class="hidden md:hidden bg-[#561269] border-b border-[#def5ff]/20 px-4 pt-2 pb-6 space-y-4 font-semibold text-center text-lg shadow-2xl">
+        <a href="/index.html" class="block text-[#def5ff] hover:text-[#FFB81C]">Home</a>
+        <a href="/about/index.html" class="block text-[#def5ff] hover:text-[#FFB81C]">About</a>
+        <a href="/teams/index.html" class="block text-[#def5ff] hover:text-[#FFB81C]">Mascots</a>
+        <a href="/register/delegate.html" class="block text-[#FFB81C] text-xl my-2">Register Now</a>
+        <a href="/arcade/index.html" class="block text-[#def5ff] hover:text-[#FFB81C]">Arcade</a>
+        <a href="/oc/index.html" class="block text-[#def5ff] hover:text-[#FFB81C]">OC Crew</a>
+        <a href="/contact/index.html" class="block text-[#def5ff] hover:text-[#FFB81C]">Contact</a>
+    </div>
+</nav>
+
+<script>
+    const mobileBtn = document.getElementById('global-menu-btn');
+    const mobileDropdown = document.getElementById('global-mobile-menu');
+    if (mobileBtn && mobileDropdown) {
+        mobileBtn.addEventListener('click', () => { mobileDropdown.classList.toggle('hidden'); });
+    }
+</script>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faction Roster | SPORTS LCM</title>
+    <link rel="icon" href="/public/images/logo.png" type="image/png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/src/styles/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            /* Vanilla defaults */
+            --team-primary: #FFB81C; 
+            --team-glow: rgba(255, 184, 28, 0.3);
+            --bg-color: #1A0524;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at top right, var(--team-glow) 0%, transparent 50%),
+                radial-gradient(circle at bottom left, rgba(255,184,28,0.1) 0%, transparent 40%);
+            background-attachment: fixed;
+            transition: all 0.5s ease;
+        }
+
+        /* Leader Card Style */
+        .leader-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--team-primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+        .leader-card:hover { transform: translateY(-5px); border-color: var(--team-primary); box-shadow: 0 15px 30px var(--team-glow); }
+
+        /* Player Roster Card Style */
+        .player-card {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-left: 4px solid var(--team-primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .player-card::before {
+            content: ''; position: absolute; top: 0; right: 0; width: 50px; height: 100%;
+            background: linear-gradient(90deg, transparent, var(--team-glow)); opacity: 0; transition: opacity 0.3s ease;
+        }
+        .player-card:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: var(--team-primary);
+            transform: translateX(5px);
+        }
+        .player-card:hover::before { opacity: 1; }
+        
+        .data-label { color: rgba(255,255,255,0.4); font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; }
+        .data-value { color: #fff; font-size: 0.8rem; font-weight: bold; }
+    </style>
+</head>
+<body class="text-white font-['Poppins'] min-h-screen flex flex-col pb-20">
+
+    <nav class="w-full p-6 absolute top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="../index.html" class="inline-flex items-center text-xs font-bold tracking-widest uppercase text-white/50 hover:text-white transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+                <i class="fa-solid fa-arrow-left mr-3"></i> Return to Hub
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow max-w-6xl mx-auto px-6 pt-32 w-full relative z-10">
+        
+        <header class="flex flex-col md:flex-row items-center justify-between mb-24 gap-10">
+            <div>
+                <span class="text-[10px] uppercase tracking-[0.3em] text-white/50 mb-2 block" id="faction-label">TEAM ROSTER</span>
+                <h1 class="font-freshman text-6xl md:text-8xl uppercase tracking-widest pb-4 inline-block drop-shadow-[0_0_20px_var(--team-glow)]" id="team-name" style="color: var(--team-primary);">
+                    LOADING...
+                </h1>
+            </div>
+            <img src="/public/images/logo.png" class="h-40 md:h-56 object-contain drop-shadow-[0_0_25px_var(--team-glow)] grayscale opacity-80" id="hero-mascot">
+        </header>
+
+        <section class="mb-24 hidden" id="leaders-section">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="font-freshman text-3xl uppercase tracking-widest text-white">THE COMMANDERS</h2>
+                <div class="h-[1px] flex-grow bg-white/10"></div>
+                <span class="text-[10px] font-mono tracking-widest text-[var(--team-primary)]">TEAM LEADERS</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="leader-grid">
+                </div>
+        </section>
+
+        <section>
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="font-freshman text-3xl uppercase tracking-widest text-white">PLAYER ROSTER</h2>
+                <div class="h-[1px] flex-grow bg-white/10"></div>
+                <span class="text-xs font-mono font-bold text-[var(--team-primary)]" id="roster-count">0 DRAFTED</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="roster-grid">
+                <div class="col-span-full text-center py-12 border border-dashed border-white/20 rounded-lg text-white/40 font-mono text-sm tracking-widest">
+                    <i class="fa-solid fa-spinner fa-spin mr-2"></i> ACCESSING DATABASE...
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="/src/js/firebase.js"></script>
+
+    <script>
+        // 1. Get exact team string for database matching
+        const urlParams = new URLSearchParams(window.location.search);
+        const rawTeam = (urlParams.get('team') || 'igv').toLowerCase();
+        
+        const factionMap = { "igv": "iGV", "igt": "iGT", "ogv": "oGV", "ogt": "oGT", "eb": "EB", "ig": "IG", "alumni": "Alumni" };
+        const exactTeamName = factionMap[rawTeam] || "iGV";
+
+        // Hardcoded Permanent Leaders
+        const teamLeaders = {
+            "iGV": [
+                { name: "Nayana Fernando", role: "LCVP iGV B2B" },
+                { name: "Dileepa Gayantha", role: "LCVP iGV CXP" },
+                { name: "Navapriyah Krishnan", role: "LCVP iGV M & IR" }
+            ],
+            "iGT": [
+                { name: "Jemima Mohamed", role: "LCVP iGT B2B & CXP" },
+                { name: "Tharuka Gunarathne", role: "LCVP iGT M & IR" }
+            ],
+            "oGV": [
+                { name: "Devmi Galagedara", role: "LCVP oGV B2C" },
+                { name: "Sineli Thilakarathne", role: "LCVP oGV PS" }
+            ],
+            "oGT": [
+                { name: "Vihangi Ranaweera", role: "LCVP oGTa" },
+                { name: "Jayashni Rodrigo", role: "LCVP oGTe" }
+            ],
+            "EB": [
+                { name: "Mahima Yasas", role: "LCP" }
+            ],
+            "IG": [
+                { name: "Chrishane Dimuthu", role: "IGP" }
+            ],
+            "Alumni": [] // No leaders
+        };
+
+        // Translation dictionary for Firebase color to Hex
+        const themeColors = {
+            "Red": "#e74c3c", "Blue": "#3498db", "Green": "#2ecc71", 
+            "Yellow": "#f1c40f", "Orange": "#e67e22", "Cyan": "#00bcd4", 
+            "White": "#ffffff", "Black": "#7f8c8d"
+        };
+
+        // DOM Setup
+        const docRoot = document.documentElement;
+        document.title = `${exactTeamName} Roster | SPORTS LCM`;
+        document.getElementById('team-name').innerText = exactTeamName;
+
+        // Render Permanent Leaders Automatically
+        function renderLeaders() {
+            const leaders = teamLeaders[exactTeamName] || [];
+            if (leaders.length > 0) {
+                document.getElementById('leaders-section').classList.remove('hidden');
+                const leaderGrid = document.getElementById('leader-grid');
+                leaderGrid.innerHTML = '';
+                
+                leaders.forEach(leader => {
+                    leaderGrid.innerHTML += `
+                        <div class="leader-card p-6 rounded-xl flex flex-col justify-between h-32 relative overflow-hidden">
+                            <i class="fa-solid fa-crown absolute bottom-4 right-4 text-4xl opacity-10 text-[var(--team-primary)] transition-colors"></i>
+                            <div>
+                                <p class="text-[10px] uppercase tracking-widest text-[var(--team-primary)] font-bold mb-1 transition-colors">${leader.role}</p>
+                                <h3 class="font-freshman text-xl uppercase tracking-wider text-white">${leader.name}</h3>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // 2. Fetch Custom Team Identity (Colors/Mascot) from Firebase
+        async function loadTeamIdentity() {
+            try {
+                const teamDoc = await db.collection("teams").doc(exactTeamName).get();
+                
+                if (teamDoc.exists) {
+                    const data = teamDoc.data();
+                    
+                    // Override with Custom Color
+                    if (data.color && themeColors[data.color]) {
+                        docRoot.style.setProperty('--team-primary', themeColors[data.color]);
+                        docRoot.style.setProperty('--team-glow', themeColors[data.color] + '60');
+                    }
+                    
+                    // Override with Custom Mascot
+                    if (data.mascot) {
+                        const mascotEl = document.getElementById('hero-mascot');
+                        mascotEl.src = `/public/images/mascots/${data.mascot.toLowerCase()}.png`;
+                        mascotEl.classList.remove('grayscale', 'opacity-80');
+                    }
+                }
+            } catch (error) {
+                console.error("No custom team data found. Falling back to Vanilla.", error);
+            }
+        }
+
+        // 3. Real-time Roster Listener (Live Updates)
+        function listenToRoster() {
+            const rosterGrid = document.getElementById('roster-grid');
+            const rosterCount = document.getElementById('roster-count');
+
+            db.collection("delegates")
+              .where("faction", "==", exactTeamName)
+              .onSnapshot((snapshot) => {
+                  if (snapshot.empty) {
+                      rosterCount.innerText = "0 DRAFTED";
+                      rosterGrid.innerHTML = `
+                          <div class="col-span-full text-center py-12 border border-dashed border-white/10 rounded-lg text-white/30 font-mono text-sm tracking-widest">
+                              NO DELEGATES HAVE DRAFTED INTO THIS FACTION YET.
+                          </div>
+                      `;
+                      return;
+                  }
+
+                  rosterCount.innerText = `${snapshot.size} DRAFTED`;
+                  rosterGrid.innerHTML = '';
+
+                  snapshot.forEach(doc => {
+                      const data = doc.data();
+                      const fullName = `${data.firstName} ${data.lastName}`.toUpperCase();
+                      
+                      rosterGrid.innerHTML += `
+                          <div class="player-card p-5 rounded-lg flex flex-col gap-3">
+                              <h4 class="font-bold tracking-wider text-lg uppercase text-white truncate border-b border-white/10 pb-2">${fullName}</h4>
+                              <div class="grid grid-cols-2 gap-2">
+                                  <div>
+                                      <span class="data-label block">Sub-Team</span>
+                                      <span class="data-value">${data.subTeam || '-'}</span>
+                                  </div>
+                                  <div>
+                                      <span class="data-label block">Position</span>
+                                      <span class="data-value text-[var(--team-primary)] transition-colors">${data.role || '-'}</span>
+                                  </div>
+                                  <div class="col-span-2 mt-1">
+                                      <span class="data-label block"><i class="fa-solid fa-futbol mr-1"></i> Pitch Role</span>
+                                      <span class="data-value">${data.footballPosition || '-'}</span>
+                                  </div>
+                              </div>
+                          </div>
+                      `;
+                  });
+              }, (error) => {
+                  console.error("Error listening to roster:", error);
+              });
+        }
+
+        // Initialize Engine
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLeaders();
+            loadTeamIdentity();
+            listenToRoster();
+        });
+    </script>
+</body>
+</html>
