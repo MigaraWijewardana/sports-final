@@ -15,6 +15,20 @@
             --line-color: rgba(255, 255, 255, 0.4);
         }
 
+        body {
+            overflow-x: hidden;
+            touch-action: pan-y; /* Prevent unwanted gestures */
+        }
+
+        /* Responsive Game Wrapper */
+        #game-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+            padding: 0 10px;
+        }
+
         #game-container {
             width: 800px;
             height: 450px;
@@ -24,17 +38,18 @@
             border: 4px solid #fff;
             border-radius: 10px;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0,0,0,0.5);
-            margin: 0 auto;
+            transform-origin: top center;
             user-select: none;
+            -webkit-user-select: none;
         }
 
         /* Pitch Markings */
         .pitch-line { position: absolute; background: var(--line-color); }
         .center-line { width: 4px; height: 100%; left: 50%; transform: translateX(-50%); top: 0; }
-        .center-circle { width: 100px; height: 100px; border: 4px solid var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; background: transparent; }
-        .center-dot { width: 8px; height: 8px; background: var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; }
-        .penalty-area-left { width: 100px; height: 200px; border: 4px solid var(--line-color); border-left: none; left: 0; top: 50%; transform: translateY(-50%); position: absolute; }
-        .penalty-area-right { width: 100px; height: 200px; border: 4px solid var(--line-color); border-right: none; right: 0; top: 50%; transform: translateY(-50%); position: absolute; }
+        .center-circle { width: 100px; height: 100px; border: 4px solid var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; background: transparent; pointer-events: none; }
+        .center-dot { width: 8px; height: 8px; background: var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; pointer-events: none;}
+        .penalty-area-left { width: 100px; height: 200px; border: 4px solid var(--line-color); border-left: none; left: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none;}
+        .penalty-area-right { width: 100px; height: 200px; border: 4px solid var(--line-color); border-right: none; right: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none;}
 
         /* Goals */
         .goal { position: absolute; width: 20px; height: 120px; background: rgba(255,255,255,0.2); top: 50%; transform: translateY(-50%); border: 2px solid #fff; }
@@ -51,6 +66,7 @@
             justify-content: center;
             box-shadow: 0 5px 10px rgba(0,0,0,0.5);
             transition: filter 0.2s;
+            will-change: left, top;
         }
 
         .player {
@@ -107,71 +123,99 @@
         }
     </style>
 </head>
-<body class="bg-[#1A0524] text-white font-['Poppins'] min-h-screen flex flex-col pt-10">
+<body class="bg-[#1A0524] text-white font-['Poppins'] min-h-screen flex flex-col pt-10 pb-10">
 
-    <nav class="w-full px-6 absolute top-6 z-50">
-        <a href="games.html" class="inline-flex items-center text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-            <i class="fa-solid fa-arrow-left mr-3"></i> Leave Arena
+    <nav class="w-full px-4 sm:px-6 relative z-40 mb-6">
+        <a href="games.html" class="inline-flex items-center text-[10px] sm:text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+            <i class="fa-solid fa-arrow-left mr-2 sm:mr-3"></i> Leave Arena
         </a>
     </nav>
 
-    <div class="text-center mb-6">
-        <h1 class="font-freshman text-5xl text-white tracking-widest uppercase text-glow-white">FUTSAL <span class="text-[#FFB81C]">SHOWDOWN</span></h1>
-        <p class="text-[#def5ff]/60 text-sm mt-2">DRAG AND RELEASE TO STRIKE. FIRST TO DOMINATE THE PITCH WINS.</p>
+    <div class="text-center mb-6 px-4">
+        <h1 class="font-freshman text-3xl sm:text-5xl text-white tracking-widest uppercase text-glow-white">FUTSAL <span class="text-[#FFB81C]">SHOWDOWN</span></h1>
+        <p class="text-[#def5ff]/60 text-[10px] sm:text-sm mt-2">DRAG TO AIM. RELEASE TO STRIKE.</p>
     </div>
 
-    <div class="max-w-3xl mx-auto w-full flex justify-between items-center bg-black/60 border border-white/10 rounded-2xl p-4 mb-6 shadow-2xl backdrop-blur-md">
-        <div class="flex items-center gap-4 w-1/3">
-            <img src="/public/images/mascots/panthers.png" class="w-12 h-12 object-contain filter drop-shadow-[0_0_10px_#561269]">
+    <div class="max-w-3xl mx-auto w-[90%] flex justify-between items-center bg-black/60 border border-white/10 rounded-2xl p-3 sm:p-4 mb-6 shadow-2xl backdrop-blur-md">
+        <div class="flex items-center gap-2 sm:gap-4 w-1/3">
+            <img src="/public/images/mascots/panthers.png" class="hidden sm:block w-12 h-12 object-contain filter drop-shadow-[0_0_10px_#561269]">
             <div class="text-left">
-                <p class="text-xs font-bold text-[#b84dd9] uppercase tracking-widest">Team Purple</p>
-                <span id="score-purple" class="font-freshman text-4xl">0</span>
+                <p class="text-[8px] sm:text-xs font-bold text-[#b84dd9] uppercase tracking-widest">Team Purple</p>
+                <span id="score-purple" class="font-freshman text-2xl sm:text-4xl">0</span>
             </div>
         </div>
 
         <div class="text-center w-1/3 flex flex-col items-center">
-            <span id="match-phase" class="text-xs font-bold text-[#def5ff]/50 uppercase tracking-widest mb-1">1st Half</span>
-            <div id="timer" class="font-freshman text-4xl text-white tracking-widest bg-white/10 px-6 py-2 rounded-lg border border-white/20">03:00</div>
-            <button id="start-btn" class="mt-3 bg-[#FFB81C] text-[#1A0524] text-xs font-bold px-4 py-1 rounded uppercase tracking-widest hover:bg-white transition-colors">Start Match</button>
+            <span id="match-phase" class="text-[8px] sm:text-xs font-bold text-[#def5ff]/50 uppercase tracking-widest mb-1">1st Half</span>
+            <div id="timer" class="font-freshman text-2xl sm:text-4xl text-white tracking-widest bg-white/10 px-4 sm:px-6 py-1 sm:py-2 rounded-lg border border-white/20">03:00</div>
+            <button id="start-btn" class="mt-2 sm:mt-3 bg-[#FFB81C] text-[#1A0524] text-[10px] sm:text-xs font-bold px-3 py-1 rounded uppercase tracking-widest hover:bg-white transition-colors hidden">Start Match</button>
         </div>
 
-        <div class="flex items-center gap-4 w-1/3 justify-end">
+        <div class="flex items-center gap-2 sm:gap-4 w-1/3 justify-end">
             <div class="text-right">
-                <p class="text-xs font-bold text-[#FFB81C] uppercase tracking-widest">Team Gold</p>
-                <span id="score-gold" class="font-freshman text-4xl">0</span>
+                <p class="text-[8px] sm:text-xs font-bold text-[#FFB81C] uppercase tracking-widest">Team Gold</p>
+                <span id="score-gold" class="font-freshman text-2xl sm:text-4xl">0</span>
             </div>
-            <img src="/public/images/mascots/tigers.png" class="w-12 h-12 object-contain filter drop-shadow-[0_0_10px_#FFB81C]">
+            <img src="/public/images/mascots/tigers.png" class="hidden sm:block w-12 h-12 object-contain filter drop-shadow-[0_0_10px_#FFB81C]">
         </div>
     </div>
 
-    <div id="game-container">
-        <div class="pitch-line center-line"></div>
-        <div class="center-circle"></div>
-        <div class="center-dot"></div>
-        <div class="penalty-area-left"></div>
-        <div class="penalty-area-right"></div>
-        
-        <div class="goal goal-left" id="goal-left"></div>
-        <div class="goal goal-right" id="goal-right"></div>
+    <div id="game-wrapper">
+        <div id="game-container">
+            <div class="pitch-line center-line"></div>
+            <div class="center-circle"></div>
+            <div class="center-dot"></div>
+            <div class="penalty-area-left"></div>
+            <div class="penalty-area-right"></div>
+            
+            <div class="goal goal-left" id="goal-left"></div>
+            <div class="goal goal-right" id="goal-right"></div>
 
-        <div id="aim-line"><i class="fa-solid fa-caret-up" id="aim-arrow"></i></div>
-
+            <div id="aim-line"><i class="fa-solid fa-caret-up" id="aim-arrow"></i></div>
         </div>
+    </div>
 
     <div id="overlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden backdrop-blur-sm">
-        <div class="text-center bg-[#1A0524] p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)]">
-            <h2 id="overlay-title" class="font-freshman text-6xl text-white mb-4">HALF TIME</h2>
-            <p id="overlay-subtitle" class="text-[#def5ff]/70 tracking-widest uppercase mb-8">Switching Sides...</p>
-            <button id="resume-btn" class="bg-[#FFB81C] text-[#1A0524] font-bold px-8 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Continue</button>
+        <div class="text-center bg-[#1A0524] p-8 sm:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)] mx-4">
+            <h2 id="overlay-title" class="font-freshman text-4xl sm:text-6xl text-white mb-4">HALF TIME</h2>
+            <p id="overlay-subtitle" class="text-[#def5ff]/70 text-sm sm:text-base tracking-widest uppercase mb-8">Switching Sides...</p>
+            <button id="resume-btn" class="bg-[#FFB81C] text-[#1A0524] font-bold px-6 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Continue</button>
+        </div>
+    </div>
+
+    <div id="instructions-overlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="text-center bg-[#1A0524] p-8 md:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)] max-w-lg mx-4">
+            <h2 class="font-freshman text-3xl md:text-5xl text-white mb-6">HOW TO PLAY</h2>
+            <div class="text-left text-[#def5ff]/80 space-y-4 mb-8 text-sm md:text-base border-t border-b border-white/10 py-6">
+                <p><i class="fa-solid fa-desktop text-[#FFB81C] w-6"></i> <strong>PC:</strong> Click, drag backwards to aim, and release to strike.</p>
+                <p><i class="fa-solid fa-mobile-screen text-[#FFB81C] w-6"></i> <strong>Mobile:</strong> Tap your player, drag backwards to aim, and release.</p>
+                <p><i class="fa-solid fa-futbol text-[#FFB81C] w-6"></i> First team to dominate the scoreboard before the timer ends wins.</p>
+            </div>
+            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold px-8 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Understood</button>
         </div>
     </div>
 
     <script>
+        const wrapper = document.getElementById('game-wrapper');
         const container = document.getElementById('game-container');
-        const width = 800;
-        const height = 450;
+        const width = 800; // Logical internal width
+        const height = 450; // Logical internal height
         const goalTop = height / 2 - 60;
         const goalBottom = height / 2 + 60;
+
+        let scale = 1; // Used for responsive coordinates
+        
+        // --- Responsive Scaling Engine ---
+        function resizeGame() {
+            const screenWidth = window.innerWidth;
+            const maxWidth = Math.min(800, screenWidth - 20); // 20px padding
+            scale = maxWidth / width;
+            
+            container.style.transform = `scale(${scale})`;
+            wrapper.style.height = `${height * scale}px`; // Shrink wrapper height so layout doesn't break
+        }
+        window.addEventListener('resize', resizeGame);
+        resizeGame(); // Initial scale
 
         let isPlaying = false;
         let timeRemaining = 180; // 3 minutes
@@ -179,9 +223,8 @@
         let scorePurple = 0;
         let scoreGold = 0;
         let timerInterval;
-        let aiInterval; // The bot's brain
+        let aiInterval; 
 
-        // Physics Constants
         const FRICTION = 0.98;
         const BOUNCE = 0.7;
         const PLAYER_MASS = 2;
@@ -213,7 +256,9 @@
                 container.appendChild(this.el);
 
                 if (type === 'player') {
+                    // Unified event listeners for Mobile and PC
                     this.el.addEventListener('mousedown', (e) => startDrag(e, this));
+                    this.el.addEventListener('touchstart', (e) => startDrag(e, this), { passive: false });
                 }
             }
 
@@ -265,49 +310,75 @@
             rightPositions.forEach((pos, i) => entities.push(new Entity(`g${i}`, 'player', 'gold', pos[0], pos[1], 22, PLAYER_MASS)));
         }
 
-        // --- Human Controls ---
+        // --- Unified Interaction Controls ---
+        function getEventPos(e) {
+            if (e.touches && e.touches.length > 0) {
+                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            } else if (e.changedTouches && e.changedTouches.length > 0) {
+                return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+            }
+            return { x: e.clientX, y: e.clientY };
+        }
+
         function startDrag(e, player) {
+            if (e.cancelable) e.preventDefault(); // Stop mobile from scrolling down
             if (!isPlaying) return;
-            if (player.team !== 'purple') return; // RESTRICT TO PURPLE ONLY
+            if (player.team !== 'purple') return; 
             if (Math.abs(player.vx) > 1 || Math.abs(player.vy) > 1) return;
             
             isDragging = true;
             activePlayer = player;
+            
+            const pos = getEventPos(e);
             const rect = container.getBoundingClientRect();
-            dragStartX = e.clientX - rect.left;
-            dragStartY = e.clientY - rect.top;
+            
+            // Adjust coordinates based on the mobile scaling factor
+            dragStartX = (pos.x - rect.left) / scale;
+            dragStartY = (pos.y - rect.top) / scale;
             
             aimLine.style.display = 'block';
             updateAimLine(dragStartX, dragStartY);
         }
 
-        container.addEventListener('mousemove', (e) => {
+        function handleMove(e) {
             if (!isDragging) return;
+            if (e.cancelable) e.preventDefault(); // Stop pull-to-refresh
+            
+            const pos = getEventPos(e);
             const rect = container.getBoundingClientRect();
-            updateAimLine(e.clientX - rect.left, e.clientY - rect.top);
-        });
+            updateAimLine((pos.x - rect.left) / scale, (pos.y - rect.top) / scale);
+        }
 
-        window.addEventListener('mouseup', (e) => {
+        function endDrag(e) {
             if (!isDragging) return;
             isDragging = false;
             aimLine.style.display = 'none';
 
+            const pos = getEventPos(e);
             const rect = container.getBoundingClientRect();
-            const endX = e.clientX - rect.left;
-            const endY = e.clientY - rect.top;
+            
+            const endX = (pos.x - rect.left) / scale;
+            const endY = (pos.y - rect.top) / scale;
 
             let dx = dragStartX - endX;
             let dy = dragStartY - endY;
             
             const distance = Math.sqrt(dx*dx + dy*dy);
             const maxPower = 15;
+            
             if (distance > 0) {
-                const scale = Math.min(distance * 0.1, maxPower) / distance;
-                activePlayer.vx = dx * scale;
-                activePlayer.vy = dy * scale;
+                const powerScale = Math.min(distance * 0.1, maxPower) / distance;
+                activePlayer.vx = dx * powerScale;
+                activePlayer.vy = dy * powerScale;
             }
             activePlayer = null;
-        });
+        }
+
+        // Attach global listeners for dragging
+        window.addEventListener('mousemove', handleMove, { passive: false });
+        window.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
 
         function updateAimLine(mouseX, mouseY) {
             if(!activePlayer) return;
@@ -329,7 +400,7 @@
         // --- AI OPPONENT LOGIC (TEAM GOLD) ---
         function startAI() {
             if (aiInterval) clearInterval(aiInterval);
-            aiInterval = setInterval(aiTakeTurn, 1500); // AI assesses and attacks every 1.5 seconds
+            aiInterval = setInterval(aiTakeTurn, 1500); 
         }
 
         function stopAI() {
@@ -343,12 +414,11 @@
             const ball = entities.find(e => e.type === 'ball');
             if (!ball || goldPlayers.length === 0) return;
 
-            // 1. Find the gold player closest to the ball
             let closest = null;
             let minDist = Infinity;
             
             goldPlayers.forEach(p => {
-                if (Math.abs(p.vx) > 1 || Math.abs(p.vy) > 1) return; // Wait until they stop moving to strike
+                if (Math.abs(p.vx) > 1 || Math.abs(p.vy) > 1) return; 
                 
                 let dx = ball.x - p.x;
                 let dy = ball.y - p.y;
@@ -360,13 +430,11 @@
             });
 
             if (closest) {
-                // 2. Decide where to aim
                 let targetX = ball.x;
                 let targetY = ball.y;
                 
-                // If ball is on the left side (Purple's side), AI tries to blast it straight into the goal
                 if (ball.x < width / 2) {
-                    targetX -= 50; // Aim "through" the ball towards the left goal
+                    targetX -= 50; 
                 }
 
                 let dx = targetX - closest.x;
@@ -374,16 +442,14 @@
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 
                 if (dist > 0) {
-                    // Add a tiny bit of random error so the AI isn't perfect
                     dx += (Math.random() - 0.5) * 40;
                     dy += (Math.random() - 0.5) * 40;
                     dist = Math.sqrt(dx*dx + dy*dy);
                     
-                    const power = Math.min((minDist * 0.08), 14); // Strike power
+                    const power = Math.min((minDist * 0.08), 14); 
                     closest.vx = (dx / dist) * power;
                     closest.vy = (dy / dist) * power;
                     
-                    // Visual flash so you know the AI struck
                     closest.el.style.filter = 'brightness(2) drop-shadow(0 0 10px #FFB81C)';
                     setTimeout(() => { closest.el.style.filter = ''; }, 300);
                 }
@@ -432,10 +498,10 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // --- Game Logic ---
+        // --- Game Flow Logic ---
         function scoreGoal(team) {
             isPlaying = false;
-            stopAI(); // Halt the bot
+            stopAI(); 
             
             if (team === 'purple') scorePurple++;
             if (team === 'gold') scoreGold++;
@@ -448,7 +514,7 @@
                 container.style.backgroundColor = 'var(--pitch-color)';
                 setupFormation();
                 isPlaying = true;
-                startAI(); // Restart the bot
+                startAI(); 
                 gameLoop();
             }, 1000);
         }
@@ -515,12 +581,18 @@
             }, 1000);
         }
 
+        // Instructions Flow
+        document.getElementById('close-instructions').addEventListener('click', () => {
+            document.getElementById('instructions-overlay').classList.add('hidden');
+            document.getElementById('start-btn').classList.remove('hidden');
+        });
+
         document.getElementById('start-btn').addEventListener('click', function() {
             this.style.display = 'none';
             setupFormation();
             isPlaying = true;
             startTimer();
-            startAI(); // Unleash the bot
+            startAI(); 
             gameLoop();
         });
 
