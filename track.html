@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPORTS LCM | Track & Field</title>
+    <title>SPORTS LCM | 250M Hurdles</title>
     <link rel="icon" href="/public/images/logo.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/src/styles/global.css">
@@ -12,13 +12,15 @@
     <style>
         :root {
             --track-color: #561269;
-            --lane-line: rgba(255, 255, 255, 0.3);
+            --lane-line: rgba(255, 255, 255, 0.2);
             --gold: #FFB81C;
         }
 
         body {
             overflow-x: hidden;
             touch-action: pan-y;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* Responsive Wrapper */
@@ -32,7 +34,7 @@
 
         #game-container {
             width: 800px;
-            height: 400px;
+            height: 500px; /* Expanded for 6 lanes */
             background-color: #110518;
             position: relative;
             overflow: hidden;
@@ -40,10 +42,8 @@
             border-radius: 10px;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0,0,0,0.8);
             transform-origin: top center;
-            user-select: none;
-            -webkit-user-select: none;
             cursor: pointer;
-            touch-action: none; /* Prevent scroll on canvas tap */
+            touch-action: none;
         }
 
         /* Parallax Background */
@@ -52,8 +52,8 @@
             top: 0;
             left: 0;
             width: 200%;
-            height: 150px;
-            background-image: radial-gradient(circle at 50px 50px, rgba(255,255,255,0.1) 10px, transparent 11px);
+            height: 140px;
+            background-image: radial-gradient(circle at 50px 50px, rgba(255,255,255,0.05) 10px, transparent 11px);
             background-size: 100px 100px;
             z-index: 0;
         }
@@ -63,7 +63,7 @@
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 250px;
+            height: 360px; /* 6 lanes x 60px */
             background: linear-gradient(to bottom, #3a0b47, #1A0524);
             border-top: 4px solid #fff;
             z-index: 1;
@@ -72,17 +72,16 @@
         .lane {
             position: absolute;
             width: 100%;
-            height: 125px;
-            border-bottom: 4px dashed var(--lane-line);
+            height: 60px;
+            border-bottom: 2px dashed var(--lane-line);
         }
-        .lane-top { top: 0; }
-        .lane-bottom { top: 125px; border-bottom: none; }
+        .lane:last-child { border-bottom: none; }
 
         /* Entities */
         .runner {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 45px;
+            height: 45px;
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -91,24 +90,22 @@
             filter: drop-shadow(0 10px 5px rgba(0,0,0,0.5));
         }
 
-        #player { background-image: url('/public/images/mascots/panthers.png'); }
-        #bot { background-image: url('/public/images/mascots/tigers.png'); filter: drop-shadow(0 10px 5px rgba(0,0,0,0.5)) brightness(0.9); }
-
         .hurdle {
             position: absolute;
-            width: 20px;
-            height: 50px;
-            background: repeating-linear-gradient(45deg, #fff, #fff 10px, #e74c3c 10px, #e74c3c 20px);
+            width: 15px;
+            height: 35px;
+            background: repeating-linear-gradient(45deg, #fff, #fff 8px, #e74c3c 8px, #e74c3c 16px);
             border: 2px solid #fff;
             border-radius: 4px;
             z-index: 5;
             box-shadow: -5px 5px 10px rgba(0,0,0,0.5);
+            transition: transform 0.2s, opacity 0.2s;
         }
 
         .finish-line {
             position: absolute;
             width: 30px;
-            height: 250px;
+            height: 360px;
             background: repeating-linear-gradient(0deg, #fff, #fff 20px, #000 20px, #000 40px);
             bottom: 0;
             z-index: 2;
@@ -119,88 +116,60 @@
         /* Animations */
         @keyframes runAnim {
             0% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
+            50% { transform: translateY(-8px) rotate(5deg); }
             100% { transform: translateY(0) rotate(-5deg); }
         }
-        .running { animation: runAnim 0.3s infinite; }
-        
+        .running { animation: runAnim 0.35s infinite; }
         .stumble { filter: grayscale(1) brightness(0.5) !important; transform: rotate(45deg) !important; }
 
         /* Progress Bars */
-        .progress-track { width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-top: 4px; }
+        .progress-track { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-top: 2px; }
         .progress-fill { height: 100%; width: 0%; transition: width 0.1s linear; }
-        #prog-purple { background: #b84dd9; box-shadow: 0 0 10px #b84dd9; }
-        #prog-gold { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
     </style>
 </head>
-<body class="bg-[#1A0524] text-white font-['Poppins'] min-h-screen flex flex-col pt-10 pb-10">
+<body class="bg-[#1A0524] text-white font-['Poppins'] min-h-screen flex flex-col pt-6 pb-10">
 
-    <nav class="w-full px-4 sm:px-6 relative z-40 mb-6">
+    <nav class="w-full px-4 sm:px-6 relative z-40 mb-4">
         <a href="games.html" class="inline-flex items-center text-[10px] sm:text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
             <i class="fa-solid fa-arrow-left mr-2 sm:mr-3"></i> Leave Arena
         </a>
     </nav>
 
-    <div class="text-center mb-4 mt-2 px-4">
-        <h1 class="font-freshman text-4xl sm:text-5xl text-white tracking-widest uppercase text-glow-white">100M <span class="text-[#FFB81C]">HURDLES</span></h1>
-        <p class="text-[#def5ff]/60 text-[10px] sm:text-xs mt-2 uppercase tracking-widest border border-white/10 inline-block px-3 py-1 rounded bg-black/40">TIMING IS EVERYTHING</p>
+    <div class="text-center mb-4 px-4">
+        <h1 class="font-freshman text-3xl sm:text-5xl text-white tracking-widest uppercase text-glow-white">250M <span class="text-[#FFB81C]">HURDLES</span></h1>
+        <p class="text-[#def5ff]/60 text-[9px] sm:text-xs mt-2 uppercase tracking-widest border border-white/10 inline-block px-3 py-1 rounded bg-black/40">TAP ANYWHERE TO JUMP</p>
     </div>
 
-    <div class="max-w-3xl mx-auto w-[90%] bg-black/60 border border-white/10 rounded-2xl p-4 sm:p-6 mb-6 shadow-2xl backdrop-blur-md flex flex-col gap-4">
-        
-        <div class="flex items-center gap-3 sm:gap-4 w-full">
-            <img src="/public/images/mascots/tigers.png" class="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-[0_0_10px_#FFB81C]">
-            <div class="flex-grow">
-                <div class="flex justify-between text-[8px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 text-[#FFB81C]">
-                    <span>Team Gold (AI)</span>
-                    <span id="dist-gold">0m</span>
-                </div>
-                <div class="progress-track"><div id="prog-gold" class="progress-fill"></div></div>
-            </div>
+    <div class="max-w-3xl mx-auto w-[95%] bg-black/60 border border-white/10 rounded-xl p-3 sm:p-5 mb-4 shadow-2xl backdrop-blur-md flex flex-col gap-2" id="leaderboard">
         </div>
-
-        <div class="flex items-center gap-3 sm:gap-4 w-full">
-            <img src="/public/images/mascots/panthers.png" class="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-[0_0_10px_#561269]">
-            <div class="flex-grow">
-                <div class="flex justify-between text-[8px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 text-[#b84dd9]">
-                    <span>Team Purple (You)</span>
-                    <span id="dist-purple">0m</span>
-                </div>
-                <div class="progress-track"><div id="prog-purple" class="progress-fill"></div></div>
-            </div>
-        </div>
-    </div>
 
     <div id="game-wrapper">
         <div id="game-container">
             <div class="stadium-bg" id="stadium-bg"></div>
             
-            <div class="track-surface">
-                <div class="lane lane-top"></div>
-                <div class="lane lane-bottom"></div>
-            </div>
+            <div class="track-surface" id="track-surface">
+                </div>
 
             <div id="start-screen" class="absolute inset-0 bg-black/70 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
                 <h2 class="font-freshman text-4xl sm:text-6xl text-white mb-2">READY</h2>
-                <button id="start-btn" class="mt-4 sm:mt-6 bg-[#FFB81C] text-[#1A0524] text-sm sm:text-base font-bold px-6 py-2 sm:px-8 sm:py-3 rounded uppercase tracking-widest hover:bg-white transition-colors shadow-[0_0_20px_rgba(255,184,28,0.5)]">Start Race</button>
+                <button id="start-btn" class="mt-4 sm:mt-6 bg-[#FFB81C] text-[#1A0524] text-sm sm:text-base font-bold px-6 py-2 sm:px-8 sm:py-3 rounded uppercase tracking-widest hover:bg-white transition-colors shadow-[0_0_20px_rgba(255,184,28,0.5)] cursor-pointer">Start Race</button>
             </div>
 
             <div id="finish-line" class="finish-line" style="display: none;"></div>
 
-            <div id="bot" class="runner"></div>
-            <div id="player" class="runner"></div>
+            <div id="runners-container"></div>
         </div>
     </div>
 
-    <div id="instructions-overlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
-        <div class="text-center bg-[#1A0524] p-8 md:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)] max-w-lg mx-4">
-            <h2 class="font-freshman text-3xl md:text-5xl text-white mb-6">HOW TO PLAY</h2>
-            <div class="text-left text-[#def5ff]/80 space-y-4 mb-8 text-sm md:text-base border-t border-b border-white/10 py-6">
-                <p><i class="fa-solid fa-desktop text-[#FFB81C] w-6"></i> <strong>PC:</strong> Press Spacebar or click the track to jump.</p>
-                <p><i class="fa-solid fa-mobile-screen text-[#FFB81C] w-6"></i> <strong>Mobile:</strong> Tap anywhere on the track to jump.</p>
-                <p><i class="fa-solid fa-stopwatch text-[#FFB81C] w-6"></i> Mistiming a jump causes a stumble and slow down. First to 100M wins!</p>
+    <div id="instructions-overlay" class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center backdrop-blur-sm">
+        <div class="text-center bg-[#1A0524] p-6 md:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)] max-w-lg mx-4">
+            <h2 class="font-freshman text-3xl md:text-4xl text-white mb-4">HOW TO PLAY</h2>
+            <div class="text-left text-[#def5ff]/80 space-y-3 mb-6 text-xs md:text-sm border-t border-b border-white/10 py-4">
+                <p><i class="fa-solid fa-desktop text-[#FFB81C] w-6"></i> <strong>PC:</strong> Press Spacebar or click to jump.</p>
+                <p><i class="fa-solid fa-mobile-screen text-[#FFB81C] w-6"></i> <strong>Mobile:</strong> Tap ANYWHERE on the screen to jump.</p>
+                <p><i class="fa-solid fa-stopwatch text-[#FFB81C] w-6"></i> Mistiming a jump causes a stumble and severe speed penalty. Overcome 5 opponents to win 250M!</p>
             </div>
-            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold px-8 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Understood</button>
+            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold px-8 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors cursor-pointer">Understood</button>
         </div>
     </div>
 
@@ -209,65 +178,94 @@
             <h2 id="overlay-title" class="font-freshman text-4xl sm:text-6xl text-white mb-4">RACE OVER</h2>
             <p id="overlay-subtitle" class="text-[#def5ff]/70 tracking-widest uppercase mb-2 text-sm sm:text-xl"></p>
             <p id="overlay-time" class="text-[#FFB81C] font-mono text-xl sm:text-2xl mb-8"></p>
-            <button id="resume-btn" class="bg-[#FFB81C] text-[#1A0524] font-bold px-6 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Race Again</button>
+            <button id="resume-btn" class="bg-[#FFB81C] text-[#1A0524] font-bold px-6 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors cursor-pointer">Race Again</button>
         </div>
     </div>
 
     <script>
         const wrapper = document.getElementById('game-wrapper');
         const container = document.getElementById('game-container');
-        const width = 800; // Internal logical width
-        const height = 400; // Internal logical height
+        const width = 800; 
+        const height = 500; 
         
         let scale = 1;
         
-        // --- Responsive Scaling Engine ---
         function resizeGame() {
             const screenWidth = window.innerWidth;
-            const maxWidth = Math.min(800, screenWidth - 20); // 20px padding
+            const maxWidth = Math.min(800, screenWidth - 10); 
             scale = maxWidth / width;
-            
             container.style.transform = `scale(${scale})`;
             wrapper.style.height = `${height * scale}px`;
         }
         window.addEventListener('resize', resizeGame);
-        resizeGame(); // Init scale
+        resizeGame(); 
 
-        // Game Constants
-        const RACE_DISTANCE = 10000; // 10,000 pixels = 100m
-        const GRAVITY = 0.8;
-        const JUMP_POWER = -14;
-        const BASE_SPEED = 8;
-        const MAX_SPEED = 14;
-        const STUMBLE_PENALTY = 0.3; // Speed multiplier when hitting a hurdle
+        // Game Constants (NERFED SPEED, INCREASED DISTANCE)
+        const RACE_DISTANCE = 25000; // 25,000 pixels = 250m
+        const GRAVITY = 0.5;         // Lower gravity = floatier jumps
+        const JUMP_POWER = -11;      // Less aggressive jump spike
+        const BASE_SPEED = 5;        // Slower base speed
+        const STUMBLE_PENALTY = 0.4; // 60% speed loss on hit
         
         let isPlaying = false;
         let startTime;
         
-        // Track Elements
-        const playerEl = document.getElementById('player');
-        const botEl = document.getElementById('bot');
         const bgEl = document.getElementById('stadium-bg');
         const finishLineEl = document.getElementById('finish-line');
+        const runnersContainer = document.getElementById('runners-container');
+        const trackSurface = document.getElementById('track-surface');
+        const leaderboardEl = document.getElementById('leaderboard');
+        
         let hurdles = [];
+        let runnerInstances = [];
 
-        // Runner Class
+        // Roster Definition
+        const rosterData = [
+            { id: 'bot1', name: 'Rookie (AI)', color: '#7f8c8d', error: 0.15, maxSpeed: 8.5 },
+            { id: 'bot2', name: 'Amateur (AI)', color: '#3498db', error: 0.10, maxSpeed: 9.0 },
+            { id: 'bot3', name: 'Pro (AI)', color: '#e67e22', error: 0.05, maxSpeed: 9.5 },
+            { id: 'bot4', name: 'Elite (AI)', color: '#2ecc71', error: 0.02, maxSpeed: 9.8 },
+            { id: 'bot5', name: 'Champion (AI)', color: '#e74c3c', error: 0.01, maxSpeed: 10.0 },
+            { id: 'player', name: 'Team Purple (You)', color: '#b84dd9', error: 0.0, maxSpeed: 10.0 }
+        ];
+
         class Runner {
-            constructor(el, laneY, isBot) {
-                this.el = el;
-                this.laneY = laneY; // Bottom Y of the lane
-                this.isBot = isBot;
+            constructor(data, laneIndex) {
+                this.data = data;
+                this.isBot = data.id !== 'player';
+                this.laneIndex = laneIndex;
+                this.laneY = 140 + ((laneIndex + 1) * 60); // Calculate Y based on lane 
                 
-                this.distance = 0; // Absolute distance traveled
-                this.y = 0; // Vertical jump position (0 is ground)
+                this.distance = 0; 
+                this.y = 0; 
                 this.vy = 0;
                 this.speed = BASE_SPEED;
                 this.stumbleTimer = 0;
                 this.isJumping = false;
                 
-                this.screenX = isBot ? 100 : 100; 
-                this.width = 60;
-                this.height = 60;
+                this.width = 45;
+                this.height = 45;
+
+                // DOM Element
+                this.el = document.createElement('div');
+                this.el.className = 'runner';
+                this.el.id = data.id;
+                this.el.style.backgroundImage = this.isBot ? "url('/public/images/mascots/tigers.png')" : "url('/public/images/mascots/panthers.png')";
+                if (this.isBot) this.el.style.filter = `drop-shadow(0 10px 5px rgba(0,0,0,0.5)) opacity(0.85)`;
+                runnersContainer.appendChild(this.el);
+
+                // Setup Progress Bar
+                leaderboardEl.innerHTML += `
+                    <div class="flex items-center gap-2 sm:gap-3 w-full opacity-90">
+                        <div class="flex-grow">
+                            <div class="flex justify-between text-[7px] sm:text-[9px] font-bold uppercase tracking-widest mb-0.5" style="color: ${data.color}">
+                                <span>${data.name}</span>
+                                <span id="dist-${data.id}">0m</span>
+                            </div>
+                            <div class="progress-track"><div id="prog-${data.id}" class="progress-fill" style="background: ${data.color}; box-shadow: 0 0 5px ${data.color}"></div></div>
+                        </div>
+                    </div>
+                `;
             }
 
             jump() {
@@ -280,19 +278,16 @@
 
             stumble() {
                 if (this.stumbleTimer === 0) {
-                    this.stumbleTimer = 60; // Frames of penalty
+                    this.stumbleTimer = 45; // Frames of penalty
                     this.speed *= STUMBLE_PENALTY;
                     this.el.classList.add('stumble');
                     this.el.classList.remove('running');
-                    
-                    // Flash effect
                     this.el.style.filter = 'brightness(2) drop-shadow(0 0 20px red)';
-                    setTimeout(() => this.el.style.filter = '', 200);
+                    setTimeout(() => this.el.style.filter = this.isBot ? 'drop-shadow(0 10px 5px rgba(0,0,0,0.5)) opacity(0.85)' : '', 200);
                 }
             }
 
             update() {
-                // Horizontal Speed Recovery
                 if (this.stumbleTimer > 0) {
                     this.stumbleTimer--;
                     if (this.stumbleTimer === 0) {
@@ -300,12 +295,11 @@
                         if(this.y === 0) this.el.classList.add('running');
                     }
                 } else {
-                    if (this.speed < MAX_SPEED) this.speed += 0.05; // Accelerate
+                    if (this.speed < this.data.maxSpeed) this.speed += 0.04; 
                 }
 
                 this.distance += this.speed;
 
-                // Vertical Jump Physics
                 if (this.isJumping) {
                     this.vy += GRAVITY;
                     this.y += this.vy;
@@ -320,46 +314,52 @@
             }
         }
 
-        let player, bot;
+        function buildTrack() {
+            trackSurface.innerHTML = '';
+            for(let i=0; i<6; i++) {
+                const lane = document.createElement('div');
+                lane.className = 'lane';
+                lane.style.top = `${i * 60}px`;
+                trackSurface.appendChild(lane);
+            }
+        }
 
         function initRace() {
-            // Remove old hurdles
             hurdles.forEach(h => h.el.remove());
             hurdles = [];
+            runnersContainer.innerHTML = '';
+            leaderboardEl.innerHTML = '';
+            runnerInstances = [];
 
-            player = new Runner(playerEl, 360, false);
-            bot = new Runner(botEl, 240, true);
+            buildTrack();
 
-            player.el.style.top = `${player.laneY - player.height}px`;
-            bot.el.style.top = `${bot.laneY - bot.height}px`;
+            // Instantiate Runners
+            rosterData.forEach((data, index) => {
+                runnerInstances.push(new Runner(data, index));
+            });
 
-            // Generate Hurdles
-            for (let i = 800; i < RACE_DISTANCE - 500; i += Math.random() * 600 + 400) {
-                // Top Lane Hurdle (Bot)
-                createHurdle(i, bot.laneY, true);
-                // Bottom Lane Hurdle (Player)
-                createHurdle(i + (Math.random()*200 - 100), player.laneY, false);
-            }
+            // Generate Hurdles per lane
+            runnerInstances.forEach(runner => {
+                for (let i = 800; i < RACE_DISTANCE - 500; i += Math.random() * 600 + 400) {
+                    createHurdle(i, runner.laneY, runner.laneIndex);
+                }
+            });
 
             finishLineEl.style.display = 'none';
-            document.getElementById('prog-purple').style.width = '0%';
-            document.getElementById('prog-gold').style.width = '0%';
-            
             document.getElementById('start-screen').style.display = 'none';
             
-            player.el.classList.add('running');
-            bot.el.classList.add('running');
+            runnerInstances.forEach(r => r.el.classList.add('running'));
             
             startTime = Date.now();
             isPlaying = true;
             gameLoop();
         }
 
-        function createHurdle(dist, laneY, isTop) {
+        function createHurdle(dist, laneY, laneIndex) {
             const el = document.createElement('div');
             el.className = 'hurdle';
             container.appendChild(el);
-            hurdles.push({ distance: dist, laneY: laneY, el: el, width: 20, height: 50, hit: false, isTop: isTop });
+            hurdles.push({ distance: dist, laneY: laneY, laneIndex: laneIndex, el: el, width: 15, height: 35, hit: false });
         }
 
         // --- Instructions Flow ---
@@ -367,75 +367,84 @@
             document.getElementById('instructions-overlay').classList.add('hidden');
         });
 
-        // --- Unified Inputs (Mobile + PC) ---
+        // --- Foolproof Master Input (Mobile + PC) ---
         function handleJump(e) {
-            if (e && e.type === 'touchstart') e.preventDefault(); // Stop mobile double-fire
-            if (isPlaying) player.jump();
+            // Ignore button clicks
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+            if (e && e.cancelable && e.type === 'touchstart') e.preventDefault(); 
+            
+            if (isPlaying) {
+                const playerObj = runnerInstances.find(r => r.data.id === 'player');
+                if(playerObj) playerObj.jump();
+            }
         }
         
         window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') { e.preventDefault(); handleJump(); }
+            if (e.code === 'Space') { e.preventDefault(); handleJump(e); }
         });
-        container.addEventListener('mousedown', handleJump);
-        container.addEventListener('touchstart', handleJump, { passive: false });
+        
+        // Bind to document to catch taps absolutely anywhere
+        document.addEventListener('mousedown', handleJump);
+        document.addEventListener('touchstart', handleJump, { passive: false });
 
         // --- Bot AI ---
-        function updateBot() {
-            const nextHurdle = hurdles.find(h => h.isTop && h.distance > bot.distance && !h.hit);
-            
-            if (nextHurdle) {
-                const distToHurdle = nextHurdle.distance - bot.distance;
-                
-                // If hurdle is right in front, jump!
-                if (distToHurdle < 180 && distToHurdle > 140) {
-                    // 10% chance to miscalculate and hit it
-                    if (Math.random() > 0.10) {
-                        bot.jump();
+        function updateBots() {
+            runnerInstances.filter(r => r.isBot).forEach(bot => {
+                const nextHurdle = hurdles.find(h => h.laneIndex === bot.laneIndex && h.distance > bot.distance && !h.hit);
+                if (nextHurdle) {
+                    const distToHurdle = nextHurdle.distance - bot.distance;
+                    if (distToHurdle < 160 && distToHurdle > 120) {
+                        if (Math.random() > bot.data.error) {
+                            bot.jump();
+                        }
                     }
                 }
-            }
+            });
         }
 
         // --- Game Engine ---
-        function checkCollisions(runner, isTopLane) {
-            hurdles.forEach(h => {
-                if (h.isTop !== isTopLane || h.hit) return;
-
-                if (runner.distance + runner.width > h.distance && 
-                    runner.distance < h.distance + h.width) {
-                    
-                    if (runner.y > -h.height + 10) { 
-                        runner.stumble();
-                        h.hit = true; 
-                        h.el.style.transform = 'rotate(90deg) translateY(20px)'; 
-                        h.el.style.opacity = '0.5';
+        function checkCollisions() {
+            runnerInstances.forEach(runner => {
+                hurdles.filter(h => h.laneIndex === runner.laneIndex && !h.hit).forEach(h => {
+                    if (runner.distance + runner.width > h.distance && 
+                        runner.distance < h.distance + h.width) {
+                        
+                        if (runner.y > -h.height + 10) { 
+                            runner.stumble();
+                            h.hit = true; 
+                            h.el.style.transform = 'rotate(90deg) translateY(20px)'; 
+                            h.el.style.opacity = '0.5';
+                        }
                     }
-                }
+                });
             });
         }
 
         function gameLoop() {
             if (!isPlaying) return;
 
-            player.update();
-            bot.update();
-            updateBot();
+            runnerInstances.forEach(r => r.update());
+            updateBots();
+            checkCollisions();
 
-            checkCollisions(player, false);
-            checkCollisions(bot, true);
-
-            // --- Rendering Camera (Follows Player) ---
+            const player = runnerInstances.find(r => r.data.id === 'player');
             const cameraX = player.distance - 100;
-
-            player.el.style.left = '100px';
-            player.el.style.top = `${player.laneY - player.height + player.y}px`;
-
-            const botScreenX = bot.distance - cameraX;
-            bot.el.style.left = `${botScreenX}px`;
-            bot.el.style.top = `${bot.laneY - bot.height + bot.y}px`;
 
             bgEl.style.backgroundPosition = `${-cameraX * 0.2}px 0`;
 
+            // Render Runners relative to camera
+            runnerInstances.forEach(runner => {
+                const screenX = runner.distance - cameraX;
+                runner.el.style.left = `${screenX}px`;
+                runner.el.style.top = `${runner.laneY - runner.height + runner.y}px`;
+                
+                // Update UI Bars
+                const prog = Math.min((runner.distance / RACE_DISTANCE) * 100, 100).toFixed(1);
+                document.getElementById(`prog-${runner.data.id}`).style.width = `${prog}%`;
+                document.getElementById(`dist-${runner.data.id}`).innerText = `${prog}m`;
+            });
+
+            // Render Hurdles
             hurdles.forEach(h => {
                 const screenX = h.distance - cameraX;
                 if (screenX > -50 && screenX < width + 50) {
@@ -447,35 +456,26 @@
                 }
             });
 
+            // Finish Line
             const finishLineScreenX = RACE_DISTANCE - cameraX;
             if (finishLineScreenX < width + 100) {
                 finishLineEl.style.display = 'block';
                 finishLineEl.style.left = `${finishLineScreenX}px`;
             }
 
-            // --- UI Updates ---
-            const pProg = Math.min((player.distance / RACE_DISTANCE) * 100, 100).toFixed(1);
-            const bProg = Math.min((bot.distance / RACE_DISTANCE) * 100, 100).toFixed(1);
-            
-            document.getElementById('prog-purple').style.width = `${pProg}%`;
-            document.getElementById('dist-purple').innerText = `${pProg}m`;
-            
-            document.getElementById('prog-gold').style.width = `${bProg}%`;
-            document.getElementById('dist-gold').innerText = `${bProg}m`;
-
-            // --- Win Condition ---
-            if (player.distance >= RACE_DISTANCE || bot.distance >= RACE_DISTANCE) {
-                triggerGameOver(player.distance >= bot.distance ? 'purple' : 'gold');
+            // Win Condition
+            const winner = runnerInstances.find(r => r.distance >= RACE_DISTANCE);
+            if (winner) {
+                triggerGameOver(winner);
                 return;
             }
 
             requestAnimationFrame(gameLoop);
         }
 
-        function triggerGameOver(winner) {
+        function triggerGameOver(winnerObj) {
             isPlaying = false;
-            player.el.classList.remove('running');
-            bot.el.classList.remove('running');
+            runnerInstances.forEach(r => r.el.classList.remove('running'));
             
             const timeSeconds = ((Date.now() - startTime) / 1000).toFixed(2);
             
@@ -483,14 +483,14 @@
             const title = document.getElementById('overlay-title');
             const sub = document.getElementById('overlay-subtitle');
             
-            if (winner === 'purple') {
-                title.innerText = "VICTORY!";
+            if (winnerObj.data.id === 'player') {
+                title.innerText = "GOLD MEDAL!";
                 title.style.color = "#b84dd9";
-                sub.innerText = "You claimed the Gold for Team Purple.";
+                sub.innerText = "You dominated the 250M Dash.";
             } else {
                 title.innerText = "DEFEAT.";
                 title.style.color = "red";
-                sub.innerText = "Team Gold outran you.";
+                sub.innerText = `${winnerObj.data.name} took the Gold.`;
             }
             
             document.getElementById('overlay-time').innerText = `TIME: ${timeSeconds}s`;
@@ -498,7 +498,6 @@
         }
 
         document.getElementById('start-btn').addEventListener('click', initRace);
-        
         document.getElementById('resume-btn').addEventListener('click', () => {
             document.getElementById('overlay').classList.add('hidden');
             initRace();
