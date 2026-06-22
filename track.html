@@ -16,6 +16,20 @@
             --gold: #FFB81C;
         }
 
+        body {
+            overflow-x: hidden;
+            touch-action: pan-y;
+        }
+
+        /* Responsive Wrapper */
+        #game-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+            padding: 0 10px;
+        }
+
         #game-container {
             width: 800px;
             height: 400px;
@@ -25,9 +39,11 @@
             border: 4px solid #fff;
             border-radius: 10px;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0,0,0,0.8);
-            margin: 0 auto;
+            transform-origin: top center;
             user-select: none;
+            -webkit-user-select: none;
             cursor: pointer;
+            touch-action: none; /* Prevent scroll on canvas tap */
         }
 
         /* Parallax Background */
@@ -119,25 +135,23 @@
 </head>
 <body class="bg-[#1A0524] text-white font-['Poppins'] min-h-screen flex flex-col pt-10 pb-10">
 
-    <nav class="w-full px-6 absolute top-6 z-50">
-        <a href="games.html" class="inline-flex items-center text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-            <i class="fa-solid fa-arrow-left mr-3"></i> Leave Arena
+    <nav class="w-full px-4 sm:px-6 relative z-40 mb-6">
+        <a href="games.html" class="inline-flex items-center text-[10px] sm:text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+            <i class="fa-solid fa-arrow-left mr-2 sm:mr-3"></i> Leave Arena
         </a>
     </nav>
 
-    <div class="text-center mb-4 mt-4">
-        <h1 class="font-freshman text-5xl text-white tracking-widest uppercase text-glow-white">100M <span class="text-[#FFB81C]">HURDLES</span></h1>
-        <p class="text-[#def5ff]/60 text-xs mt-2 uppercase tracking-widest border border-white/10 inline-block px-4 py-1 rounded bg-black/40">PRESS SPACEBAR OR CLICK TO JUMP</p>
+    <div class="text-center mb-4 mt-2 px-4">
+        <h1 class="font-freshman text-4xl sm:text-5xl text-white tracking-widest uppercase text-glow-white">100M <span class="text-[#FFB81C]">HURDLES</span></h1>
+        <p class="text-[#def5ff]/60 text-[10px] sm:text-xs mt-2 uppercase tracking-widest border border-white/10 inline-block px-3 py-1 rounded bg-black/40">TIMING IS EVERYTHING</p>
     </div>
 
-    <!-- SCOREBOARD & PROGRESS -->
-    <div class="max-w-3xl mx-auto w-full bg-black/60 border border-white/10 rounded-2xl p-6 mb-6 shadow-2xl backdrop-blur-md flex flex-col gap-4">
+    <div class="max-w-3xl mx-auto w-[90%] bg-black/60 border border-white/10 rounded-2xl p-4 sm:p-6 mb-6 shadow-2xl backdrop-blur-md flex flex-col gap-4">
         
-        <!-- Team Gold (Bot) Progress -->
-        <div class="flex items-center gap-4 w-full">
-            <img src="/public/images/mascots/tigers.png" class="w-10 h-10 object-contain drop-shadow-[0_0_10px_#FFB81C]">
+        <div class="flex items-center gap-3 sm:gap-4 w-full">
+            <img src="/public/images/mascots/tigers.png" class="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-[0_0_10px_#FFB81C]">
             <div class="flex-grow">
-                <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1 text-[#FFB81C]">
+                <div class="flex justify-between text-[8px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 text-[#FFB81C]">
                     <span>Team Gold (AI)</span>
                     <span id="dist-gold">0m</span>
                 </div>
@@ -145,11 +159,10 @@
             </div>
         </div>
 
-        <!-- Team Purple (Player) Progress -->
-        <div class="flex items-center gap-4 w-full">
-            <img src="/public/images/mascots/panthers.png" class="w-10 h-10 object-contain drop-shadow-[0_0_10px_#561269]">
+        <div class="flex items-center gap-3 sm:gap-4 w-full">
+            <img src="/public/images/mascots/panthers.png" class="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-[0_0_10px_#561269]">
             <div class="flex-grow">
-                <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-1 text-[#b84dd9]">
+                <div class="flex justify-between text-[8px] sm:text-[10px] font-bold uppercase tracking-widest mb-1 text-[#b84dd9]">
                     <span>Team Purple (You)</span>
                     <span id="dist-purple">0m</span>
                 </div>
@@ -158,44 +171,68 @@
         </div>
     </div>
 
-    <!-- THE TRACK -->
-    <div id="game-container">
-        <div class="stadium-bg" id="stadium-bg"></div>
-        
-        <div class="track-surface">
-            <div class="lane lane-top"></div>
-            <div class="lane lane-bottom"></div>
+    <div id="game-wrapper">
+        <div id="game-container">
+            <div class="stadium-bg" id="stadium-bg"></div>
+            
+            <div class="track-surface">
+                <div class="lane lane-top"></div>
+                <div class="lane lane-bottom"></div>
+            </div>
+
+            <div id="start-screen" class="absolute inset-0 bg-black/70 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
+                <h2 class="font-freshman text-4xl sm:text-6xl text-white mb-2">READY</h2>
+                <button id="start-btn" class="mt-4 sm:mt-6 bg-[#FFB81C] text-[#1A0524] text-sm sm:text-base font-bold px-6 py-2 sm:px-8 sm:py-3 rounded uppercase tracking-widest hover:bg-white transition-colors shadow-[0_0_20px_rgba(255,184,28,0.5)]">Start Race</button>
+            </div>
+
+            <div id="finish-line" class="finish-line" style="display: none;"></div>
+
+            <div id="bot" class="runner"></div>
+            <div id="player" class="runner"></div>
         </div>
-
-        <!-- Start Screen Overlay -->
-        <div id="start-screen" class="absolute inset-0 bg-black/70 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
-            <h2 class="font-freshman text-6xl text-white mb-2">READY</h2>
-            <button id="start-btn" class="mt-6 bg-[#FFB81C] text-[#1A0524] font-bold px-8 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors shadow-[0_0_20px_rgba(255,184,28,0.5)]">Start Race</button>
-        </div>
-
-        <!-- Finish Line (Injected dynamically) -->
-        <div id="finish-line" class="finish-line" style="display: none;"></div>
-
-        <!-- Runners -->
-        <div id="bot" class="runner"></div>
-        <div id="player" class="runner"></div>
     </div>
 
-    <!-- GAME OVER OVERLAY -->
-    <div id="overlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden backdrop-blur-sm">
-        <div class="text-center bg-[#1A0524] p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)]">
-            <h2 id="overlay-title" class="font-freshman text-6xl text-white mb-4">RACE OVER</h2>
-            <p id="overlay-subtitle" class="text-[#def5ff]/70 tracking-widest uppercase mb-2 text-xl"></p>
-            <p id="overlay-time" class="text-[#FFB81C] font-mono text-2xl mb-8"></p>
-            <button id="resume-btn" class="bg-[#FFB81C] text-[#1A0524] font-bold px-8 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Race Again</button>
+    <div id="instructions-overlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="text-center bg-[#1A0524] p-8 md:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)] max-w-lg mx-4">
+            <h2 class="font-freshman text-3xl md:text-5xl text-white mb-6">HOW TO PLAY</h2>
+            <div class="text-left text-[#def5ff]/80 space-y-4 mb-8 text-sm md:text-base border-t border-b border-white/10 py-6">
+                <p><i class="fa-solid fa-desktop text-[#FFB81C] w-6"></i> <strong>PC:</strong> Press Spacebar or click the track to jump.</p>
+                <p><i class="fa-solid fa-mobile-screen text-[#FFB81C] w-6"></i> <strong>Mobile:</strong> Tap anywhere on the track to jump.</p>
+                <p><i class="fa-solid fa-stopwatch text-[#FFB81C] w-6"></i> Mistiming a jump causes a stumble and slow down. First to 100M wins!</p>
+            </div>
+            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold px-8 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Understood</button>
+        </div>
+    </div>
+
+    <div id="overlay" class="fixed inset-0 bg-black/80 z-[60] flex items-center justify-center hidden backdrop-blur-sm">
+        <div class="text-center bg-[#1A0524] p-8 sm:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)] mx-4">
+            <h2 id="overlay-title" class="font-freshman text-4xl sm:text-6xl text-white mb-4">RACE OVER</h2>
+            <p id="overlay-subtitle" class="text-[#def5ff]/70 tracking-widest uppercase mb-2 text-sm sm:text-xl"></p>
+            <p id="overlay-time" class="text-[#FFB81C] font-mono text-xl sm:text-2xl mb-8"></p>
+            <button id="resume-btn" class="bg-[#FFB81C] text-[#1A0524] font-bold px-6 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Race Again</button>
         </div>
     </div>
 
     <script>
+        const wrapper = document.getElementById('game-wrapper');
         const container = document.getElementById('game-container');
-        const width = 800;
-        const height = 400;
+        const width = 800; // Internal logical width
+        const height = 400; // Internal logical height
         
+        let scale = 1;
+        
+        // --- Responsive Scaling Engine ---
+        function resizeGame() {
+            const screenWidth = window.innerWidth;
+            const maxWidth = Math.min(800, screenWidth - 20); // 20px padding
+            scale = maxWidth / width;
+            
+            container.style.transform = `scale(${scale})`;
+            wrapper.style.height = `${height * scale}px`;
+        }
+        window.addEventListener('resize', resizeGame);
+        resizeGame(); // Init scale
+
         // Game Constants
         const RACE_DISTANCE = 10000; // 10,000 pixels = 100m
         const GRAVITY = 0.8;
@@ -228,7 +265,7 @@
                 this.stumbleTimer = 0;
                 this.isJumping = false;
                 
-                this.screenX = isBot ? 100 : 100; // Bot's screenX will adjust dynamically relative to player
+                this.screenX = isBot ? 100 : 100; 
                 this.width = 60;
                 this.height = 60;
             }
@@ -325,8 +362,14 @@
             hurdles.push({ distance: dist, laneY: laneY, el: el, width: 20, height: 50, hit: false, isTop: isTop });
         }
 
-        // --- Inputs ---
-        function handleJump() {
+        // --- Instructions Flow ---
+        document.getElementById('close-instructions').addEventListener('click', () => {
+            document.getElementById('instructions-overlay').classList.add('hidden');
+        });
+
+        // --- Unified Inputs (Mobile + PC) ---
+        function handleJump(e) {
+            if (e && e.type === 'touchstart') e.preventDefault(); // Stop mobile double-fire
             if (isPlaying) player.jump();
         }
         
@@ -334,10 +377,10 @@
             if (e.code === 'Space') { e.preventDefault(); handleJump(); }
         });
         container.addEventListener('mousedown', handleJump);
+        container.addEventListener('touchstart', handleJump, { passive: false });
 
         // --- Bot AI ---
         function updateBot() {
-            // Find next hurdle in bot's lane
             const nextHurdle = hurdles.find(h => h.isTop && h.distance > bot.distance && !h.hit);
             
             if (nextHurdle) {
@@ -345,7 +388,7 @@
                 
                 // If hurdle is right in front, jump!
                 if (distToHurdle < 180 && distToHurdle > 140) {
-                    // 10% chance to miscalculate and hit it (makes it beatable)
+                    // 10% chance to miscalculate and hit it
                     if (Math.random() > 0.10) {
                         bot.jump();
                     }
@@ -358,15 +401,13 @@
             hurdles.forEach(h => {
                 if (h.isTop !== isTopLane || h.hit) return;
 
-                // AABB Collision (Horizontal overlap + Vertical check)
                 if (runner.distance + runner.width > h.distance && 
                     runner.distance < h.distance + h.width) {
                     
-                    // If runner's bottom (y) is lower than the hurdle's height
                     if (runner.y > -h.height + 10) { 
                         runner.stumble();
-                        h.hit = true; // Can only hit a hurdle once
-                        h.el.style.transform = 'rotate(90deg) translateY(20px)'; // Knock it over
+                        h.hit = true; 
+                        h.el.style.transform = 'rotate(90deg) translateY(20px)'; 
                         h.el.style.opacity = '0.5';
                     }
                 }
@@ -386,19 +427,15 @@
             // --- Rendering Camera (Follows Player) ---
             const cameraX = player.distance - 100;
 
-            // Player stays at X:100 on screen, just moves up and down
             player.el.style.left = '100px';
             player.el.style.top = `${player.laneY - player.height + player.y}px`;
 
-            // Bot moves relative to player's camera
             const botScreenX = bot.distance - cameraX;
             bot.el.style.left = `${botScreenX}px`;
             bot.el.style.top = `${bot.laneY - bot.height + bot.y}px`;
 
-            // Scroll Parallax Background
             bgEl.style.backgroundPosition = `${-cameraX * 0.2}px 0`;
 
-            // Render Hurdles
             hurdles.forEach(h => {
                 const screenX = h.distance - cameraX;
                 if (screenX > -50 && screenX < width + 50) {
@@ -406,11 +443,10 @@
                     h.el.style.left = `${screenX}px`;
                     h.el.style.top = `${h.laneY - h.height}px`;
                 } else {
-                    h.el.style.display = 'none'; // Cull off-screen
+                    h.el.style.display = 'none'; 
                 }
             });
 
-            // Render Finish Line
             const finishLineScreenX = RACE_DISTANCE - cameraX;
             if (finishLineScreenX < width + 100) {
                 finishLineEl.style.display = 'block';
