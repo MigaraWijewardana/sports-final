@@ -108,13 +108,11 @@
         <div id="hoop"></div>
         
         <div id="stage-announcer">1</div>
-
         <div id="aim-line"></div>
         
         <div id="player" class="entity hidden"></div>
         <div id="ball" class="entity hidden"></div>
-        
-        </div>
+    </div>
 
     <div id="overlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden backdrop-blur-sm">
         <div class="text-center bg-[#1A0524] p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)]">
@@ -137,25 +135,23 @@
         let turnovers = 0;
         const MAX_TURNOVERS = 3;
 
-        // Stage Blueprints (Count, Speed, Y-Position)
         const stageData = [
-            { defs: [{x: 250, y: 250, speed: 2, radius: 24}] }, // Stage 1
-            { defs: [{x: 250, y: 300, speed: 4, radius: 24}] }, // Stage 2
-            { defs: [{x: 150, y: 200, speed: 3, radius: 24}, {x: 350, y: 350, speed: -3, radius: 24}] }, // Stage 3
-            { defs: [{x: 150, y: 250, speed: 4.5, radius: 24}, {x: 350, y: 350, speed: -4.5, radius: 24}] }, // Stage 4
-            { defs: [{x: 250, y: 150, speed: 5, radius: 24}, {x: 250, y: 300, speed: -5, radius: 24}] }, // Stage 5
-            { defs: [{x: 100, y: 200, speed: 3, radius: 24}, {x: 250, y: 300, speed: -4, radius: 24}, {x: 400, y: 400, speed: 3, radius: 24}] }, // Stage 6
-            { defs: [{x: 100, y: 180, speed: 5, radius: 24}, {x: 250, y: 280, speed: -5, radius: 24}, {x: 400, y: 380, speed: 5, radius: 24}] }, // Stage 7
-            { defs: [{x: 50, y: 200, speed: 6, radius: 24}, {x: 250, y: 300, speed: -6, radius: 24}, {x: 450, y: 400, speed: 6, radius: 24}] }, // Stage 8
-            { defs: [{x: 100, y: 150, speed: 4, radius: 24}, {x: 400, y: 250, speed: -5, radius: 24}, {x: 100, y: 350, speed: 6, radius: 24}, {x: 400, y: 450, speed: -4, radius: 24}] }, // Stage 9
-            { defs: [{x: 250, y: 150, speed: 7, radius: 24}, {x: 250, y: 250, speed: -8, radius: 24}, {x: 250, y: 350, speed: 7, radius: 24}, {x: 250, y: 450, speed: -8, radius: 24}] } // Stage 10
+            { defs: [{x: 250, y: 250, speed: 2, radius: 24}] }, 
+            { defs: [{x: 250, y: 300, speed: 4, radius: 24}] }, 
+            { defs: [{x: 150, y: 200, speed: 3, radius: 24}, {x: 350, y: 350, speed: -3, radius: 24}] }, 
+            { defs: [{x: 150, y: 250, speed: 4.5, radius: 24}, {x: 350, y: 350, speed: -4.5, radius: 24}] }, 
+            { defs: [{x: 250, y: 150, speed: 5, radius: 24}, {x: 250, y: 300, speed: -5, radius: 24}] }, 
+            { defs: [{x: 100, y: 200, speed: 3, radius: 24}, {x: 250, y: 300, speed: -4, radius: 24}, {x: 400, y: 400, speed: 3, radius: 24}] }, 
+            { defs: [{x: 100, y: 180, speed: 5, radius: 24}, {x: 250, y: 280, speed: -5, radius: 24}, {x: 400, y: 380, speed: 5, radius: 24}] }, 
+            { defs: [{x: 50, y: 200, speed: 6, radius: 24}, {x: 250, y: 300, speed: -6, radius: 24}, {x: 450, y: 400, speed: 6, radius: 24}] }, 
+            { defs: [{x: 100, y: 150, speed: 4, radius: 24}, {x: 400, y: 250, speed: -5, radius: 24}, {x: 100, y: 350, speed: 6, radius: 24}, {x: 400, y: 450, speed: -4, radius: 24}] }, 
+            { defs: [{x: 250, y: 150, speed: 7, radius: 24}, {x: 250, y: 250, speed: -8, radius: 24}, {x: 250, y: 350, speed: 7, radius: 24}, {x: 250, y: 450, speed: -8, radius: 24}] } 
         ];
 
         let ball = { x: 250, y: 500, vx: 0, vy: 0, radius: 10, isFlying: false };
         let player = { x: 250, y: 500 };
         let activeDefenders = [];
 
-        // Drag state
         let isDragging = false;
         let dragStartX, dragStartY;
         const aimLine = document.getElementById('aim-line');
@@ -164,7 +160,6 @@
         const stageAnnouncer = document.getElementById('stage-announcer');
 
         function loadStage(stageNum) {
-            // Clear old defenders
             activeDefenders.forEach(d => d.el.remove());
             activeDefenders = [];
 
@@ -218,23 +213,27 @@
             ballEl.style.top = `${ball.y}px`;
         }
 
-        // --- Drag Controls ---
-        ballEl.addEventListener('mousedown', (e) => {
+        /* --- Unified Pointer Controls (Replaces Mouse Listeners) --- */
+        ballEl.addEventListener('pointerdown', (e) => {
             if (!isPlaying || ball.isFlying) return;
             isDragging = true;
+            
+            // Lock pointer capture to allow dragging outside element bounds cleanly
+            ballEl.setPointerCapture(e.pointerId);
+            
             const rect = container.getBoundingClientRect();
             dragStartX = e.clientX - rect.left;
             dragStartY = e.clientY - rect.top;
             aimLine.style.display = 'block';
         });
 
-        container.addEventListener('mousemove', (e) => {
+        container.addEventListener('pointermove', (e) => {
             if (!isDragging) return;
             const rect = container.getBoundingClientRect();
             updateAimLine(e.clientX - rect.left, e.clientY - rect.top);
         });
 
-        window.addEventListener('mouseup', (e) => {
+        window.addEventListener('pointerup', (e) => {
             if (!isDragging) return;
             isDragging = false;
             aimLine.style.display = 'none';
@@ -275,7 +274,6 @@
         function gameLoop() {
             if (!isPlaying) return;
 
-            // Move Defenders
             activeDefenders.forEach(d => {
                 d.x += d.speed;
                 if (d.x < d.radius || d.x > width - d.radius) {
@@ -285,7 +283,6 @@
                 d.el.style.top = `${d.y}px`;
             });
 
-            // Move Ball
             if (ball.isFlying) {
                 ball.x += ball.vx;
                 ball.y += ball.vy;
@@ -297,7 +294,6 @@
         }
 
         function checkCollisions() {
-            // 1. Check Hoop (Goal)
             let dxH = ball.x - hoopObj.x;
             let dyH = ball.y - hoopObj.y;
             if (Math.sqrt(dxH*dxH + dyH*dyH) < hoopObj.radius) {
@@ -305,7 +301,6 @@
                 return;
             }
 
-            // 2. Check Defenders (Intercept)
             for (let d of activeDefenders) {
                 let dxD = ball.x - d.x;
                 let dyD = ball.y - d.y;
@@ -317,7 +312,6 @@
                 }
             }
 
-            // 3. Check Out of Bounds (Miss/Turnover)
             if (ball.x < 0 || ball.x > width || ball.y < 0 || ball.y > height) {
                 handleResult('out');
             }
@@ -325,7 +319,7 @@
 
         function handleResult(resultType) {
             ball.isFlying = false;
-            isPlaying = false; // pause briefly
+            isPlaying = false; 
             
             if (resultType === 'goal') {
                 container.classList.add('flash-purple');
@@ -344,7 +338,6 @@
                 }, 800);
 
             } else {
-                // Intercept or Out of Bounds = Turnover
                 turnovers++;
                 document.getElementById('score-turnovers').innerText = turnovers;
                 document.getElementById('tiger-icon').classList.remove('grayscale', 'opacity-50');
@@ -397,7 +390,6 @@
             isPlaying = true;
             gameLoop();
         });
-
     </script>
 </body>
 </html>
