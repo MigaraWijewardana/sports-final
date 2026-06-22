@@ -76,7 +76,7 @@
             margin-bottom: 20px;
             animation: blink 1s infinite alternate;
             letter-spacing: 2px;
-            text-center;
+            text-align: center;
         }
 
         @keyframes blink {
@@ -258,21 +258,19 @@
     <script>
         const wrapper = document.getElementById('game-wrapper');
         const crtScreen = document.getElementById('crt-screen');
-        const internalWidth = 410;  // 380 canvas + 30px thick system border layout
-        const internalHeight = 450; // 420 canvas + 30px thick system border layout
+        const internalWidth = 410;  
+        const internalHeight = 450; 
         
-        // --- Responsive Layout Scaling Engine ---
         function resizeCabinet() {
             const screenWidth = window.innerWidth;
-            // Target width constraints for desktop vs fluid scaling window constraints on mobile
             const targetWidth = screenWidth >= 768 ? 570 : screenWidth - 20; 
             const scale = Math.min(570, targetWidth) / 570;
             
             crtScreen.style.transform = `scale(${scale}) rotateX(5deg)`;
-            wrapper.style.height = `${internalHeight * (570/380) * scale}px`; // Fluid height calculation logic
+            wrapper.style.height = `${internalHeight * (570/380) * scale}px`; 
         }
         window.addEventListener('resize', resizeCabinet);
-        resizeCabinet(); // Run tracking engine setup immediately
+        resizeCabinet(); 
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -318,6 +316,11 @@
         let animationId;
         let pelletsRemaining = 0;
 
+        // Framerate Limiter Setup (Classic Arcade 30 FPS Lock)
+        const fps = 30;
+        const fpsInterval = 1000 / fps;
+        let then = Date.now();
+
         const pacman = {
             x: 9 * TILE_SIZE,
             y: 15 * TILE_SIZE,
@@ -355,7 +358,7 @@
             pacman.nextVy = 0;
             pacman.angle = 0;
 
-            const baseSpeed = 1.5 + (level * 0.2); 
+            const baseSpeed = 1.2 + (level * 0.1); // Scaled for 30 FPS compatibility
             ghosts = [];
             for (let i = 0; i < 4; i++) {
                 ghosts.push({
@@ -430,8 +433,8 @@
                         die();
                     }
                 }
-            }
-        });
+            });
+        }
 
         function initGame() {
             score = 0;
@@ -444,6 +447,7 @@
             startScreen.style.display = 'none';
             gameOverScreen.style.display = 'none';
             isPlaying = true;
+            then = Date.now();
             gameLoop();
         }
 
@@ -471,7 +475,6 @@
             livesDisplay.innerText = lives;
         }
 
-        // --- Keyboard Controls ---
         window.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowUp' || e.key === 'w') { pacman.nextVx = 0; pacman.nextVy = -pacman.speed; pacman.angle = -Math.PI/2; }
             if (e.key === 'ArrowDown' || e.key === 's') { pacman.nextVx = 0; pacman.nextVy = pacman.speed; pacman.angle = Math.PI/2; }
@@ -479,7 +482,6 @@
             if (e.key === 'ArrowRight' || e.key === 'd') { pacman.nextVx = pacman.speed; pacman.nextVy = 0; pacman.angle = 0; }
         });
 
-        // --- Touch Gestures Engine (Swipe Detection Anywhere) ---
         let touchStartX = 0;
         let touchStartY = 0;
 
@@ -490,7 +492,7 @@
         }, { passive: true });
 
         window.addEventListener('touchmove', (e) => {
-            if (isPlaying && e.cancelable) e.preventDefault(); // Stop mobile document scrolling physics
+            if (isPlaying && e.cancelable) e.preventDefault(); 
         }, { passive: false });
 
         window.addEventListener('touchend', (e) => {
@@ -500,20 +502,20 @@
 
             const dx = touchEndX - touchStartX;
             const dy = touchEndY - touchStartY;
-            const threshold = 35; // Minimum drag configuration logic trigger
+            const threshold = 35; 
 
             if (Math.hypot(dx, dy) < threshold) return;
 
             if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 0) { // Right Swipe
+                if (dx > 0) { 
                     pacman.nextVx = pacman.speed; pacman.nextVy = 0; pacman.angle = 0;
-                } else { // Left Swipe
+                } else { 
                     pacman.nextVx = -pacman.speed; pacman.nextVy = 0; pacman.angle = Math.PI;
                 }
             } else {
-                if (dy > 0) { // Down Swipe
+                if (dy > 0) { 
                     pacman.nextVx = 0; pacman.nextVy = pacman.speed; pacman.angle = Math.PI/2;
-                } else { // Up Swipe
+                } else { 
                     pacman.nextVx = 0; pacman.nextVy = -pacman.speed; pacman.angle = -Math.PI/2;
                 }
             }
@@ -661,13 +663,21 @@
         function gameLoop() {
             if (!isPlaying) return;
 
-            updatePacman();
-            updateGhosts();
-
-            drawMap();
-            drawEntities();
-
             animationId = requestAnimationFrame(gameLoop);
+
+            // Frame Rate Execution Throttle Check
+            const now = Date.now();
+            const elapsed = now - then;
+
+            if (elapsed > fpsInterval) {
+                then = now - (elapsed % fpsInterval);
+
+                updatePacman();
+                updateGhosts();
+
+                drawMap();
+                drawEntities();
+            }
         }
 
         cloneMap();
