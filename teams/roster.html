@@ -79,9 +79,10 @@
         <header class="flex flex-col md:flex-row items-center justify-between mb-24 gap-10">
             <div>
                 <span class="text-[10px] uppercase tracking-[0.3em] text-white/50 mb-2 block" id="faction-label">TEAM ROSTER</span>
-                <h1 class="font-freshman text-6xl md:text-8xl uppercase tracking-widest pb-4 inline-block drop-shadow-[0_0_20px_var(--team-glow)]" id="team-name" style="color: var(--team-primary);">
+                <h1 class="font-freshman text-6xl md:text-8xl uppercase tracking-widest pb-1 inline-block drop-shadow-[0_0_20px_var(--team-glow)]" id="team-name" style="color: var(--team-primary);">
                     LOADING...
                 </h1>
+                <div id="custom-team-name" class="text-xs sm:text-sm font-mono tracking-[0.2em] text-white/60 uppercase"></div>
             </div>
             <img src="/public/images/logo.png" class="h-40 md:h-56 object-contain drop-shadow-[0_0_25px_var(--team-glow)] grayscale opacity-80" id="hero-mascot">
         </header>
@@ -148,7 +149,7 @@
             "IG": [
                 { name: "Chrishane Dimuthu", role: "IGP" }
             ],
-            "Alumni": [] // No leaders
+            "Alumni": [] 
         };
 
         // Translation dictionary for Firebase color to Hex
@@ -158,10 +159,17 @@
             "White": "#ffffff", "Black": "#7f8c8d"
         };
 
+        const frontOffices = ["iGV", "iGT", "oGV", "oGT"];
+
         // DOM Setup
         const docRoot = document.documentElement;
         document.title = `${exactTeamName} Roster | SPORTS LCM`;
         document.getElementById('team-name').innerText = exactTeamName;
+
+        // Set initial placeholder for Front Offices
+        if (frontOffices.includes(exactTeamName)) {
+            document.getElementById('custom-team-name').innerText = "TEAM NAME UNKNOWN";
+        }
 
         // Render Permanent Leaders Automatically
         function renderLeaders() {
@@ -185,13 +193,18 @@
             }
         }
 
-        // 2. Fetch Custom Team Identity (Colors/Mascot) from Firebase
+        // 2. Fetch Custom Team Identity (Colors/Mascot/Team Name) from Firebase
         async function loadTeamIdentity() {
             try {
                 const teamDoc = await db.collection("teams").doc(exactTeamName).get();
                 
                 if (teamDoc.exists) {
                     const data = teamDoc.data();
+                    
+                    // Inject Team Name (Applies strictly to front offices)
+                    if (frontOffices.includes(exactTeamName) && data.teamName) {
+                        document.getElementById('custom-team-name').innerText = data.teamName.toUpperCase();
+                    }
                     
                     // Override with Custom Color
                     if (data.color && themeColors[data.color]) {
