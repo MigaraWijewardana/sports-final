@@ -49,95 +49,95 @@
 <body class="bg-[#1A0524] text-white min-h-screen flex flex-col font-['Poppins'] transition-all duration-700" style="background-image: radial-gradient(ellipse at top, #56126940, #1A0524, #1A0524);">
 
     <!-- Minimal Back Nav -->
-    <nav class="w-full p-6 absolute top-0 z-50">
-        <a href="../index.html" class="inline-flex items-center text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-            <i class="fa-solid fa-arrow-left mr-3"></i> Abort / Return
+    <nav class="w-full p-4 sm:p-6 absolute top-0 z-50">
+        <a href="../index.html" class="inline-flex items-center text-[10px] sm:text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
+            <i class="fa-solid fa-arrow-left mr-2 sm:mr-3"></i> Abort / Return
         </a>
     </nav>
 
-    <main class="flex-grow flex items-center justify-center p-4 pt-24 z-10 w-full max-w-7xl mx-auto">
-        <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch bg-black/40 rounded-3xl border border-white/10 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl min-h-[700px]">
+    <main class="flex-grow flex items-center justify-center p-4 pt-20 sm:pt-24 z-10 w-full max-w-7xl mx-auto">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-0 items-stretch bg-black/40 rounded-3xl border border-white/10 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-xl min-h-[600px] sm:min-h-[700px]">
             
             <!-- LEFT: HOLOGRAM CHARACTER CHAMBER -->
-            <div id="visual-zone" class="relative flex flex-col items-center justify-center p-10 border-r border-white/10 scanline-grid overflow-hidden group">
+            <div id="visual-zone" class="relative flex flex-col items-center justify-center p-6 sm:p-10 border-b lg:border-b-0 lg:border-r border-white/10 scanline-grid overflow-hidden group min-h-[300px] lg:min-h-full">
                 
                 <!-- Default State -->
                 <div id="default-branding" class="z-10 text-center transition-all duration-500">
-                    <i class="fa-solid fa-user-astronaut text-6xl text-white/10 mb-6 animate-pulse"></i>
-                    <h1 class="font-freshman text-3xl sm:text-5xl text-white/30 uppercase leading-tight tracking-[0.2em]">AWAITING <br>CHAMPION</h1>
+                    <i class="fa-solid fa-user-astronaut text-4xl sm:text-6xl text-white/10 mb-4 sm:mb-6 animate-pulse"></i>
+                    <h1 class="font-freshman text-2xl sm:text-4xl lg:text-5xl text-white/30 uppercase leading-tight tracking-[0.2em]">AWAITING <br>CHAMPION</h1>
                 </div>
                 
                 <!-- Active Character State -->
-                <div id="dynamic-theme-box" class="hidden z-10 w-full h-full flex flex-col items-center justify-between py-10">
-                    <h2 id="live-fo-title" class="text-white/50 font-bold uppercase tracking-[0.4em] text-xs z-20 bg-black/50 px-4 py-1 rounded-full border border-white/10"></h2>
+                <div id="dynamic-theme-box" class="hidden z-10 w-full h-full flex flex-col items-center justify-between py-6 sm:py-10">
+                    <h2 id="live-fo-title" class="text-white/50 font-bold uppercase tracking-[0.4em] text-[10px] sm:text-xs z-20 bg-black/50 px-4 py-1 rounded-full border border-white/10"></h2>
                     
                     <!-- The Hologram Stage -->
-                    <div class="relative w-full flex justify-center items-center flex-grow mt-10">
+                    <div class="relative w-full flex justify-center items-center flex-grow mt-6 sm:mt-10">
                         <!-- Floor Glow -->
-                        <div class="absolute bottom-0 w-64 h-16 rounded-[100%] opacity-30 blur-2xl" style="background-color: var(--accent-color);"></div>
+                        <div class="absolute bottom-0 w-48 sm:w-64 h-12 sm:h-16 rounded-[100%] opacity-30 blur-2xl transition-colors duration-500" id="hologram-glow" style="background-color: var(--accent-color);"></div>
                         <!-- Cyber Ring -->
-                        <div class="absolute bottom-4 w-56 h-12 rounded-[100%] border-2 opacity-50 shadow-[0_0_20px_var(--accent-color)]" style="border-color: var(--accent-color); transform: rotateX(70deg);"></div>
+                        <div class="absolute bottom-2 sm:bottom-4 w-40 sm:w-56 h-8 sm:h-12 rounded-[100%] border-2 opacity-50 transition-all duration-500 shadow-[0_0_20px_var(--accent-color)]" id="hologram-ring" style="border-color: var(--accent-color); transform: rotateX(70deg);"></div>
                         
                         <!-- Mascot Graphic -->
-                        <img id="team-mascot-img" src="" class="absolute bottom-10 max-h-80 sm:max-h-96 object-contain animate-float z-10 drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]">
+                        <img id="team-mascot-img" src="" class="absolute bottom-8 sm:bottom-10 max-h-48 sm:max-h-80 lg:max-h-96 object-contain animate-float z-10 drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]">
                     </div>
 
-                    <div id="team-name-display" class="font-freshman text-4xl sm:text-5xl uppercase tracking-[0.2em] mt-auto z-20 text-center" style="color: var(--accent-color); text-shadow: 0 0 20px var(--accent-color);"></div>
+                    <div id="team-name-display" class="font-freshman text-3xl sm:text-4xl lg:text-5xl uppercase tracking-[0.2em] mt-auto z-20 text-center transition-colors duration-500" style="color: var(--accent-color); text-shadow: 0 0 20px var(--accent-color);"></div>
                 </div>
             </div>
 
             <!-- RIGHT: THE CONSOLE -->
-            <div class="p-10 sm:p-14 flex flex-col justify-center relative">
+            <div class="p-6 sm:p-10 lg:p-14 flex flex-col justify-center relative">
                 
                 <!-- PHASE 1: LOGIN -->
                 <div id="login-container" class="w-full max-w-md mx-auto">
-                    <div class="flex items-center gap-3 mb-6">
-                        <span class="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_#ef4444]"></span>
-                        <span class="text-xs font-bold tracking-widest text-red-500 uppercase">System Locked</span>
+                    <div class="flex items-center gap-3 mb-4 sm:mb-6">
+                        <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_#ef4444]"></span>
+                        <span class="text-[10px] sm:text-xs font-bold tracking-widest text-red-500 uppercase">System Locked</span>
                     </div>
-                    <h2 class="font-freshman text-4xl mb-4 text-white uppercase">AUTHORIZATION <br><span class="text-[#FFB81C]">REQUIRED</span></h2>
-                    <p class="text-[#def5ff]/50 mb-10 text-sm uppercase tracking-widest border-l-2 border-white/20 pl-4">Insert command key to initialize character selection protocol.</p>
+                    <h2 class="font-freshman text-3xl sm:text-4xl mb-3 sm:mb-4 text-white uppercase">AUTHORIZATION <br><span class="text-[#FFB81C]">REQUIRED</span></h2>
+                    <p class="text-[#def5ff]/50 mb-8 sm:mb-10 text-[10px] sm:text-sm uppercase tracking-widest border-l-2 border-white/20 pl-3 sm:pl-4">Insert command key to initialize character selection protocol.</p>
                     
                     <div class="space-y-4">
-                        <input type="password" id="fo-password" placeholder="ENTER ACCESS KEY" class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-6 py-4 text-white font-mono focus:ring-2 focus:ring-[#FFB81C] transition-all uppercase tracking-[0.3em] text-center shadow-inner">
-                        <button id="login-btn" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-4 rounded-lg hover:bg-white transition-all uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(255,184,28,0.3)]">Decrypt Protocol</button>
-                        <p id="login-error" class="hidden text-red-400 text-xs text-center uppercase tracking-widest font-bold mt-4 bg-red-500/10 py-2 rounded">Access Denied: Invalid Key</p>
+                        <input type="password" id="fo-password" placeholder="ENTER ACCESS KEY" class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 sm:px-6 sm:py-4 text-white font-mono focus:ring-2 focus:ring-[#FFB81C] transition-all uppercase tracking-[0.2em] sm:tracking-[0.3em] text-center shadow-inner text-sm sm:text-base">
+                        <button id="login-btn" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3 sm:py-4 rounded-lg hover:bg-white transition-all uppercase tracking-[0.1em] sm:tracking-[0.2em] text-sm sm:text-base shadow-[0_0_20px_rgba(255,184,28,0.3)]">Decrypt Protocol</button>
+                        <p id="login-error" class="hidden text-red-400 text-[10px] sm:text-xs text-center uppercase tracking-widest font-bold mt-4 bg-red-500/10 py-2 rounded">Access Denied: Invalid Key</p>
                     </div>
                 </div>
 
                 <!-- PHASE 2: REGISTRATION -->
-                <div id="registration-container" class="hidden w-full max-w-md mx-auto space-y-8 animate-fade-in">
-                    <div class="border-b border-white/10 pb-6">
-                        <h2 id="welcome-text" class="font-freshman text-3xl uppercase text-white">WELCOME, <br><span class="text-[#FFB81C]">COMMANDER</span></h2>
+                <div id="registration-container" class="hidden w-full max-w-md mx-auto space-y-6 sm:space-y-8 animate-fade-in">
+                    <div class="border-b border-white/10 pb-4 sm:pb-6">
+                        <h2 id="welcome-text" class="font-freshman text-2xl sm:text-3xl uppercase text-white">WELCOME, <br><span class="text-[#FFB81C]" id="welcome-fo">COMMANDER</span></h2>
                     </div>
                     
-                    <form id="team-form" class="space-y-6">
-                        <select id="lcvp-name" required class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 text-white appearance-none cursor-pointer font-bold tracking-wider text-sm">
+                    <form id="team-form" class="space-y-5 sm:space-y-6">
+                        <select id="lcvp-name" required class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 text-white appearance-none cursor-pointer font-bold tracking-wider text-xs sm:text-sm">
                             <option value="" disabled selected>Identify Yourself...</option>
                         </select>
                         
-                        <input type="text" id="team-name" placeholder="ENTER TEAM NAME" required class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 text-white uppercase tracking-widest font-bold text-sm placeholder:text-white/20">
+                        <input type="text" id="team-name" placeholder="ENTER TEAM NAME" required class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 text-white uppercase tracking-widest font-bold text-xs sm:text-sm placeholder:text-white/20">
                         
                         <!-- Color Swatches -->
-                        <div class="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                            <label class="text-[10px] uppercase tracking-[0.2em] text-[#def5ff]/60 font-bold block">Aura Selection</label>
-                            <div id="color-picker" class="grid grid-cols-4 gap-3">
-                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Red" style="background-color: #e74c3c;"></div>
-                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Blue" style="background-color: #3498db;"></div>
-                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Yellow" style="background-color: #f1c40f;"></div>
-                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Green" style="background-color: #2ecc71;"></div>
-                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Cyan" style="background-color: #00bcd4;"></div>
-                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="White" style="background-color: #ffffff;"></div>
-                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Black" style="background-color: #333333;"></div>
-                                <div class="color-swatch w-full h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Orange" style="background-color: #e67e22;"></div>
+                        <div class="space-y-2 sm:space-y-3 bg-white/5 p-3 sm:p-4 rounded-xl border border-white/10">
+                            <label class="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#def5ff]/60 font-bold block">Aura Selection</label>
+                            <div id="color-picker" class="grid grid-cols-4 gap-2 sm:gap-3">
+                                <div class="color-swatch w-full h-8 sm:h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Red" style="background-color: #e74c3c;"></div>
+                                <div class="color-swatch w-full h-8 sm:h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Blue" style="background-color: #3498db;"></div>
+                                <div class="color-swatch w-full h-8 sm:h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Yellow" style="background-color: #f1c40f;"></div>
+                                <div class="color-swatch w-full h-8 sm:h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Green" style="background-color: #2ecc71;"></div>
+                                <div class="color-swatch w-full h-8 sm:h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Cyan" style="background-color: #00bcd4;"></div>
+                                <div class="color-swatch w-full h-8 sm:h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="White" style="background-color: #ffffff;"></div>
+                                <div class="color-swatch w-full h-8 sm:h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Black" style="background-color: #333333;"></div>
+                                <div class="color-swatch w-full h-8 sm:h-10 rounded cursor-pointer border-2 border-transparent transition-all hover:scale-110 shadow-lg" data-color="Orange" style="background-color: #e67e22;"></div>
                             </div>
-                            <input type="hidden" id="team-color">
+                            <input type="hidden" id="team-color" required>
                         </div>
 
                         <!-- Mascot Dropdown -->
-                        <div class="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                            <label class="text-[10px] uppercase tracking-[0.2em] text-[#def5ff]/60 font-bold block">Champion Selection</label>
-                            <select id="team-mascot" required class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 text-white cursor-pointer transition-all font-bold tracking-wider text-sm">
+                        <div class="space-y-2 sm:space-y-3 bg-white/5 p-3 sm:p-4 rounded-xl border border-white/10">
+                            <label class="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#def5ff]/60 font-bold block">Champion Selection</label>
+                            <select id="team-mascot" required class="w-full bg-[#1A0524]/80 border border-white/10 rounded-lg px-4 py-3 text-white cursor-pointer transition-all font-bold tracking-wider text-xs sm:text-sm">
                                 <option value="" disabled selected>Select a mascot...</option>
                                 <option value="Panthers">Panthers</option>
                                 <option value="Tigers">Tigers</option>
@@ -150,14 +150,201 @@
                             </select>
                         </div>
 
-                        <button type="submit" id="submit-btn" class="w-full bg-white text-[#1A0524] font-bold py-4 rounded-lg mt-6 hover:bg-[#FFB81C] transition-all uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(255,255,255,0.2)]">Lock In Champion</button>
+                        <button type="submit" id="submit-btn" class="w-full bg-white text-[#1A0524] font-bold py-3 sm:py-4 rounded-lg mt-4 sm:mt-6 hover:bg-[#FFB81C] transition-all uppercase tracking-[0.1em] sm:tracking-[0.2em] text-sm sm:text-base shadow-[0_0_20px_rgba(255,255,255,0.2)]">Lock In Champion</button>
+                        <p id="success-msg" class="hidden text-green-400 text-[10px] sm:text-xs text-center uppercase tracking-widest font-bold mt-4 bg-green-500/10 py-2 rounded">Protocol Accepted. Champion Locked.</p>
                     </form>
                 </div>
             </div>
         </div>
     </main>
 
-    <script src="../src/js/firebase.js"></script>
-    <script src="../src/js/lcvp.js"></script>
+    <!-- Connect Firebase Config -->
+    <script src="/src/js/firebase.js"></script>
+
+    <script>
+        // Security Dictionary
+        const passwords = {
+            "vpoGV123": "oGV",
+            "vpiGV123": "iGV",
+            "vpoGT123": "oGT",
+            "vpiGT123": "iGT",
+            "IgSaegis": "IG",
+            "USJ_Alumni": "Alumni"
+        };
+
+        const vpNames = {
+            "oGV": ["Devmi Galagedara", "Sineli Thilakarathne"],
+            "iGV": ["Nayana Fernando", "Dileepa Gayantha", "Navapriyah Krishnan"],
+            "oGT": ["Vihangi Ranaweera", "Jayashni Rodrigo"],
+            "iGT": ["Jemima Mohamed", "Tharuka Gunarathne"],
+            "IG": ["Chrishane Dimuthu"],
+            "Alumni": ["Savindu Wijethilake"]
+        };
+
+        // Theme Dictionary for UI matching
+        const themeColors = {
+            "Red": "#e74c3c", "Blue": "#3498db", "Green": "#2ecc71", 
+            "Yellow": "#f1c40f", "Orange": "#e67e22", "Cyan": "#00bcd4", 
+            "White": "#ffffff", "Black": "#7f8c8d"
+        };
+
+        let currentFO = "";
+        
+        // DOM Elements
+        const loginBtn = document.getElementById("login-btn");
+        const passwordInput = document.getElementById("fo-password");
+        const loginError = document.getElementById("login-error");
+        
+        const loginContainer = document.getElementById("login-container");
+        const registrationContainer = document.getElementById("registration-container");
+        
+        const vpSelect = document.getElementById("lcvp-name");
+        const welcomeFoText = document.getElementById("welcome-fo");
+        const liveFoTitle = document.getElementById("live-fo-title");
+        const submitBtn = document.getElementById("submit-btn");
+
+        // UI Preview Elements
+        const teamNameInput = document.getElementById("team-name");
+        const teamNameDisplay = document.getElementById("team-name-display");
+        const mascotSelect = document.getElementById("team-mascot");
+        const mascotImg = document.getElementById("team-mascot-img");
+        const colorSwatches = document.querySelectorAll('.color-swatch');
+        const colorInput = document.getElementById('team-color');
+        
+        const defaultBranding = document.getElementById('default-branding');
+        const dynamicThemeBox = document.getElementById('dynamic-theme-box');
+
+        // --- PHASE 1: LOGIN ---
+        loginBtn.addEventListener("click", async () => {
+            const pwd = passwordInput.value.trim();
+            if (passwords[pwd]) {
+                currentFO = passwords[pwd];
+                
+                // Check if already registered
+                try {
+                    const doc = await db.collection("teams").doc(currentFO).get();
+                    if (doc.exists) {
+                        loginError.innerText = "Error: Faction Identity Already Locked In.";
+                        loginError.classList.remove("hidden");
+                        return;
+                    }
+                } catch (e) {
+                    console.error("DB Check Failed:", e);
+                }
+
+                // Proceed to Registration
+                loginError.classList.add("hidden");
+                loginContainer.classList.add("hidden");
+                registrationContainer.classList.remove("hidden");
+                
+                welcomeFoText.innerText = currentFO + " COMMANDER";
+                liveFoTitle.innerText = currentFO + " FACTION";
+                
+                // Populate VP Dropdown
+                vpNames[currentFO].forEach(name => {
+                    let opt = document.createElement("option");
+                    opt.value = name;
+                    opt.innerText = name;
+                    vpSelect.appendChild(opt);
+                });
+
+                // Activate UI Preview Zone
+                defaultBranding.classList.add('hidden');
+                dynamicThemeBox.classList.remove('hidden');
+
+            } else {
+                loginError.innerText = "Access Denied: Invalid Key";
+                loginError.classList.remove("hidden");
+            }
+        });
+
+        // --- REAL-TIME UI PREVIEW ENGINE ---
+        
+        // 1. Text Mirroring
+        teamNameInput.addEventListener("input", (e) => {
+            const val = e.target.value.trim().toUpperCase();
+            teamNameDisplay.innerText = val === "" ? "TEAM NAME" : val;
+        });
+
+        // 2. Color Selection
+        colorSwatches.forEach(swatch => {
+            swatch.addEventListener('click', (e) => {
+                // Remove selection rings
+                colorSwatches.forEach(s => s.classList.remove('border-white', 'scale-110', 'ring-4', 'ring-white/30'));
+                
+                // Add to clicked
+                e.target.classList.add('border-white', 'scale-110', 'ring-4', 'ring-white/30');
+                
+                const selectedColorName = e.target.dataset.color;
+                colorInput.value = selectedColorName;
+
+                // Update CSS Variables dynamically
+                const hex = themeColors[selectedColorName];
+                document.documentElement.style.setProperty('--accent-color', hex);
+                
+                // Update UI shadows specifically
+                document.getElementById('hologram-glow').style.backgroundColor = hex;
+                document.getElementById('hologram-ring').style.borderColor = hex;
+                document.getElementById('hologram-ring').style.boxShadow = `0 0 20px ${hex}`;
+                teamNameDisplay.style.color = hex;
+                teamNameDisplay.style.textShadow = `0 0 20px ${hex}`;
+            });
+        });
+
+        // 3. Mascot Selection
+        mascotSelect.addEventListener("change", (e) => {
+            const mascot = e.target.value.toLowerCase();
+            mascotImg.src = `/public/images/mascots/${mascot}.png`;
+            mascotImg.classList.add('animate-character-select');
+            
+            // Reset animation so it can play again on next change
+            setTimeout(() => {
+                mascotImg.classList.remove('animate-character-select');
+            }, 700);
+        });
+
+        // --- PHASE 2: SUBMIT REGISTRATION ---
+        document.getElementById("team-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const colorVal = colorInput.value;
+            if(!colorVal) {
+                alert("You must select an Aura Color.");
+                return;
+            }
+
+            submitBtn.innerText = "UPLOADING TO MAINFRAME...";
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-wait');
+
+            const teamData = {
+                registeredBy: vpSelect.value,
+                teamName: teamNameInput.value.trim(),
+                color: colorVal,
+                mascot: mascotSelect.value,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                // Save to Firestore using the Faction Name (e.g. "iGV", "IG") as the Document ID
+                await db.collection("teams").doc(currentFO).set(teamData);
+                
+                document.getElementById('team-form').reset();
+                submitBtn.classList.add('hidden');
+                document.getElementById('success-msg').classList.remove('hidden');
+                
+                // Freeze the visualizer
+                mascotImg.classList.remove('animate-float');
+                teamNameInput.disabled = true;
+                mascotSelect.disabled = true;
+                
+            } catch (error) {
+                console.error("Error saving team:", error);
+                submitBtn.innerText = "SYSTEM ERROR. RETRY.";
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-wait');
+            }
+        });
+    </script>
 </body>
 </html>
