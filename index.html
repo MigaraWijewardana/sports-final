@@ -45,16 +45,6 @@
 
         /* Prevent scrolling when mobile menu is open */
         body.menu-open { overflow: hidden; }
-
-        /* Pulse animation for the instruction box */
-        @keyframes pulse-border {
-            0% { border-color: rgba(255, 184, 28, 0.3); box-shadow: 0 0 15px rgba(255, 184, 28, 0.1); }
-            50% { border-color: rgba(255, 184, 28, 1); box-shadow: 0 0 30px rgba(255, 184, 28, 0.4); }
-            100% { border-color: rgba(255, 184, 28, 0.3); box-shadow: 0 0 15px rgba(255, 184, 28, 0.1); }
-        }
-        .instruction-box {
-            animation: pulse-border 2.5s infinite;
-        }
     </style>
 </head>
 <body class="bg-[#1A0524] text-white font-['Poppins'] antialiased bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#561269]/40 via-[#1A0524] to-[#1A0524] relative min-h-screen pb-20 overflow-x-hidden">
@@ -374,7 +364,6 @@
                 <div class="flex-1 text-center md:text-left">
                     <span class="text-[#FFB81C] font-bold tracking-[0.3em] uppercase text-xs md:text-sm mb-3 block">Status: <span class="text-white">Active</span></span>
                     <h3 class="font-freshman text-6xl md:text-8xl text-white mb-3 md:mb-4 drop-shadow-2xl">ALUMNI</h3>
-                    <p class="text-white/80 font-bold uppercase tracking-widest text-sm mb-2">Commanded By: <span class="text-[#FFB81C]">Savindu Wijethilake</span></p>
                     <p class="text-[#def5ff]/60 max-w-md mx-auto md:mx-0 text-sm md:text-base mb-6 md:mb-8 italic">"Current mascot status: <span class="text-[#FFB81C]">Drafting phase initiated...</span>"</p>
                     <a href="/register/delegate.html?entity=Alumni" class="inline-block px-10 md:px-16 py-4 md:py-6 border-2 md:border-4 border-[#FFB81C] text-[#FFB81C] text-sm md:text-xl font-bold uppercase tracking-[0.2em] hover:bg-[#FFB81C] hover:text-[#1A0524] transition-all shadow-[0_0_20px_rgba(255,184,28,0.4)]">Draft Now</a>
                 </div>
