@@ -204,6 +204,60 @@
         </div>
     </section>
 
+<!-- FUTSAL ARENA & LEAGUE TABLE -->
+    <section id="futsal-arena" class="relative py-20 bg-black/80 border-t border-b border-white/10 z-20">
+        <div class="absolute inset-0 bg-[url('/public/images/scanline.png')] opacity-10 pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-4 md:px-6 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <!-- Left: The Pitch / CTA -->
+            <div class="lg:col-span-5 text-center lg:text-left">
+                <span class="inline-block px-3 py-1 bg-red-500/20 border border-red-500/50 text-red-400 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full mb-4 animate-pulse">Live Server Active</span>
+                <h2 class="font-freshman text-5xl sm:text-6xl text-white mb-4 uppercase leading-none drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    DEFEND YOUR <br><span class="text-[#FFB81C]">FACTION</span>
+                </h2>
+                <p class="text-[#def5ff]/70 text-sm sm:text-base leading-relaxed mb-8 max-w-md mx-auto lg:mx-0">
+                    The OC is waiting on the pitch. Step into the digital arena, select your faction, and face the Organizing Committee in a high-stakes 1v1 futsal showdown. Every goal scored contributes to your Faction's global standing.
+                </p>
+                <a href="futsal.html" class="inline-flex items-center justify-center bg-[#FFB81C] text-[#1A0524] font-bold text-lg px-10 py-4 rounded-lg shadow-[0_0_30px_rgba(255,184,28,0.4)] hover:bg-white hover:shadow-[0_0_40px_rgba(255,255,255,0.6)] transition-all uppercase tracking-widest group">
+                    <i class="fa-solid fa-gamepad mr-3 group-hover:animate-bounce"></i> Enter Matchmaking
+                </a>
+            </div>
+
+            <!-- Right: The Leaderboard -->
+            <div class="lg:col-span-7 w-full">
+                <div class="glass-card bg-[#1A0524]/90 border border-[#FFB81C]/30 rounded-2xl p-4 sm:p-6 shadow-[0_0_30px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+                    <div class="flex justify-between items-end mb-6 border-b border-white/10 pb-4">
+                        <h3 class="font-freshman text-2xl text-white uppercase tracking-wider"><i class="fa-solid fa-trophy text-[#FFB81C] mr-2"></i> Futsal League</h3>
+                        <span class="text-[10px] text-white/50 font-mono tracking-widest uppercase">Global Standings</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-[10px] sm:text-xs font-bold text-[#def5ff]/50 uppercase tracking-widest border-b border-white/5">
+                                    <th class="pb-3 pl-2 w-12">Rnk</th>
+                                    <th class="pb-3">Faction</th>
+                                    <th class="pb-3 text-center" title="Matches Played">P</th>
+                                    <th class="pb-3 text-center" title="Goals For (Scored)">GF</th>
+                                    <th class="pb-3 text-center" title="Goals Against (Conceded)">GA</th>
+                                    <th class="pb-3 text-center" title="Goal Difference">GD</th>
+                                    <th class="pb-3 text-center text-[#FFB81C]">PTS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="league-table-body" class="text-sm font-bold tracking-wider">
+                                <tr>
+                                    <td colspan="7" class="text-center py-8 text-white/30 font-mono text-xs"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Syncing with Mainframe...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    
     <section id="about" class="max-w-6xl mx-auto px-4 py-16 md:py-20 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-10 md:mb-20">
             <div class="text-center md:text-left">
