@@ -1,607 +1,581 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPORTS LCM | Futsal Arena</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SPORTS LCM | Futsal Showdown</title>
     <link rel="icon" href="/public/images/logo.png" type="image/png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/src/styles/global.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
     <style>
-        :root {
-            --pitch-color: #1a3a20;
-            --line-color: rgba(255, 255, 255, 0.4);
-        }
-
-        body {
-            overflow-x: hidden;
-            touch-action: pan-y; /* Prevent unwanted gestures */
-        }
-
-        /* Responsive Game Wrapper */
-        #game-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            overflow: hidden;
-            padding: 0 10px;
-        }
-
-        #game-container {
-            width: 800px;
-            height: 450px;
-            background-color: var(--pitch-color);
-            position: relative;
-            overflow: hidden;
-            border: 4px solid #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0,0,0,0.5);
-            transform-origin: top center;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        /* Pitch Markings */
-        .pitch-line { position: absolute; background: var(--line-color); }
-        .center-line { width: 4px; height: 100%; left: 50%; transform: translateX(-50%); top: 0; }
-        .center-circle { width: 100px; height: 100px; border: 4px solid var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; background: transparent; pointer-events: none; }
-        .center-dot { width: 8px; height: 8px; background: var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; pointer-events: none;}
-        .penalty-area-left { width: 100px; height: 200px; border: 4px solid var(--line-color); border-left: none; left: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none;}
-        .penalty-area-right { width: 100px; height: 200px; border: 4px solid var(--line-color); border-right: none; right: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none;}
-
-        /* Goals */
-        .goal { position: absolute; width: 20px; height: 120px; background: rgba(255,255,255,0.2); top: 50%; transform: translateY(-50%); border: 2px solid #fff; }
-        .goal-left { left: 0; border-left: none; box-shadow: inset -10px 0 20px rgba(86, 18, 105, 0.5); }
-        .goal-right { right: 0; border-right: none; box-shadow: inset 10px 0 20px rgba(255, 184, 28, 0.5); }
-
-        /* Physics Objects */
-        .entity {
-            position: absolute;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
-            transition: filter 0.2s;
-            will-change: left, top;
-        }
-
-        .player {
-            width: 44px;
-            height: 44px;
-            background-size: 80%;
-            background-position: center;
-            background-repeat: no-repeat;
-            cursor: pointer;
-            z-index: 10;
-        }
-
-        .player.team-purple { 
-            background-color: #561269; 
-            border: 3px solid #b84dd9; 
-            background-image: url('/public/images/mascots/panthers.png');
-        }
+        body { margin: 0; overflow: hidden; background-color: #0a0a0a; touch-action: none; font-family: 'Poppins', sans-serif; }
         
-        .player.team-gold { 
-            background-color: #1A0524; 
-            border: 3px solid #FFB81C; 
-            background-image: url('/public/images/mascots/tigers.png');
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(circle at center, #1a1a2e 0%, #000000 100%);
         }
 
-        .player:hover { filter: brightness(1.3); }
-
-        .ball {
-            width: 24px;
-            height: 24px;
-            background-color: #fff;
-            border: 2px solid #000;
-            background-image: radial-gradient(circle at 30% 30%, #fff, #ccc);
-            z-index: 5;
+        canvas {
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(255,255,255,0.05);
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
-        /* Aiming Line */
-        #aim-line {
-            position: absolute;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.5);
-            transform-origin: left center;
-            display: none;
-            z-index: 1;
-            pointer-events: none;
+        .crt-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none; z-index: 50;
         }
 
-        #aim-arrow {
-            position: absolute;
-            right: -10px;
-            top: -6px;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 16px;
-            transform: rotate(90deg);
+        /* UI Overlays */
+        .overlay-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 5, 15, 0.95); backdrop-filter: blur(10px);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; transition: opacity 0.5s;
         }
+
+        .faction-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .faction-btn:hover { transform: scale(1.05) translateY(-5px); }
+
+        #hud {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 40px; align-items: center; z-index: 40;
+            background: rgba(0,0,0,0.6); padding: 10px 40px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .score-num { font-family: 'Freshman', sans-serif; font-size: 3rem; text-shadow: 0 0 15px currentColor; }
+        .hud-name { font-size: 0.7rem; font-weight: bold; letter-spacing: 0.2em; text-transform: uppercase; color: white; opacity: 0.7; }
+        
+        #timer { font-family: monospace; font-size: 1.5rem; font-weight: bold; color: white; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 8px; }
+
+        /* Mobile Controls */
+        #mobile-controls {
+            display: none; position: absolute; bottom: 30px; left: 30px; z-index: 60;
+        }
+        .joystick-base { width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); position: relative; }
+        .joystick-stick { width: 50px; height: 50px; background: rgba(255,255,255,0.5); border-radius: 50%; position: absolute; top: 35px; left: 35px; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
+
+        @media (max-width: 768px) { #mobile-controls { display: block; } #hud { top: 10px; transform: translateX(-50%) scale(0.8); } }
     </style>
 </head>
-<body class="bg-[#1A0524] text-white font-['Poppins'] min-h-screen flex flex-col pt-10 pb-10">
+<body>
 
-    <nav class="w-full px-4 sm:px-6 relative z-40 mb-6">
-        <a href="games.html" class="inline-flex items-center text-[10px] sm:text-xs font-bold tracking-widest uppercase text-white/50 hover:text-[#FFB81C] transition-colors bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-md">
-            <i class="fa-solid fa-arrow-left mr-2 sm:mr-3"></i> Leave Arena
+    <nav class="absolute top-4 left-4 z-[110]">
+        <a href="index.html" class="text-[10px] font-bold tracking-widest uppercase text-white hover:text-[#FFB81C] bg-black/60 px-4 py-2 rounded-full border border-white/20 backdrop-blur-md">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Abort
         </a>
     </nav>
 
-    <div class="text-center mb-6 px-4">
-        <h1 class="font-freshman text-3xl sm:text-5xl text-white tracking-widest uppercase text-glow-white">FUTSAL <span class="text-[#FFB81C]">SHOWDOWN</span></h1>
-        <p class="text-[#def5ff]/60 text-[10px] sm:text-sm mt-2">DRAG TO AIM. RELEASE TO STRIKE.</p>
-    </div>
-
-    <div class="max-w-3xl mx-auto w-[90%] flex justify-between items-center bg-black/60 border border-white/10 rounded-2xl p-3 sm:p-4 mb-6 shadow-2xl backdrop-blur-md">
-        <div class="flex items-center gap-2 sm:gap-4 w-1/3">
-            <img src="/public/images/mascots/panthers.png" class="hidden sm:block w-12 h-12 object-contain filter drop-shadow-[0_0_10px_#561269]">
-            <div class="text-left">
-                <p class="text-[8px] sm:text-xs font-bold text-[#b84dd9] uppercase tracking-widest">Team Purple</p>
-                <span id="score-purple" class="font-freshman text-2xl sm:text-4xl">0</span>
-            </div>
-        </div>
-
-        <div class="text-center w-1/3 flex flex-col items-center">
-            <span id="match-phase" class="text-[8px] sm:text-xs font-bold text-[#def5ff]/50 uppercase tracking-widest mb-1">1st Half</span>
-            <div id="timer" class="font-freshman text-2xl sm:text-4xl text-white tracking-widest bg-white/10 px-4 sm:px-6 py-1 sm:py-2 rounded-lg border border-white/20">03:00</div>
-            <button id="start-btn" class="mt-2 sm:mt-3 bg-[#FFB81C] text-[#1A0524] text-[10px] sm:text-xs font-bold px-3 py-1 rounded uppercase tracking-widest hover:bg-white transition-colors hidden">Start Match</button>
-        </div>
-
-        <div class="flex items-center gap-2 sm:gap-4 w-1/3 justify-end">
-            <div class="text-right">
-                <p class="text-[8px] sm:text-xs font-bold text-[#FFB81C] uppercase tracking-widest">Team Gold</p>
-                <span id="score-gold" class="font-freshman text-2xl sm:text-4xl">0</span>
-            </div>
-            <img src="/public/images/mascots/tigers.png" class="hidden sm:block w-12 h-12 object-contain filter drop-shadow-[0_0_10px_#FFB81C]">
-        </div>
-    </div>
-
-    <div id="game-wrapper">
-        <div id="game-container">
-            <div class="pitch-line center-line"></div>
-            <div class="center-circle"></div>
-            <div class="center-dot"></div>
-            <div class="penalty-area-left"></div>
-            <div class="penalty-area-right"></div>
+    <!-- UI: Matchmaking / Faction Select -->
+    <div id="setup-screen" class="overlay-screen">
+        <h1 class="font-freshman text-4xl md:text-6xl text-white mb-2 uppercase tracking-widest drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">THE ARENA</h1>
+        <p class="text-[#def5ff]/60 text-sm tracking-[0.3em] uppercase mb-12 border-b border-white/10 pb-4">Select your allegiance</p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-4xl px-4">
             
-            <div class="goal goal-left" id="goal-left"></div>
-            <div class="goal goal-right" id="goal-right"></div>
+            <button class="faction-btn glass-card p-6 border-[#3498db]/30 flex flex-col items-center group" onclick="startGame('iGV')">
+                <img src="/public/images/mascots/pantherface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_#3498db] group-hover:scale-110 transition-transform" alt="iGV">
+                <span class="font-freshman text-2xl text-[#3498db]">iGV</span>
+            </button>
 
-            <div id="aim-line"><i class="fa-solid fa-caret-up" id="aim-arrow"></i></div>
+            <button class="faction-btn glass-card p-6 border-[#ffffff]/30 flex flex-col items-center group" onclick="startGame('iGT')">
+                <img src="/public/images/mascots/wolfface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_#ffffff] group-hover:scale-110 transition-transform" alt="iGT">
+                <span class="font-freshman text-2xl text-[#ffffff]">iGT</span>
+            </button>
+
+            <button class="faction-btn glass-card p-6 border-[#7f8c8d]/30 flex flex-col items-center group" onclick="startGame('oGV')">
+                <img src="/public/images/mascots/tigerface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_#7f8c8d] group-hover:scale-110 transition-transform" alt="oGV">
+                <span class="font-freshman text-2xl text-[#7f8c8d]">oGV</span>
+            </button>
+
+            <button class="faction-btn glass-card p-6 border-[#f1c40f]/30 flex flex-col items-center group" onclick="startGame('oGT')">
+                <img src="/public/images/mascots/phoenixface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_#f1c40f] group-hover:scale-110 transition-transform" alt="oGT">
+                <span class="font-freshman text-2xl text-[#f1c40f]">oGT</span>
+            </button>
+            
         </div>
+        
+        <p class="text-white/40 text-[10px] uppercase tracking-widest mt-12 font-mono"><i class="fa-solid fa-keyboard mr-2"></i> Use WASD or Arrows. Mobile users use joystick.</p>
     </div>
 
-    <div id="overlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden backdrop-blur-sm">
-        <div class="text-center bg-[#1A0524] p-8 sm:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)] mx-4">
-            <h2 id="overlay-title" class="font-freshman text-4xl sm:text-6xl text-white mb-4">HALF TIME</h2>
-            <p id="overlay-subtitle" class="text-[#def5ff]/70 text-sm sm:text-base tracking-widest uppercase mb-8">Switching Sides...</p>
-            <button id="resume-btn" class="bg-[#FFB81C] text-[#1A0524] font-bold px-6 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Continue</button>
-        </div>
-    </div>
-
-    <div id="instructions-overlay" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
-        <div class="text-center bg-[#1A0524] p-8 md:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.3)] max-w-lg mx-4">
-            <h2 class="font-freshman text-3xl md:text-5xl text-white mb-6">HOW TO PLAY</h2>
-            <div class="text-left text-[#def5ff]/80 space-y-4 mb-8 text-sm md:text-base border-t border-b border-white/10 py-6">
-                <p><i class="fa-solid fa-desktop text-[#FFB81C] w-6"></i> <strong>PC:</strong> Click, drag backwards to aim, and release to strike.</p>
-                <p><i class="fa-solid fa-mobile-screen text-[#FFB81C] w-6"></i> <strong>Mobile:</strong> Tap your player, drag backwards to aim, and release.</p>
-                <p><i class="fa-solid fa-futbol text-[#FFB81C] w-6"></i> First team to dominate the scoreboard before the timer ends wins.</p>
+    <!-- UI: Post Match -->
+    <div id="post-screen" class="overlay-screen" style="display: none; opacity: 0;">
+        <h2 id="post-title" class="font-freshman text-6xl text-white uppercase tracking-widest mb-4">MATCH OVER</h2>
+        <p id="post-subtitle" class="text-sm font-bold tracking-[0.3em] uppercase text-white/50 mb-10">Syncing with Mainframe...</p>
+        
+        <div class="flex items-center gap-8 mb-12 bg-white/5 p-8 rounded-2xl border border-white/10 shadow-2xl">
+            <div class="text-center">
+                <span class="block text-xs uppercase tracking-widest text-[#FFB81C] mb-2 font-bold" id="post-p1-name">YOU</span>
+                <span class="font-freshman text-6xl text-white" id="post-p1-score">0</span>
             </div>
-            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold px-8 py-3 rounded uppercase tracking-widest hover:bg-white transition-colors">Understood</button>
+            <span class="text-white/20 text-2xl font-black">VS</span>
+            <div class="text-center">
+                <span class="block text-xs uppercase tracking-widest text-[#561269] mb-2 font-bold">THE OC</span>
+                <span class="font-freshman text-6xl text-white" id="post-p2-score">0</span>
+            </div>
+        </div>
+
+        <button onclick="location.reload()" class="bg-[#FFB81C] text-[#1A0524] font-bold px-12 py-4 rounded-full uppercase tracking-widest hover:bg-white transition-colors shadow-[0_0_20px_rgba(255,184,28,0.4)]">Play Again</button>
+    </div>
+
+    <!-- Main Game Area -->
+    <div id="game-container">
+        
+        <div id="hud" style="display: none;">
+            <div class="flex flex-col items-center">
+                <span class="hud-name" id="hud-faction-name">YOU</span>
+                <span class="score-num" id="score-p1" style="color: #3498db;">0</span>
+            </div>
+            <div id="timer">60</div>
+            <div class="flex flex-col items-center">
+                <span class="hud-name text-[#FFB81C]">THE OC</span>
+                <span class="score-num text-[#561269]" id="score-p2">0</span>
+            </div>
+        </div>
+
+        <canvas id="pitch"></canvas>
+        <div class="crt-overlay"></div>
+        
+        <div id="mobile-controls">
+            <div class="joystick-base" id="joystick-base">
+                <div class="joystick-stick" id="joystick-stick"></div>
+            </div>
         </div>
     </div>
+
+    <script src="/src/js/firebase.js"></script>
 
     <script>
-        const wrapper = document.getElementById('game-wrapper');
-        const container = document.getElementById('game-container');
-        const width = 800; // Logical internal width
-        const height = 450; // Logical internal height
-        const goalTop = height / 2 - 60;
-        const goalBottom = height / 2 + 60;
+        // --- GAME ASSETS & THEMES ---
+        const themes = {
+            'iGV': { color: '#3498db', img: '/public/images/mascots/pantherface.png', name: 'iGV' },
+            'iGT': { color: '#ffffff', img: '/public/images/mascots/wolfface.png', name: 'iGT' },
+            'oGV': { color: '#7f8c8d', img: '/public/images/mascots/tigerface.png', name: 'oGV' },
+            'oGT': { color: '#f1c40f', img: '/public/images/mascots/phoenixface.png', name: 'oGT' }
+        };
+        const ocTheme = { color: '#561269', img: '/public/images/logo.png', name: 'THE OC' };
 
-        let scale = 1; // Used for responsive coordinates
+        let playerTheme = null;
+        let imagesLoaded = 0;
+        let playerImg = new Image();
+        let ocImg = new Image();
+        ocImg.src = ocTheme.img;
+
+        // --- ENGINE SETUP ---
+        const canvas = document.getElementById('pitch');
+        const ctx = canvas.getContext('2d');
         
-        // --- Responsive Scaling Engine ---
-        function resizeGame() {
-            const screenWidth = window.innerWidth;
-            const maxWidth = Math.min(800, screenWidth - 20); // 20px padding
-            scale = maxWidth / width;
+        // Logical Pitch Size (Scale rendered to fit screen)
+        const GAME_W = 800;
+        const GAME_H = 500;
+        const GOAL_H = 140;
+
+        function resize() {
+            const aspect = GAME_W / GAME_H;
+            const windowAspect = window.innerWidth / window.innerHeight;
             
-            container.style.transform = `scale(${scale})`;
-            wrapper.style.height = `${height * scale}px`; // Shrink wrapper height so layout doesn't break
+            if (windowAspect < aspect) {
+                canvas.width = window.innerWidth * 0.95;
+                canvas.height = canvas.width / aspect;
+            } else {
+                canvas.height = window.innerHeight * 0.8;
+                canvas.width = canvas.height * aspect;
+            }
         }
-        window.addEventListener('resize', resizeGame);
-        resizeGame(); // Initial scale
+        window.addEventListener('resize', resize);
+        resize();
 
+        // --- PHYSICS ENTITIES ---
+        const friction = 0.97;
+        const keys = { w: false, a: false, s: false, d: false, ArrowUp:false, ArrowDown:false, ArrowLeft:false, ArrowRight:false };
+
+        let p1 = { x: 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.8, maxSpeed: 6, mass: 2 };
+        let p2 = { x: GAME_W - 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.7, maxSpeed: 5, mass: 2 };
+        let ball = { x: GAME_W/2, y: GAME_H/2, vx: 0, vy: 0, r: 12, maxSpeed: 12, mass: 1 };
+
+        let score1 = 0;
+        let score2 = 0;
+        let timeLeft = 60;
         let isPlaying = false;
-        let timeRemaining = 180; // 3 minutes
-        let isFirstHalf = true;
-        let scorePurple = 0;
-        let scoreGold = 0;
-        let timerInterval;
-        let aiInterval; 
+        let matchOver = false;
 
-        const FRICTION = 0.98;
-        const BOUNCE = 0.7;
-        const PLAYER_MASS = 2;
-        const BALL_MASS = 1;
+        // --- CONTROLS ---
+        window.addEventListener('keydown', e => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; });
+        window.addEventListener('keyup', e => { if(keys.hasOwnProperty(e.key)) keys[e.key] = false; });
 
-        let entities = [];
-        let activePlayer = null;
-        let isDragging = false;
-        let dragStartX, dragStartY;
+        // Mobile Joystick Logic
+        const joyBase = document.getElementById('joystick-base');
+        const joyStick = document.getElementById('joystick-stick');
+        let joyActive = false;
+        let joyVec = { x: 0, y: 0 };
 
-        const aimLine = document.getElementById('aim-line');
+        joyBase.addEventListener('touchstart', handleJoyStart, {passive: false});
+        joyBase.addEventListener('touchmove', handleJoyMove, {passive: false});
+        window.addEventListener('touchend', handleJoyEnd);
 
-        class Entity {
-            constructor(id, type, team, x, y, radius, mass) {
-                this.id = id;
-                this.type = type; 
-                this.team = team; 
-                this.x = x;
-                this.y = y;
-                this.vx = 0;
-                this.vy = 0;
-                this.radius = radius;
-                this.mass = mass;
-                
-                this.el = document.createElement('div');
-                this.el.className = `entity ${type} ${team ? 'team-' + team : ''}`;
-                this.el.style.width = `${radius * 2}px`;
-                this.el.style.height = `${radius * 2}px`;
-                container.appendChild(this.el);
+        function handleJoyStart(e) { e.preventDefault(); joyActive = true; handleJoyMove(e); }
+        function handleJoyMove(e) {
+            if (!joyActive) return;
+            e.preventDefault();
+            const rect = joyBase.getBoundingClientRect();
+            const touch = e.touches[0];
+            const cx = rect.left + rect.width/2;
+            const cy = rect.top + rect.height/2;
+            let dx = touch.clientX - cx;
+            let dy = touch.clientY - cy;
+            const distance = Math.hypot(dx, dy);
+            const maxDist = rect.width/2 - 25;
 
-                if (type === 'player') {
-                    // Unified event listeners for Mobile and PC
-                    this.el.addEventListener('mousedown', (e) => startDrag(e, this));
-                    this.el.addEventListener('touchstart', (e) => startDrag(e, this), { passive: false });
-                }
+            if (distance > maxDist) {
+                dx = (dx / distance) * maxDist;
+                dy = (dy / distance) * maxDist;
             }
 
-            update() {
-                this.vx *= FRICTION;
-                this.vy *= FRICTION;
-                
-                if (Math.abs(this.vx) < 0.1) this.vx = 0;
-                if (Math.abs(this.vy) < 0.1) this.vy = 0;
+            joyStick.style.transform = `translate(${dx}px, ${dy}px)`;
+            
+            // Normalize -1 to 1
+            joyVec.x = dx / maxDist;
+            joyVec.y = dy / maxDist;
+        }
+        function handleJoyEnd() {
+            joyActive = false;
+            joyStick.style.transform = `translate(0px, 0px)`;
+            joyVec.x = 0; joyVec.y = 0;
+        }
 
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Wall Collisions & Scoring
-                if (this.x - this.radius < 0) { 
-                    if (this.type === 'ball' && this.y > goalTop && this.y < goalBottom) {
-                        scoreGoal('gold');
-                        return;
-                    }
-                    this.x = this.radius; this.vx *= -BOUNCE; 
-                }
-                if (this.x + this.radius > width) { 
-                    if (this.type === 'ball' && this.y > goalTop && this.y < goalBottom) {
-                        scoreGoal('purple');
-                        return;
-                    }
-                    this.x = width - this.radius; this.vx *= -BOUNCE; 
-                }
-                if (this.y - this.radius < 0) { this.y = this.radius; this.vy *= -BOUNCE; }
-                if (this.y + this.radius > height) { this.y = height - this.radius; this.vy *= -BOUNCE; }
-
-                this.el.style.left = `${this.x}px`;
-                this.el.style.top = `${this.y}px`;
+        // --- MATH & PHYSICS ---
+        function applyForce(entity, ax, ay) {
+            entity.vx += ax;
+            entity.vy += ay;
+            const speed = Math.hypot(entity.vx, entity.vy);
+            if (speed > entity.maxSpeed) {
+                entity.vx = (entity.vx / speed) * entity.maxSpeed;
+                entity.vy = (entity.vy / speed) * entity.maxSpeed;
             }
         }
 
-        function setupFormation() {
-            entities.forEach(e => e.el.remove());
-            entities = [];
+        function resolveCollision(e1, e2) {
+            const dx = e2.x - e1.x;
+            const dy = e2.y - e1.y;
+            const distance = Math.hypot(dx, dy);
+            const minDist = e1.r + e2.r;
+
+            if (distance < minDist) {
+                // Separation
+                const overlap = minDist - distance;
+                const nx = dx / distance;
+                const ny = dy / distance;
+                
+                const totalMass = e1.mass + e2.mass;
+                const r1 = e2.mass / totalMass;
+                const r2 = e1.mass / totalMass;
+
+                e1.x -= nx * overlap * r1;
+                e1.y -= ny * overlap * r1;
+                e2.x += nx * overlap * r2;
+                e2.y += ny * overlap * r2;
+
+                // Momentum Exchange
+                const kx = e1.vx - e2.vx;
+                const ky = e1.vy - e2.vy;
+                const p = 2 * (nx * kx + ny * ky) / totalMass;
+                
+                // Add a little elasticity/bounciness
+                const restitution = 1.2; 
+                e1.vx -= p * e2.mass * restitution;
+                e1.vy -= p * e2.mass * restitution;
+                e2.vx += p * e1.mass * restitution;
+                e2.vy += p * e1.mass * restitution;
+            }
+        }
+
+        function wallBounce(e) {
+            const topG = (GAME_H - GOAL_H) / 2;
+            const botG = topG + GOAL_H;
+
+            // Y walls
+            if (e.y - e.r < 0) { e.y = e.r; e.vy *= -0.8; }
+            if (e.y + e.r > GAME_H) { e.y = GAME_H - e.r; e.vy *= -0.8; }
+
+            // X walls (with Goal logic)
+            if (e.x - e.r < 0) {
+                if (e.y > topG && e.y < botG) {
+                    if (e === ball && e.x < -10) scoreGoal(2);
+                } else {
+                    e.x = e.r; e.vx *= -0.8;
+                }
+            }
+            if (e.x + e.r > GAME_W) {
+                if (e.y > topG && e.y < botG) {
+                    if (e === ball && e.x > GAME_W + 10) scoreGoal(1);
+                } else {
+                    e.x = GAME_W - e.r; e.vx *= -0.8;
+                }
+            }
+        }
+
+        function scoreGoal(playerScored) {
+            if(playerScored === 1) score1++;
+            else score2++;
+            
+            document.getElementById('score-p1').innerText = score1;
+            document.getElementById('score-p2').innerText = score2;
+            
+            resetPositions();
+        }
+
+        function resetPositions() {
+            p1.x = 150; p1.y = GAME_H/2; p1.vx = 0; p1.vy = 0;
+            p2.x = GAME_W - 150; p2.y = GAME_H/2; p2.vx = 0; p2.vy = 0;
+            ball.x = GAME_W/2; ball.y = GAME_H/2; ball.vx = 0; ball.vy = 0;
+        }
+
+        // --- BOT AI ---
+        function updateBot() {
+            // Defend if ball is far, attack if ball is near
+            let targetX, targetY;
+            
+            if (ball.x > GAME_W/2) {
+                // Ball is on bot's half. Intercept and push towards P1 goal
+                targetX = ball.x + 20; // Aim slightly behind the ball
+                targetY = ball.y;
+            } else {
+                // Ball is far, retreat to defend goal line
+                targetX = GAME_W - 100;
+                targetY = Math.max(Math.min(ball.y, GAME_H/2 + 50), GAME_H/2 - 50); // Follow Y axis near goal
+            }
+
+            const dx = targetX - p2.x;
+            const dy = targetY - p2.y;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist > 5) {
+                applyForce(p2, (dx/dist)*p2.speed, (dy/dist)*p2.speed);
+            }
+        }
+
+        // --- MAIN LOOP ---
+        function update() {
+            if (!isPlaying) return;
+
+            // Player 1 Input
+            let ax = 0, ay = 0;
+            if (joyActive) {
+                ax = joyVec.x * p1.speed;
+                ay = joyVec.y * p1.speed;
+            } else {
+                if (keys.w || keys.ArrowUp) ay -= p1.speed;
+                if (keys.s || keys.ArrowDown) ay += p1.speed;
+                if (keys.a || keys.ArrowLeft) ax -= p1.speed;
+                if (keys.d || keys.ArrowRight) ax += p1.speed;
+            }
+            applyForce(p1, ax, ay);
+
+            // Update Bot
+            updateBot();
+
+            // Apply friction
+            p1.vx *= friction; p1.vy *= friction;
+            p2.vx *= friction; p2.vy *= friction;
+            ball.vx *= 0.99; ball.vy *= 0.99; // Less friction for ball
+
+            // Move
+            p1.x += p1.vx; p1.y += p1.vy;
+            p2.x += p2.vx; p2.y += p2.vy;
+            ball.x += ball.vx; ball.y += ball.vy;
+
+            // Collisions
+            resolveCollision(p1, ball);
+            resolveCollision(p2, ball);
+            resolveCollision(p1, p2);
+
+            wallBounce(p1);
+            wallBounce(p2);
+            wallBounce(ball);
+        }
+
+        function drawCircleImg(ctx, entity, img, color) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(entity.x, entity.y, entity.r, 0, Math.PI * 2);
+            ctx.fillStyle = '#111';
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            ctx.clip();
+            if (img.complete) {
+                // Determine rotation based on velocity
+                const angle = Math.atan2(entity.vy, entity.vx);
+                ctx.translate(entity.x, entity.y);
+                // Rotate slightly for effect if moving fast
+                if(Math.hypot(entity.vx, entity.vy) > 0.5) {
+                    ctx.rotate(angle);
+                }
+                ctx.drawImage(img, -entity.r + 5, -entity.r + 5, entity.r*2 - 10, entity.r*2 - 10);
+            }
+            ctx.restore();
+            
+            // Neon Glow
+            ctx.beginPath();
+            ctx.arc(entity.x, entity.y, entity.r, 0, Math.PI * 2);
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 15;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        function render() {
+            // Scale context to fit screen
+            ctx.save();
+            ctx.scale(canvas.width / GAME_W, canvas.height / GAME_H);
+
+            // Clear
+            ctx.clearRect(0, 0, GAME_W, GAME_H);
+
+            // Draw Pitch Markings
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 3;
+            // Center Line & Circle
+            ctx.beginPath(); ctx.moveTo(GAME_W/2, 0); ctx.lineTo(GAME_W/2, GAME_H); ctx.stroke();
+            ctx.beginPath(); ctx.arc(GAME_W/2, GAME_H/2, 70, 0, Math.PI*2); ctx.stroke();
+            
+            // Goals
+            const topG = (GAME_H - GOAL_H) / 2;
+            ctx.fillStyle = playerTheme ? playerTheme.color + '40' : 'rgba(255,255,255,0.1)';
+            ctx.fillRect(0, topG, 40, GOAL_H);
+            ctx.fillStyle = ocTheme.color + '40';
+            ctx.fillRect(GAME_W - 40, topG, 40, GOAL_H);
+
+            // Entities
+            drawCircleImg(ctx, p1, playerImg, playerTheme ? playerTheme.color : '#fff');
+            drawCircleImg(ctx, p2, ocImg, ocTheme.color);
 
             // Ball
-            entities.push(new Entity('ball', 'ball', null, width/2, height/2, 12, BALL_MASS));
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = '#fff';
+            ctx.shadowBlur = 10;
+            ctx.fill();
+            ctx.shadowBlur = 0;
 
-            // Human is always Purple (Left), AI is always Gold (Right)
-            const leftPositions = [ [60, 225], [180, 120], [180, 330], [320, 160], [320, 290] ];
-            const rightPositions = [ [740, 225], [620, 120], [620, 330], [480, 160], [480, 290] ];
-
-            leftPositions.forEach((pos, i) => entities.push(new Entity(`p${i}`, 'player', 'purple', pos[0], pos[1], 22, PLAYER_MASS)));
-            rightPositions.forEach((pos, i) => entities.push(new Entity(`g${i}`, 'player', 'gold', pos[0], pos[1], 22, PLAYER_MASS)));
+            ctx.restore();
         }
 
-        // --- Unified Interaction Controls ---
-        function getEventPos(e) {
-            if (e.touches && e.touches.length > 0) {
-                return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            } else if (e.changedTouches && e.changedTouches.length > 0) {
-                return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-            }
-            return { x: e.clientX, y: e.clientY };
+        function loop() {
+            update();
+            render();
+            if(!matchOver) requestAnimationFrame(loop);
         }
 
-        function startDrag(e, player) {
-            if (e.cancelable) e.preventDefault(); // Stop mobile from scrolling down
-            if (!isPlaying) return;
-            if (player.team !== 'purple') return; 
-            if (Math.abs(player.vx) > 1 || Math.abs(player.vy) > 1) return;
+        // --- GAME FLOW & DATABASE ---
+        function startGame(factionKey) {
+            playerTheme = themes[factionKey];
+            playerImg.src = playerTheme.img;
             
-            isDragging = true;
-            activePlayer = player;
-            
-            const pos = getEventPos(e);
-            const rect = container.getBoundingClientRect();
-            
-            // Adjust coordinates based on the mobile scaling factor
-            dragStartX = (pos.x - rect.left) / scale;
-            dragStartY = (pos.y - rect.top) / scale;
-            
-            aimLine.style.display = 'block';
-            updateAimLine(dragStartX, dragStartY);
-        }
-
-        function handleMove(e) {
-            if (!isDragging) return;
-            if (e.cancelable) e.preventDefault(); // Stop pull-to-refresh
-            
-            const pos = getEventPos(e);
-            const rect = container.getBoundingClientRect();
-            updateAimLine((pos.x - rect.left) / scale, (pos.y - rect.top) / scale);
-        }
-
-        function endDrag(e) {
-            if (!isDragging) return;
-            isDragging = false;
-            aimLine.style.display = 'none';
-
-            const pos = getEventPos(e);
-            const rect = container.getBoundingClientRect();
-            
-            const endX = (pos.x - rect.left) / scale;
-            const endY = (pos.y - rect.top) / scale;
-
-            let dx = dragStartX - endX;
-            let dy = dragStartY - endY;
-            
-            const distance = Math.sqrt(dx*dx + dy*dy);
-            const maxPower = 15;
-            
-            if (distance > 0) {
-                const powerScale = Math.min(distance * 0.1, maxPower) / distance;
-                activePlayer.vx = dx * powerScale;
-                activePlayer.vy = dy * powerScale;
-            }
-            activePlayer = null;
-        }
-
-        // Attach global listeners for dragging
-        window.addEventListener('mousemove', handleMove, { passive: false });
-        window.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('mouseup', endDrag);
-        window.addEventListener('touchend', endDrag);
-
-        function updateAimLine(mouseX, mouseY) {
-            if(!activePlayer) return;
-            const dx = dragStartX - mouseX;
-            const dy = dragStartY - mouseY;
-            const distance = Math.min(Math.sqrt(dx*dx + dy*dy), 150); 
-            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-            aimLine.style.left = `${activePlayer.x}px`;
-            aimLine.style.top = `${activePlayer.y}px`;
-            aimLine.style.width = `${distance}px`;
-            aimLine.style.transform = `translateY(-50%) rotate(${angle}deg)`;
-            
-            if(distance > 100) aimLine.style.background = 'rgba(231, 76, 60, 0.8)';
-            else if (distance > 50) aimLine.style.background = 'rgba(241, 196, 15, 0.8)';
-            else aimLine.style.background = 'rgba(255, 255, 255, 0.5)';
-        }
-
-        // --- AI OPPONENT LOGIC (TEAM GOLD) ---
-        function startAI() {
-            if (aiInterval) clearInterval(aiInterval);
-            aiInterval = setInterval(aiTakeTurn, 1500); 
-        }
-
-        function stopAI() {
-            if (aiInterval) clearInterval(aiInterval);
-        }
-
-        function aiTakeTurn() {
-            if (!isPlaying) return;
-            
-            const goldPlayers = entities.filter(e => e.team === 'gold');
-            const ball = entities.find(e => e.type === 'ball');
-            if (!ball || goldPlayers.length === 0) return;
-
-            let closest = null;
-            let minDist = Infinity;
-            
-            goldPlayers.forEach(p => {
-                if (Math.abs(p.vx) > 1 || Math.abs(p.vy) > 1) return; 
-                
-                let dx = ball.x - p.x;
-                let dy = ball.y - p.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < minDist) {
-                    minDist = dist;
-                    closest = p;
-                }
-            });
-
-            if (closest) {
-                let targetX = ball.x;
-                let targetY = ball.y;
-                
-                if (ball.x < width / 2) {
-                    targetX -= 50; 
-                }
-
-                let dx = targetX - closest.x;
-                let dy = targetY - closest.y;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                
-                if (dist > 0) {
-                    dx += (Math.random() - 0.5) * 40;
-                    dy += (Math.random() - 0.5) * 40;
-                    dist = Math.sqrt(dx*dx + dy*dy);
-                    
-                    const power = Math.min((minDist * 0.08), 14); 
-                    closest.vx = (dx / dist) * power;
-                    closest.vy = (dy / dist) * power;
-                    
-                    closest.el.style.filter = 'brightness(2) drop-shadow(0 0 10px #FFB81C)';
-                    setTimeout(() => { closest.el.style.filter = ''; }, 300);
-                }
-            }
-        }
-
-        // --- Physics Engine ---
-        function resolveCollisions() {
-            for (let i = 0; i < entities.length; i++) {
-                for (let j = i + 1; j < entities.length; j++) {
-                    let e1 = entities[i];
-                    let e2 = entities[j];
-
-                    let dx = e2.x - e1.x;
-                    let dy = e2.y - e1.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
-                    let minDistance = e1.radius + e2.radius;
-
-                    if (distance < minDistance) {
-                        let overlap = minDistance - distance;
-                        let nx = dx / distance;
-                        let ny = dy / distance;
-
-                        e1.x -= nx * (overlap / 2);
-                        e1.y -= ny * (overlap / 2);
-                        e2.x += nx * (overlap / 2);
-                        e2.y += ny * (overlap / 2);
-
-                        let kx = (e1.vx - e2.vx);
-                        let ky = (e1.vy - e2.vy);
-                        let p = 2 * (nx * kx + ny * ky) / (e1.mass + e2.mass);
-
-                        e1.vx = e1.vx - p * e2.mass * nx * BOUNCE;
-                        e1.vy = e1.vy - p * e2.mass * ny * BOUNCE;
-                        e2.vx = e2.vx + p * e1.mass * nx * BOUNCE;
-                        e2.vy = e2.vy + p * e1.mass * ny * BOUNCE;
-                    }
-                }
-            }
-        }
-
-        function gameLoop() {
-            if (!isPlaying) return;
-            resolveCollisions();
-            entities.forEach(e => e.update());
-            requestAnimationFrame(gameLoop);
-        }
-
-        // --- Game Flow Logic ---
-        function scoreGoal(team) {
-            isPlaying = false;
-            stopAI(); 
-            
-            if (team === 'purple') scorePurple++;
-            if (team === 'gold') scoreGold++;
-            
-            document.getElementById('score-purple').innerText = scorePurple;
-            document.getElementById('score-gold').innerText = scoreGold;
-
-            container.style.backgroundColor = team === 'purple' ? '#561269' : '#FFB81C';
+            document.getElementById('setup-screen').style.opacity = '0';
             setTimeout(() => {
-                container.style.backgroundColor = 'var(--pitch-color)';
-                setupFormation();
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('hud').style.display = 'flex';
+                document.getElementById('hud-faction-name').innerText = playerTheme.name;
+                document.getElementById('score-p1').style.color = playerTheme.color;
+                
+                // Set Arena Ambient Glow
+                document.getElementById('game-container').style.backgroundImage = `radial-gradient(circle at center, ${playerTheme.color}30 0%, #000000 100%)`;
+                
                 isPlaying = true;
-                startAI(); 
-                gameLoop();
-            }, 1000);
+                startTimer();
+                loop();
+            }, 500);
         }
-
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = (seconds % 60).toString().padStart(2, '0');
-            return `${m}:${s}`;
-        }
-
-        function triggerHalftime() {
-            isPlaying = false;
-            stopAI();
-            clearInterval(timerInterval);
-            isFirstHalf = false;
-            
-            const overlay = document.getElementById('overlay');
-            document.getElementById('overlay-title').innerText = "HALF TIME";
-            document.getElementById('overlay-subtitle').innerText = "Regroup your squad.";
-            document.getElementById('resume-btn').innerText = "Start 2nd Half";
-            
-            document.getElementById('match-phase').innerText = "2nd Half";
-            timeRemaining = 90; 
-            document.getElementById('timer').innerText = formatTime(timeRemaining);
-            
-            overlay.classList.remove('hidden');
-        }
-
-        function triggerGameOver() {
-            isPlaying = false;
-            stopAI();
-            clearInterval(timerInterval);
-            
-            const overlay = document.getElementById('overlay');
-            document.getElementById('overlay-title').innerText = "FULL TIME";
-            
-            let winner = "DRAW";
-            if (scorePurple > scoreGold) winner = "TEAM PURPLE WINS!";
-            if (scoreGold > scorePurple) winner = "TEAM GOLD WINS!";
-            
-            document.getElementById('overlay-subtitle').innerText = winner;
-            document.getElementById('resume-btn').innerText = "Play Again";
-            document.getElementById('resume-btn').onclick = () => location.reload();
-            
-            overlay.classList.remove('hidden');
-        }
-
-        document.getElementById('resume-btn').addEventListener('click', () => {
-            document.getElementById('overlay').classList.add('hidden');
-            setupFormation();
-            isPlaying = true;
-            startTimer();
-            startAI();
-            gameLoop();
-        });
 
         function startTimer() {
-            timerInterval = setInterval(() => {
-                timeRemaining--;
-                document.getElementById('timer').innerText = formatTime(timeRemaining);
-                
-                if (timeRemaining === 90 && isFirstHalf) triggerHalftime();
-                else if (timeRemaining === 0) triggerGameOver();
+            const timerEl = document.getElementById('timer');
+            const interval = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    endGame();
+                }
             }, 1000);
         }
 
-        // Instructions Flow
-        document.getElementById('close-instructions').addEventListener('click', () => {
-            document.getElementById('instructions-overlay').classList.add('hidden');
-            document.getElementById('start-btn').classList.remove('hidden');
-        });
+        async function endGame() {
+            isPlaying = false;
+            matchOver = true;
+            
+            const postScreen = document.getElementById('post-screen');
+            postScreen.style.display = 'flex';
+            
+            // Force reflow for fade in
+            void postScreen.offsetWidth; 
+            postScreen.style.opacity = '1';
 
-        document.getElementById('start-btn').addEventListener('click', function() {
-            this.style.display = 'none';
-            setupFormation();
-            isPlaying = true;
-            startTimer();
-            startAI(); 
-            gameLoop();
-        });
+            const title = document.getElementById('post-title');
+            document.getElementById('post-p1-name').innerText = playerTheme.name;
+            document.getElementById('post-p1-name').style.color = playerTheme.color;
+            document.getElementById('post-p1-score').innerText = score1;
+            document.getElementById('post-p2-score').innerText = score2;
 
-        // Init layout
-        setupFormation();
-        entities.forEach(e => {
-            e.el.style.left = `${e.x}px`;
-            e.el.style.top = `${e.y}px`;
-        });
+            if (score1 > score2) { title.innerText = "VICTORY"; title.style.color = playerTheme.color; }
+            else if (score2 > score1) { title.innerText = "DEFEAT"; title.style.color = 'red'; }
+            else { title.innerText = "DRAW"; title.style.color = 'gray'; }
+
+            // Push to Database
+            if (typeof db !== 'undefined') {
+                try {
+                    // We use Firestore FieldValue.increment to safely add to existing totals
+                    const factionRef = db.collection('futsal_league').doc(playerTheme.name.toLowerCase().replace(' ', '_').split('_')[0]); // e.g. "igv"
+                    
+                    let winsAdd = score1 > score2 ? 1 : 0;
+                    let drawsAdd = score1 === score2 ? 1 : 0;
+
+                    await factionRef.set({
+                        matchesPlayed: firebase.firestore.FieldValue.increment(1),
+                        goalsFor: firebase.firestore.FieldValue.increment(score1),
+                        goalsAgainst: firebase.firestore.FieldValue.increment(score2),
+                        wins: firebase.firestore.FieldValue.increment(winsAdd),
+                        draws: firebase.firestore.FieldValue.increment(drawsAdd)
+                    }, { merge: true }); // Merge creates document if it doesn't exist
+
+                    document.getElementById('post-subtitle').innerText = "Mainframe Updated Successfully.";
+                    document.getElementById('post-subtitle').style.color = "#2ecc71";
+                } catch (error) {
+                    console.error("DB Update Failed:", error);
+                    document.getElementById('post-subtitle').innerText = "Network Error: Stats not saved.";
+                    document.getElementById('post-subtitle').style.color = "red";
+                }
+            } else {
+                document.getElementById('post-subtitle').innerText = "Database offline.";
+            }
+        }
+
+        // Draw initial blank state
+        render();
     </script>
 </body>
 </html>
