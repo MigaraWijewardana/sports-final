@@ -10,17 +10,16 @@
     <link rel="stylesheet" href="/src/styles/global.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <style>
-        body { margin: 0; overflow: hidden; background-color: #0a0a0a; touch-action: none; font-family: 'Poppins', sans-serif; }
+        body { margin: 0; overflow: hidden; background-color: #0a0a0a; touch-action: none; font-family: 'Poppins', sans-serif; display: flex; flex-direction: column; height: 100vh; }
         
-        #game-container {
+        #game-wrapper {
+            flex-grow: 1;
             position: relative;
             width: 100vw;
-            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -52,9 +51,7 @@
             z-index: 100; transition: opacity 0.5s;
         }
 
-        .faction-btn {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .faction-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .faction-btn:hover { transform: scale(1.05) translateY(-5px); }
 
         #hud {
@@ -68,14 +65,29 @@
         
         #timer { font-family: monospace; font-size: 1.5rem; font-weight: bold; color: white; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 8px; }
 
-        /* Mobile Controls */
-        #mobile-controls {
-            display: none; position: absolute; bottom: 30px; left: 30px; z-index: 60;
+        /* Controls Footer */
+        #controls-footer {
+            height: 60px;
+            background: #05020a;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            z-index: 60;
         }
-        .joystick-base { width: 120px; height: 120px; background: rgba(255,255,255,0.1); border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); position: relative; }
-        .joystick-stick { width: 50px; height: 50px; background: rgba(255,255,255,0.5); border-radius: 50%; position: absolute; top: 35px; left: 35px; box-shadow: 0 0 15px rgba(255,255,255,0.3); }
 
-        @media (max-width: 768px) { #mobile-controls { display: block; } #hud { top: 10px; transform: translateX(-50%) scale(0.8); } }
+        /* Mobile Controls */
+        #mobile-controls { display: none; position: absolute; bottom: 20px; left: 20px; z-index: 60; }
+        .joystick-base { width: 130px; height: 130px; background: rgba(255,255,255,0.05); border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); position: relative; backdrop-filter: blur(5px); }
+        .joystick-stick { width: 60px; height: 60px; background: rgba(255,255,255,0.3); border-radius: 50%; position: absolute; top: 35px; left: 35px; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+
+        @media (max-width: 768px) { 
+            #mobile-controls { display: block; } 
+            #hud { top: 10px; transform: translateX(-50%) scale(0.8); } 
+            .desktop-ctrl { display: none; }
+            #controls-footer { justify-content: flex-end; padding-right: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -86,13 +98,11 @@
         </a>
     </nav>
 
-    <!-- UI: Matchmaking / Faction Select -->
     <div id="setup-screen" class="overlay-screen">
         <h1 class="font-freshman text-4xl md:text-6xl text-white mb-2 uppercase tracking-widest drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">THE ARENA</h1>
         <p class="text-[#def5ff]/60 text-sm tracking-[0.3em] uppercase mb-12 border-b border-white/10 pb-4">Select your allegiance</p>
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-4xl px-4">
-            
             <button class="faction-btn glass-card p-6 border-[#3498db]/30 flex flex-col items-center group" onclick="startGame('iGV')">
                 <img src="/public/images/mascots/pantherface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_#3498db] group-hover:scale-110 transition-transform" alt="iGV">
                 <span class="font-freshman text-2xl text-[#3498db]">iGV</span>
@@ -112,13 +122,10 @@
                 <img src="/public/images/mascots/phoenixface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_#f1c40f] group-hover:scale-110 transition-transform" alt="oGT">
                 <span class="font-freshman text-2xl text-[#f1c40f]">oGT</span>
             </button>
-            
         </div>
-        
-        <p class="text-white/40 text-[10px] uppercase tracking-widest mt-12 font-mono"><i class="fa-solid fa-keyboard mr-2"></i> Use WASD or Arrows. Mobile users use joystick.</p>
+        <p class="text-[#FFB81C] text-[10px] uppercase tracking-widest mt-10 font-bold">Match Duration: 3 Minutes</p>
     </div>
 
-    <!-- UI: Post Match -->
     <div id="post-screen" class="overlay-screen" style="display: none; opacity: 0;">
         <h2 id="post-title" class="font-freshman text-6xl text-white uppercase tracking-widest mb-4">MATCH OVER</h2>
         <p id="post-subtitle" class="text-sm font-bold tracking-[0.3em] uppercase text-white/50 mb-10">Syncing with Mainframe...</p>
@@ -138,15 +145,13 @@
         <button onclick="location.reload()" class="bg-[#FFB81C] text-[#1A0524] font-bold px-12 py-4 rounded-full uppercase tracking-widest hover:bg-white transition-colors shadow-[0_0_20px_rgba(255,184,28,0.4)]">Play Again</button>
     </div>
 
-    <!-- Main Game Area -->
-    <div id="game-container">
-        
+    <div id="game-wrapper">
         <div id="hud" style="display: none;">
             <div class="flex flex-col items-center">
                 <span class="hud-name" id="hud-faction-name">YOU</span>
                 <span class="score-num" id="score-p1" style="color: #3498db;">0</span>
             </div>
-            <div id="timer">60</div>
+            <div id="timer">3:00</div>
             <div class="flex flex-col items-center">
                 <span class="hud-name text-[#FFB81C]">THE OC</span>
                 <span class="score-num text-[#561269]" id="score-p2">0</span>
@@ -163,6 +168,21 @@
         </div>
     </div>
 
+    <div id="controls-footer">
+        <div class="desktop-ctrl flex items-center gap-2 text-white/50 text-xs font-mono uppercase tracking-widest">
+            <span class="border border-white/20 px-2 py-1 rounded bg-white/5 text-white">W</span>
+            <span class="border border-white/20 px-2 py-1 rounded bg-white/5 text-white">A</span>
+            <span class="border border-white/20 px-2 py-1 rounded bg-white/5 text-white">S</span>
+            <span class="border border-white/20 px-2 py-1 rounded bg-white/5 text-white">D</span>
+            <span class="ml-2">to Move</span>
+        </div>
+        <div class="desktop-ctrl text-white/20">|</div>
+        <div class="flex items-center gap-2 text-[#FFB81C] text-xs font-mono uppercase tracking-widest">
+            <i class="fa-solid fa-circle-dot text-lg"></i>
+            <span>Mobile: Use Joystick</span>
+        </div>
+    </div>
+
     <script src="/src/js/firebase.js"></script>
 
     <script>
@@ -176,7 +196,6 @@
         const ocTheme = { color: '#561269', img: '/public/images/logo.png', name: 'THE OC' };
 
         let playerTheme = null;
-        let imagesLoaded = 0;
         let playerImg = new Image();
         let ocImg = new Image();
         ocImg.src = ocTheme.img;
@@ -188,36 +207,43 @@
         // Logical Pitch Size (Scale rendered to fit screen)
         const GAME_W = 800;
         const GAME_H = 500;
-        const GOAL_H = 140;
+        const GOAL_H = 160; // Widened goal to make scoring slightly easier
 
         function resize() {
             const aspect = GAME_W / GAME_H;
-            const windowAspect = window.innerWidth / window.innerHeight;
+            const wrapper = document.getElementById('game-wrapper');
+            const windowAspect = wrapper.clientWidth / wrapper.clientHeight;
             
             if (windowAspect < aspect) {
-                canvas.width = window.innerWidth * 0.95;
+                canvas.width = wrapper.clientWidth * 0.95;
                 canvas.height = canvas.width / aspect;
             } else {
-                canvas.height = window.innerHeight * 0.8;
+                canvas.height = wrapper.clientHeight * 0.85;
                 canvas.width = canvas.height * aspect;
             }
         }
         window.addEventListener('resize', resize);
         resize();
 
-        // --- PHYSICS ENTITIES ---
-        const friction = 0.97;
+        // --- PHYSICS ENTITIES (NERFED FOR PLAYABILITY) ---
+        const friction = 0.96; // Higher friction so you don't slide forever
         const keys = { w: false, a: false, s: false, d: false, ArrowUp:false, ArrowDown:false, ArrowLeft:false, ArrowRight:false };
 
-        let p1 = { x: 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.8, maxSpeed: 6, mass: 2 };
-        let p2 = { x: GAME_W - 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.7, maxSpeed: 5, mass: 2 };
+        // Increased player agility, decreased bot speed
+        let p1 = { x: 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.9, maxSpeed: 7, mass: 2 };
+        let p2 = { x: GAME_W - 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.5, maxSpeed: 4.5, mass: 2 }; 
         let ball = { x: GAME_W/2, y: GAME_H/2, vx: 0, vy: 0, r: 12, maxSpeed: 12, mass: 1 };
 
         let score1 = 0;
         let score2 = 0;
-        let timeLeft = 60;
+        let timeLeft = 180; // 3 Minutes
         let isPlaying = false;
         let matchOver = false;
+
+        // --- FPS LIMITER (Crucial for high refresh monitors) ---
+        const fps = 60;
+        const fpsInterval = 1000 / fps;
+        let then = Date.now();
 
         // --- CONTROLS ---
         window.addEventListener('keydown', e => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; });
@@ -244,7 +270,7 @@
             let dx = touch.clientX - cx;
             let dy = touch.clientY - cy;
             const distance = Math.hypot(dx, dy);
-            const maxDist = rect.width/2 - 25;
+            const maxDist = rect.width/2 - 30; // Keep stick inside base
 
             if (distance > maxDist) {
                 dx = (dx / distance) * maxDist;
@@ -253,7 +279,6 @@
 
             joyStick.style.transform = `translate(${dx}px, ${dy}px)`;
             
-            // Normalize -1 to 1
             joyVec.x = dx / maxDist;
             joyVec.y = dy / maxDist;
         }
@@ -281,7 +306,6 @@
             const minDist = e1.r + e2.r;
 
             if (distance < minDist) {
-                // Separation
                 const overlap = minDist - distance;
                 const nx = dx / distance;
                 const ny = dy / distance;
@@ -295,13 +319,11 @@
                 e2.x += nx * overlap * r2;
                 e2.y += ny * overlap * r2;
 
-                // Momentum Exchange
                 const kx = e1.vx - e2.vx;
                 const ky = e1.vy - e2.vy;
                 const p = 2 * (nx * kx + ny * ky) / totalMass;
                 
-                // Add a little elasticity/bounciness
-                const restitution = 1.2; 
+                const restitution = 1.1; // Slightly less bouncy
                 e1.vx -= p * e2.mass * restitution;
                 e1.vy -= p * e2.mass * restitution;
                 e2.vx += p * e1.mass * restitution;
@@ -313,11 +335,9 @@
             const topG = (GAME_H - GOAL_H) / 2;
             const botG = topG + GOAL_H;
 
-            // Y walls
             if (e.y - e.r < 0) { e.y = e.r; e.vy *= -0.8; }
             if (e.y + e.r > GAME_H) { e.y = GAME_H - e.r; e.vy *= -0.8; }
 
-            // X walls (with Goal logic)
             if (e.x - e.r < 0) {
                 if (e.y > topG && e.y < botG) {
                     if (e === ball && e.x < -10) scoreGoal(2);
@@ -341,6 +361,10 @@
             document.getElementById('score-p1').innerText = score1;
             document.getElementById('score-p2').innerText = score2;
             
+            // Flash canvas for feedback
+            canvas.style.filter = 'brightness(2) contrast(1.5)';
+            setTimeout(() => { canvas.style.filter = 'none'; }, 200);
+
             resetPositions();
         }
 
@@ -350,35 +374,32 @@
             ball.x = GAME_W/2; ball.y = GAME_H/2; ball.vx = 0; ball.vy = 0;
         }
 
-        // --- BOT AI ---
+        // --- BOT AI (NERFED) ---
         function updateBot() {
-            // Defend if ball is far, attack if ball is near
             let targetX, targetY;
             
-            if (ball.x > GAME_W/2) {
-                // Ball is on bot's half. Intercept and push towards P1 goal
-                targetX = ball.x + 20; // Aim slightly behind the ball
+            // If ball is on bot's half, attack. If far, defend lazily.
+            if (ball.x > GAME_W/2 - 100) {
+                targetX = ball.x + 15; 
                 targetY = ball.y;
             } else {
-                // Ball is far, retreat to defend goal line
-                targetX = GAME_W - 100;
-                targetY = Math.max(Math.min(ball.y, GAME_H/2 + 50), GAME_H/2 - 50); // Follow Y axis near goal
+                targetX = GAME_W - 120;
+                // Bot doesn't perfectly track Y anymore, gives player a chance
+                targetY = Math.max(Math.min(ball.y, GAME_H/2 + 60), GAME_H/2 - 60); 
             }
 
             const dx = targetX - p2.x;
             const dy = targetY - p2.y;
             const dist = Math.hypot(dx, dy);
 
-            if (dist > 5) {
+            // Bot hesitates if very close to target to prevent robotic twitching
+            if (dist > 15) {
                 applyForce(p2, (dx/dist)*p2.speed, (dy/dist)*p2.speed);
             }
         }
 
-        // --- MAIN LOOP ---
+        // --- MAIN UPDATE LOOP ---
         function update() {
-            if (!isPlaying) return;
-
-            // Player 1 Input
             let ax = 0, ay = 0;
             if (joyActive) {
                 ax = joyVec.x * p1.speed;
@@ -391,20 +412,16 @@
             }
             applyForce(p1, ax, ay);
 
-            // Update Bot
             updateBot();
 
-            // Apply friction
             p1.vx *= friction; p1.vy *= friction;
             p2.vx *= friction; p2.vy *= friction;
-            ball.vx *= 0.99; ball.vy *= 0.99; // Less friction for ball
+            ball.vx *= 0.97; ball.vy *= 0.97; // Ball slows down faster now, better control
 
-            // Move
             p1.x += p1.vx; p1.y += p1.vy;
             p2.x += p2.vx; p2.y += p2.vy;
             ball.x += ball.vx; ball.y += ball.vy;
 
-            // Collisions
             resolveCollision(p1, ball);
             resolveCollision(p2, ball);
             resolveCollision(p1, p2);
@@ -425,18 +442,13 @@
             ctx.stroke();
             ctx.clip();
             if (img.complete) {
-                // Determine rotation based on velocity
                 const angle = Math.atan2(entity.vy, entity.vx);
                 ctx.translate(entity.x, entity.y);
-                // Rotate slightly for effect if moving fast
-                if(Math.hypot(entity.vx, entity.vy) > 0.5) {
-                    ctx.rotate(angle);
-                }
+                if(Math.hypot(entity.vx, entity.vy) > 0.5) ctx.rotate(angle);
                 ctx.drawImage(img, -entity.r + 5, -entity.r + 5, entity.r*2 - 10, entity.r*2 - 10);
             }
             ctx.restore();
             
-            // Neon Glow
             ctx.beginPath();
             ctx.arc(entity.x, entity.y, entity.r, 0, Math.PI * 2);
             ctx.shadowColor = color;
@@ -448,32 +460,24 @@
         }
 
         function render() {
-            // Scale context to fit screen
             ctx.save();
             ctx.scale(canvas.width / GAME_W, canvas.height / GAME_H);
-
-            // Clear
             ctx.clearRect(0, 0, GAME_W, GAME_H);
 
-            // Draw Pitch Markings
             ctx.strokeStyle = 'rgba(255,255,255,0.2)';
             ctx.lineWidth = 3;
-            // Center Line & Circle
             ctx.beginPath(); ctx.moveTo(GAME_W/2, 0); ctx.lineTo(GAME_W/2, GAME_H); ctx.stroke();
             ctx.beginPath(); ctx.arc(GAME_W/2, GAME_H/2, 70, 0, Math.PI*2); ctx.stroke();
             
-            // Goals
             const topG = (GAME_H - GOAL_H) / 2;
             ctx.fillStyle = playerTheme ? playerTheme.color + '40' : 'rgba(255,255,255,0.1)';
             ctx.fillRect(0, topG, 40, GOAL_H);
             ctx.fillStyle = ocTheme.color + '40';
             ctx.fillRect(GAME_W - 40, topG, 40, GOAL_H);
 
-            // Entities
             drawCircleImg(ctx, p1, playerImg, playerTheme ? playerTheme.color : '#fff');
             drawCircleImg(ctx, p2, ocImg, ocTheme.color);
 
-            // Ball
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
             ctx.fillStyle = '#fff';
@@ -485,13 +489,27 @@
             ctx.restore();
         }
 
+        // --- FPS LIMITED LOOP ---
         function loop() {
-            update();
-            render();
-            if(!matchOver) requestAnimationFrame(loop);
+            if (!matchOver) requestAnimationFrame(loop);
+
+            let now = Date.now();
+            let elapsed = now - then;
+
+            if (elapsed > fpsInterval && isPlaying) {
+                then = now - (elapsed % fpsInterval);
+                update();
+                render();
+            }
         }
 
         // --- GAME FLOW & DATABASE ---
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
         function startGame(factionKey) {
             playerTheme = themes[factionKey];
             playerImg.src = playerTheme.img;
@@ -503,9 +521,9 @@
                 document.getElementById('hud-faction-name').innerText = playerTheme.name;
                 document.getElementById('score-p1').style.color = playerTheme.color;
                 
-                // Set Arena Ambient Glow
-                document.getElementById('game-container').style.backgroundImage = `radial-gradient(circle at center, ${playerTheme.color}30 0%, #000000 100%)`;
+                document.getElementById('game-wrapper').style.backgroundImage = `radial-gradient(circle at center, ${playerTheme.color}30 0%, #000000 100%)`;
                 
+                then = Date.now();
                 isPlaying = true;
                 startTimer();
                 loop();
@@ -514,9 +532,11 @@
 
         function startTimer() {
             const timerEl = document.getElementById('timer');
+            timerEl.innerText = formatTime(timeLeft);
+            
             const interval = setInterval(() => {
                 timeLeft--;
-                timerEl.innerText = timeLeft;
+                timerEl.innerText = formatTime(timeLeft);
                 if (timeLeft <= 0) {
                     clearInterval(interval);
                     endGame();
@@ -531,7 +551,6 @@
             const postScreen = document.getElementById('post-screen');
             postScreen.style.display = 'flex';
             
-            // Force reflow for fade in
             void postScreen.offsetWidth; 
             postScreen.style.opacity = '1';
 
@@ -548,8 +567,7 @@
             // Push to Database
             if (typeof db !== 'undefined') {
                 try {
-                    // We use Firestore FieldValue.increment to safely add to existing totals
-                    const factionRef = db.collection('futsal_league').doc(playerTheme.name.toLowerCase().replace(' ', '_').split('_')[0]); // e.g. "igv"
+                    const factionRef = db.collection('futsal_league').doc(playerTheme.name.toLowerCase().replace(' ', '_').split('_')[0]); 
                     
                     let winsAdd = score1 > score2 ? 1 : 0;
                     let drawsAdd = score1 === score2 ? 1 : 0;
@@ -560,7 +578,7 @@
                         goalsAgainst: firebase.firestore.FieldValue.increment(score2),
                         wins: firebase.firestore.FieldValue.increment(winsAdd),
                         draws: firebase.firestore.FieldValue.increment(drawsAdd)
-                    }, { merge: true }); // Merge creates document if it doesn't exist
+                    }, { merge: true });
 
                     document.getElementById('post-subtitle').innerText = "Mainframe Updated Successfully.";
                     document.getElementById('post-subtitle').style.color = "#2ecc71";
