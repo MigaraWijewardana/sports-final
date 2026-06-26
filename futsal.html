@@ -34,7 +34,24 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+            transition: filter 0.1s;
         }
+
+        /* Screen Shake Animation */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
         .crt-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -67,26 +84,30 @@
 
         /* Controls Footer */
         #controls-footer {
-            height: 60px;
-            background: #05020a;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            z-index: 60;
+            height: 60px; background: #05020a; border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: center; align-items: center; gap: 30px; z-index: 60;
         }
 
         /* Mobile Controls */
-        #mobile-controls { display: none; position: absolute; bottom: 20px; left: 20px; z-index: 60; }
-        .joystick-base { width: 130px; height: 130px; background: rgba(255,255,255,0.05); border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); position: relative; backdrop-filter: blur(5px); }
+        #mobile-controls { display: none; position: absolute; bottom: 20px; left: 20px; right: 20px; z-index: 60; pointer-events: none; }
+        .joystick-base { width: 130px; height: 130px; background: rgba(255,255,255,0.05); border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); position: relative; backdrop-filter: blur(5px); pointer-events: auto; }
         .joystick-stick { width: 60px; height: 60px; background: rgba(255,255,255,0.3); border-radius: 50%; position: absolute; top: 35px; left: 35px; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        
+        #mobile-kick-btn {
+            width: 90px; height: 90px; border-radius: 50%; background: rgba(255,184,28,0.2); border: 2px solid #FFB81C;
+            position: absolute; bottom: 0; right: 0; display: flex; justify-content: center; align-items: center;
+            font-family: 'Freshman', sans-serif; color: #FFB81C; font-size: 1.2rem; pointer-events: auto;
+            backdrop-filter: blur(5px); box-shadow: 0 0 20px rgba(255,184,28,0.2); transition: all 0.1s;
+            user-select: none; -webkit-user-select: none;
+        }
+        #mobile-kick-btn:active { background: #FFB81C; color: #1A0524; transform: scale(0.9); }
+        #mobile-kick-btn.cooldown { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.3); box-shadow: none; transform: scale(1); }
 
         @media (max-width: 768px) { 
             #mobile-controls { display: block; } 
             #hud { top: 10px; transform: translateX(-50%) scale(0.8); } 
             .desktop-ctrl { display: none; }
-            #controls-footer { justify-content: flex-end; padding-right: 20px; }
+            #controls-footer { display: none; }
         }
     </style>
 </head>
@@ -165,6 +186,7 @@
             <div class="joystick-base" id="joystick-base">
                 <div class="joystick-stick" id="joystick-stick"></div>
             </div>
+            <div id="mobile-kick-btn">DASH</div>
         </div>
     </div>
 
@@ -177,9 +199,9 @@
             <span class="ml-2">to Move</span>
         </div>
         <div class="desktop-ctrl text-white/20">|</div>
-        <div class="flex items-center gap-2 text-[#FFB81C] text-xs font-mono uppercase tracking-widest">
-            <i class="fa-solid fa-circle-dot text-lg"></i>
-            <span>Mobile: Use Joystick</span>
+        <div class="desktop-ctrl flex items-center gap-2 text-[#FFB81C] text-xs font-mono uppercase tracking-widest">
+            <span class="border border-[#FFB81C]/50 px-6 py-1 rounded bg-[#FFB81C]/10 text-[#FFB81C] shadow-[0_0_10px_rgba(255,184,28,0.2)]">SPACE</span>
+            <span class="ml-2">to Dash / Smash</span>
         </div>
     </div>
 
@@ -203,11 +225,9 @@
         // --- ENGINE SETUP ---
         const canvas = document.getElementById('pitch');
         const ctx = canvas.getContext('2d');
-        
-        // Logical Pitch Size (Scale rendered to fit screen)
         const GAME_W = 800;
         const GAME_H = 500;
-        const GOAL_H = 160; // Widened goal to make scoring slightly easier
+        const GOAL_H = 160; 
 
         function resize() {
             const aspect = GAME_W / GAME_H;
@@ -225,67 +245,96 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // --- PHYSICS ENTITIES (NERFED FOR PLAYABILITY) ---
-        const friction = 0.96; // Higher friction so you don't slide forever
-        const keys = { w: false, a: false, s: false, d: false, ArrowUp:false, ArrowDown:false, ArrowLeft:false, ArrowRight:false };
+        // --- PHYSICS ENTITIES & JUICE ---
+        const friction = 0.96; 
+        const keys = { w: false, a: false, s: false, d: false, ArrowUp:false, ArrowDown:false, ArrowLeft:false, ArrowRight:false, ' ': false };
 
-        // Increased player agility, decreased bot speed
-        let p1 = { x: 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.9, maxSpeed: 7, mass: 2 };
-        let p2 = { x: GAME_W - 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.5, maxSpeed: 4.5, mass: 2 }; 
-        let ball = { x: GAME_W/2, y: GAME_H/2, vx: 0, vy: 0, r: 12, maxSpeed: 12, mass: 1 };
+        let p1 = { x: 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.9, maxSpeed: 7, mass: 2, dashCooldown: 0 };
+        let p2 = { x: GAME_W - 150, y: GAME_H/2, vx: 0, vy: 0, r: 25, speed: 0.5, maxSpeed: 4.5, mass: 2, dashCooldown: 0 }; 
+        let ball = { x: GAME_W/2, y: GAME_H/2, vx: 0, vy: 0, r: 12, maxSpeed: 16, mass: 1, history: [] };
 
-        let score1 = 0;
-        let score2 = 0;
-        let timeLeft = 180; // 3 Minutes
-        let isPlaying = false;
-        let matchOver = false;
+        let score1 = 0, score2 = 0, timeLeft = 180, isPlaying = false, matchOver = false;
 
-        // --- FPS LIMITER (Crucial for high refresh monitors) ---
         const fps = 60;
         const fpsInterval = 1000 / fps;
         let then = Date.now();
 
-        // --- CONTROLS ---
-        window.addEventListener('keydown', e => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; });
+        // --- CONTROLS & DASH ---
+        window.addEventListener('keydown', e => { 
+            if(e.key === ' ') e.preventDefault(); // Stop page scroll
+            if(keys.hasOwnProperty(e.key)) keys[e.key] = true; 
+        });
         window.addEventListener('keyup', e => { if(keys.hasOwnProperty(e.key)) keys[e.key] = false; });
 
         // Mobile Joystick Logic
         const joyBase = document.getElementById('joystick-base');
         const joyStick = document.getElementById('joystick-stick');
+        const mobKickBtn = document.getElementById('mobile-kick-btn');
         let joyActive = false;
         let joyVec = { x: 0, y: 0 };
+        let mobileKickPressed = false;
 
         joyBase.addEventListener('touchstart', handleJoyStart, {passive: false});
         joyBase.addEventListener('touchmove', handleJoyMove, {passive: false});
         window.addEventListener('touchend', handleJoyEnd);
+
+        mobKickBtn.addEventListener('touchstart', (e) => { e.preventDefault(); mobileKickPressed = true; }, {passive: false});
+        mobKickBtn.addEventListener('touchend', (e) => { e.preventDefault(); mobileKickPressed = false; }, {passive: false});
 
         function handleJoyStart(e) { e.preventDefault(); joyActive = true; handleJoyMove(e); }
         function handleJoyMove(e) {
             if (!joyActive) return;
             e.preventDefault();
             const rect = joyBase.getBoundingClientRect();
-            const touch = e.touches[0];
+            const touch = Array.from(e.touches).find(t => t.target === joyBase || t.target === joyStick);
+            if(!touch) return;
             const cx = rect.left + rect.width/2;
             const cy = rect.top + rect.height/2;
             let dx = touch.clientX - cx;
             let dy = touch.clientY - cy;
             const distance = Math.hypot(dx, dy);
-            const maxDist = rect.width/2 - 30; // Keep stick inside base
+            const maxDist = rect.width/2 - 30; 
 
-            if (distance > maxDist) {
-                dx = (dx / distance) * maxDist;
-                dy = (dy / distance) * maxDist;
-            }
+            if (distance > maxDist) { dx = (dx / distance) * maxDist; dy = (dy / distance) * maxDist; }
 
             joyStick.style.transform = `translate(${dx}px, ${dy}px)`;
-            
             joyVec.x = dx / maxDist;
             joyVec.y = dy / maxDist;
         }
-        function handleJoyEnd() {
-            joyActive = false;
-            joyStick.style.transform = `translate(0px, 0px)`;
-            joyVec.x = 0; joyVec.y = 0;
+        function handleJoyEnd(e) {
+            if(e.touches.length === 0 || !Array.from(e.touches).some(t => t.target === joyBase || t.target === joyStick)) {
+                joyActive = false;
+                joyStick.style.transform = `translate(0px, 0px)`;
+                joyVec.x = 0; joyVec.y = 0;
+            }
+        }
+
+        function triggerDash(player) {
+            if (player.dashCooldown <= 0) {
+                let mag = Math.hypot(player.vx, player.vy);
+                if (mag > 0.5) {
+                    player.vx += (player.vx / mag) * 15;
+                    player.vy += (player.vy / mag) * 15;
+                } else {
+                    // Dash towards ball if stationary
+                    let dx = ball.x - player.x;
+                    let dy = ball.y - player.y;
+                    let bmag = Math.hypot(dx, dy);
+                    player.vx += (dx / bmag) * 15;
+                    player.vy += (dy / bmag) * 15;
+                }
+                player.dashCooldown = 120; // 2 seconds (60 * 2)
+                
+                // Mobile UI feedback
+                if(player === p1) {
+                    mobKickBtn.classList.add('cooldown');
+                    mobKickBtn.innerText = 'WAIT';
+                    setTimeout(() => { 
+                        mobKickBtn.classList.remove('cooldown'); 
+                        mobKickBtn.innerText = 'DASH';
+                    }, 2000);
+                }
+            }
         }
 
         // --- MATH & PHYSICS ---
@@ -293,7 +342,7 @@
             entity.vx += ax;
             entity.vy += ay;
             const speed = Math.hypot(entity.vx, entity.vy);
-            if (speed > entity.maxSpeed) {
+            if (speed > entity.maxSpeed && entity.dashCooldown < 110) { // Allow temporary over-speed when dashing
                 entity.vx = (entity.vx / speed) * entity.maxSpeed;
                 entity.vy = (entity.vy / speed) * entity.maxSpeed;
             }
@@ -323,7 +372,7 @@
                 const ky = e1.vy - e2.vy;
                 const p = 2 * (nx * kx + ny * ky) / totalMass;
                 
-                const restitution = 1.1; // Slightly less bouncy
+                const restitution = 1.1; 
                 e1.vx -= p * e2.mass * restitution;
                 e1.vy -= p * e2.mass * restitution;
                 e2.vx += p * e1.mass * restitution;
@@ -361,9 +410,12 @@
             document.getElementById('score-p1').innerText = score1;
             document.getElementById('score-p2').innerText = score2;
             
-            // Flash canvas for feedback
-            canvas.style.filter = 'brightness(2) contrast(1.5)';
-            setTimeout(() => { canvas.style.filter = 'none'; }, 200);
+            // Screen Shake & Flash
+            canvas.classList.remove('shake');
+            void canvas.offsetWidth; // trigger reflow
+            canvas.classList.add('shake');
+            canvas.style.filter = playerScored === 1 ? `brightness(2) drop-shadow(0 0 50px ${playerTheme.color})` : `brightness(2) drop-shadow(0 0 50px ${ocTheme.color})`;
+            setTimeout(() => { canvas.style.filter = 'none'; }, 300);
 
             resetPositions();
         }
@@ -372,27 +424,33 @@
             p1.x = 150; p1.y = GAME_H/2; p1.vx = 0; p1.vy = 0;
             p2.x = GAME_W - 150; p2.y = GAME_H/2; p2.vx = 0; p2.vy = 0;
             ball.x = GAME_W/2; ball.y = GAME_H/2; ball.vx = 0; ball.vy = 0;
+            ball.history = [];
         }
 
-        // --- BOT AI (NERFED) ---
+        // --- BOT AI (UPGRADED) ---
         function updateBot() {
             let targetX, targetY;
             
-            // If ball is on bot's half, attack. If far, defend lazily.
-            if (ball.x > GAME_W/2 - 100) {
+            if (ball.x > GAME_W/2 - 150) {
+                // Intercept & Attack
                 targetX = ball.x + 15; 
                 targetY = ball.y;
+                
+                // Bot Dash Logic: If perfectly lined up with ball and goal, SMASH IT
+                const distToBall = Math.hypot(ball.x - p2.x, ball.y - p2.y);
+                if(distToBall < 100 && Math.abs(p2.y - GAME_H/2) < 80 && ball.x < p2.x && Math.random() < 0.05) {
+                    triggerDash(p2);
+                }
             } else {
-                targetX = GAME_W - 120;
-                // Bot doesn't perfectly track Y anymore, gives player a chance
-                targetY = Math.max(Math.min(ball.y, GAME_H/2 + 60), GAME_H/2 - 60); 
+                // Defend Goal
+                targetX = GAME_W - 80;
+                targetY = Math.max(Math.min(ball.y, GAME_H/2 + 50), GAME_H/2 - 50); 
             }
 
             const dx = targetX - p2.x;
             const dy = targetY - p2.y;
             const dist = Math.hypot(dx, dy);
 
-            // Bot hesitates if very close to target to prevent robotic twitching
             if (dist > 15) {
                 applyForce(p2, (dx/dist)*p2.speed, (dy/dist)*p2.speed);
             }
@@ -401,6 +459,8 @@
         // --- MAIN UPDATE LOOP ---
         function update() {
             let ax = 0, ay = 0;
+            
+            // Player Movement
             if (joyActive) {
                 ax = joyVec.x * p1.speed;
                 ay = joyVec.y * p1.speed;
@@ -412,15 +472,28 @@
             }
             applyForce(p1, ax, ay);
 
+            // Player Dash
+            if (p1.dashCooldown > 0) p1.dashCooldown--;
+            if (p2.dashCooldown > 0) p2.dashCooldown--;
+            if (keys[' '] || mobileKickPressed) triggerDash(p1);
+
             updateBot();
 
             p1.vx *= friction; p1.vy *= friction;
             p2.vx *= friction; p2.vy *= friction;
-            ball.vx *= 0.97; ball.vy *= 0.97; // Ball slows down faster now, better control
+            ball.vx *= 0.97; ball.vy *= 0.97; 
 
             p1.x += p1.vx; p1.y += p1.vy;
             p2.x += p2.vx; p2.y += p2.vy;
             ball.x += ball.vx; ball.y += ball.vy;
+
+            // Ball Trail History
+            if (Math.hypot(ball.vx, ball.vy) > 3) {
+                ball.history.push({x: ball.x, y: ball.y});
+                if (ball.history.length > 8) ball.history.shift();
+            } else {
+                if(ball.history.length > 0) ball.history.shift();
+            }
 
             resolveCollision(p1, ball);
             resolveCollision(p2, ball);
@@ -451,10 +524,20 @@
             
             ctx.beginPath();
             ctx.arc(entity.x, entity.y, entity.r, 0, Math.PI * 2);
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 15;
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
+            
+            // Dash Glow Override
+            if(entity.dashCooldown > 100) {
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 30;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 4;
+            } else {
+                ctx.shadowColor = color;
+                ctx.shadowBlur = 15;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+            }
+            
             ctx.stroke();
             ctx.shadowBlur = 0;
         }
@@ -464,32 +547,52 @@
             ctx.scale(canvas.width / GAME_W, canvas.height / GAME_H);
             ctx.clearRect(0, 0, GAME_W, GAME_H);
 
-            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            // Pitch Lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
             ctx.lineWidth = 3;
             ctx.beginPath(); ctx.moveTo(GAME_W/2, 0); ctx.lineTo(GAME_W/2, GAME_H); ctx.stroke();
             ctx.beginPath(); ctx.arc(GAME_W/2, GAME_H/2, 70, 0, Math.PI*2); ctx.stroke();
             
+            // Goals
             const topG = (GAME_H - GOAL_H) / 2;
             ctx.fillStyle = playerTheme ? playerTheme.color + '40' : 'rgba(255,255,255,0.1)';
             ctx.fillRect(0, topG, 40, GOAL_H);
             ctx.fillStyle = ocTheme.color + '40';
             ctx.fillRect(GAME_W - 40, topG, 40, GOAL_H);
 
+            // Ball Trail
+            if (ball.history.length > 0) {
+                ctx.beginPath();
+                ctx.moveTo(ball.history[0].x, ball.history[0].y);
+                for(let i=1; i<ball.history.length; i++) {
+                    ctx.lineTo(ball.history[i].x, ball.history[i].y);
+                }
+                ctx.lineTo(ball.x, ball.y);
+                ctx.strokeStyle = playerTheme ? playerTheme.color + '80' : 'rgba(255,255,255,0.5)';
+                ctx.lineWidth = ball.r * 1.5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.shadowColor = playerTheme ? playerTheme.color : '#fff';
+                ctx.shadowBlur = 20;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+
             drawCircleImg(ctx, p1, playerImg, playerTheme ? playerTheme.color : '#fff');
             drawCircleImg(ctx, p2, ocImg, ocTheme.color);
 
+            // Ball
             ctx.beginPath();
             ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
             ctx.fillStyle = '#fff';
             ctx.shadowColor = '#fff';
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 15;
             ctx.fill();
             ctx.shadowBlur = 0;
 
             ctx.restore();
         }
 
-        // --- FPS LIMITED LOOP ---
         function loop() {
             if (!matchOver) requestAnimationFrame(loop);
 
@@ -564,7 +667,6 @@
             else if (score2 > score1) { title.innerText = "DEFEAT"; title.style.color = 'red'; }
             else { title.innerText = "DRAW"; title.style.color = 'gray'; }
 
-            // Push to Database
             if (typeof db !== 'undefined') {
                 try {
                     const factionRef = db.collection('futsal_league').doc(playerTheme.name.toLowerCase().replace(' ', '_').split('_')[0]); 
@@ -592,7 +694,6 @@
             }
         }
 
-        // Draw initial blank state
         render();
     </script>
 </body>
