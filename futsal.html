@@ -2,13 +2,17 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SPORTS LCM | Futsal Arena</title>
     <link rel="icon" href="/public/images/logo.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/src/styles/global.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --pitch-color: #0b0512;
@@ -48,9 +52,9 @@
         .pitch-line { position: absolute; background: var(--line-color); }
         .center-line { width: 2px; height: 100%; left: 50%; transform: translateX(-50%); top: 0; box-shadow: 0 0 10px rgba(255,255,255,0.1); }
         .center-circle { width: 120px; height: 120px; border: 2px solid var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; background: transparent; pointer-events: none; }
-        .center-dot { width: 10px; height: 8px; background: #fff; border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; pointer-events: none; box-shadow: 0 0 10px #fff;}
-        .penalty-area-left { width: 120px; height: 240px; border: 2px solid var(--line-color); border-left: none; left: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none; background: linear-gradient(90deg, rgba(255,255,255,0.01), transparent); }
-        .penalty-area-right { width: 120px; height: 240px; border: 2px solid var(--line-color); border-right: none; right: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none; background: linear-gradient(-90deg, rgba(255,255,255,0.01), transparent); }
+        .center-dot { width: 10px; height: 10px; background: #fff; border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; pointer-events: none; box-shadow: 0 0 10px #fff;}
+        .penalty-area-left { width: 120px; height: 240px; border: 2px solid var(--line-color); border-left: none; left: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none; background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent); }
+        .penalty-area-right { width: 120px; height: 240px; border: 2px solid var(--line-color); border-right: none; right: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none; background: linear-gradient(-90deg, rgba(255,255,255,0.02), transparent); }
 
         /* Goals */
         .goal { position: absolute; width: 12px; height: 130px; top: 50%; transform: translateY(-50%); z-index: 20; border-radius: 4px; }
@@ -65,8 +69,8 @@
         }
 
         .player { 
-            width: 46px; height: 46px; 
-            background-size: 85%; background-position: center; background-repeat: no-repeat; 
+            width: 48px; height: 48px; 
+            background-size: cover; background-position: center; background-repeat: no-repeat; 
             cursor: pointer; z-index: 30; 
             transition: transform 0.1s ease;
         }
@@ -86,7 +90,7 @@
         .player:hover { filter: brightness(1.2); transform: translate(-50%, -50%) scale(1.05); }
 
         .ball {
-            width: 22px; height: 24px; background-color: #fff; border: 2px solid #000;
+            width: 24px; height: 24px; background-color: #fff; border: 2px solid #000;
             background-image: radial-gradient(circle at 35% 35%, #ffffff 0%, #a2a2a2 100%); 
             z-index: 25; box-shadow: 0 0 20px #fff;
         }
@@ -114,9 +118,11 @@
 
         /* Gateway Overlay */
         .overlay-screen {
-            position: fixed; inset: 0; background: rgba(10, 3, 18, 0.96); backdrop-blur-md;
+            position: fixed; inset: 0; background: rgba(10, 3, 18, 0.96); backdrop-filter: blur(10px);
             display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; transition: opacity 0.5s;
         }
+        .faction-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .faction-btn:hover { transform: scale(1.05) translateY(-5px); }
     </style>
 </head>
 <body class="text-white font-['Poppins'] min-h-screen flex flex-col">
@@ -130,19 +136,19 @@
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-4xl px-4">
             <button class="faction-btn glass-card p-6 border-blue-500/20 bg-blue-500/5 hover:border-blue-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGV')">
-                <img src="/public/images/mascots/panthers.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(52,152,219,0.5)] group-hover:scale-105 transition-transform">
+                <img src="/public/images/mascots/pantherface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(52,152,219,0.5)] group-hover:scale-105 transition-transform" alt="iGV Face">
                 <span class="font-freshman text-xl text-[#3498db] tracking-wider">iGV</span>
             </button>
             <button class="faction-btn glass-card p-6 border-white/10 bg-white/5 hover:border-white rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGT')">
-                <img src="/public/images/mascots/wolf.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform">
+                <img src="/public/images/mascots/wolfface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform" alt="iGT Face">
                 <span class="font-freshman text-xl text-[#ffffff] tracking-wider">iGT</span>
             </button>
             <button class="faction-btn glass-card p-6 border-gray-500/20 bg-gray-500/5 hover:border-gray-400 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGV')">
-                <img src="/public/images/mascots/tigers.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(127,140,141,0.5)] group-hover:scale-105 transition-transform">
+                <img src="/public/images/mascots/tigerface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(127,140,141,0.5)] group-hover:scale-105 transition-transform" alt="oGV Face">
                 <span class="font-freshman text-xl text-[#7f8c8d] tracking-wider">oGV</span>
             </button>
             <button class="faction-btn glass-card p-6 border-yellow-500/20 bg-yellow-500/5 hover:border-yellow-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGT')">
-                <img src="/public/images/mascots/phoenix.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(241,196,15,0.5)] group-hover:scale-105 transition-transform">
+                <img src="/public/images/mascots/phoenixface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(241,196,15,0.5)] group-hover:scale-105 transition-transform" alt="oGT Face">
                 <span class="font-freshman text-xl text-[#f1c40f] tracking-wider">oGT</span>
             </button>
         </div>
@@ -156,13 +162,13 @@
             </a>
         </nav>
 
-        <!-- ESPSORTS SCOREBOARD -->
+        <!-- ESPORTS SCOREBOARD -->
         <div class="max-w-4xl mx-auto w-[92%] flex justify-between items-center bg-black/60 border border-white/10 rounded-2xl p-4 mb-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
             <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.02),transparent)] pointer-events-none"></div>
             
             <div class="flex items-center gap-4 w-1/3">
                 <div class="p-1 rounded-full bg-white/5 border border-white/10">
-                    <img id="player-logo" src="" class="w-12 h-12 object-contain">
+                    <img id="player-logo" src="" class="w-12 h-12 object-contain filter">
                 </div>
                 <div class="text-left">
                     <p id="player-name-display" class="font-freshman text-xl tracking-wider">FACTION</p>
@@ -173,7 +179,6 @@
             <div class="text-center w-1/3 flex flex-col items-center">
                 <span id="match-phase" class="text-[9px] font-mono font-bold text-white/40 uppercase tracking-[0.2em] mb-1">1st Half</span>
                 <div id="timer" class="font-mono text-3xl font-black text-white tracking-widest bg-white/5 px-6 py-1.5 rounded-lg border border-white/10 shadow-inner">03:00</div>
-                <button id="start-btn" class="mt-3 bg-[#FFB81C] text-[#1A0524] text-[10px] font-mono font-bold px-4 py-1.5 rounded uppercase tracking-wider hover:bg-white transition-colors hidden">Initialize Stream</button>
             </div>
 
             <div class="flex items-center gap-4 w-1/3 justify-end">
@@ -198,7 +203,7 @@
             </div>
         </div>
 
-        <!-- STAGE CANVAS -->
+        <!-- STAGE CONTAINER -->
         <div id="game-wrapper">
             <div id="game-container">
                 <div class="pitch-line center-line"></div>
@@ -236,7 +241,7 @@
         </div>
     </div>
 
-    <div id="instructions-overlay" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center backdrop-blur-md">
+    <div id="instructions-overlay" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center hidden backdrop-blur-md">
         <div class="text-center bg-[#1A0524] p-8 md:p-12 border border-white/10 rounded-2xl max-w-lg mx-4">
             <h2 class="font-freshman text-3xl text-white tracking-wider mb-4">TACTICAL PROTOCOL</h2>
             <div class="text-left text-[#def5ff]/70 space-y-4 mb-8 text-sm font-mono border-t border-b border-white/5 py-6">
@@ -244,17 +249,18 @@
                 <p><i class="fa-solid fa-bolt text-[#FFB81C] w-6"></i> The further back you pull, the faster your striker fires.</p>
                 <p><i class="fa-solid fa-microchip text-[#FFB81C] w-6"></i> The OC AI tracks the ball automatically and responds instantly.</p>
             </div>
-            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all">Synchronize Controls</button>
+            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all">Synchronize & Start Match</button>
         </div>
     </div>
 
     <script>
+        // --- GAME ENGINE SETUP ---
         const wrapper = document.getElementById('game-wrapper');
         const container = document.getElementById('game-container');
         const width = 800; 
         const height = 450; 
-        const goalTop = height / 2 - 60;
-        const goalBottom = height / 2 + 60;
+        const goalTop = height / 2 - 65;
+        const goalBottom = height / 2 + 65;
 
         let scale = 1;
         
@@ -270,7 +276,7 @@
 
         let isPlaying = false, timeRemaining = 180, isFirstHalf = true, scorePurple = 0, scoreGold = 0, timerInterval, aiInterval; 
 
-        const FRICTION = 0.985; // Optimized glide physics
+        const FRICTION = 0.985; 
         const BOUNCE = 0.85;
         const PLAYER_MASS = 3;
         const BALL_MASS = 1;
@@ -279,13 +285,6 @@
         let activePlayer = null, isDragging = false, dragStartX, dragStartY;
         const aimLine = document.getElementById('aim-line');
         let selectedFaction = 'igv';
-
-        const factionIdentityMap = {
-            'iGV': { name: 'iGV Faction', primary: '#3498db', avatar: 'url("/public/images/mascots/pantherface.png")' },
-            'iGT': { name: 'iGT Faction', primary: '#ffffff', avatar: 'url('/public/images/mascots/rules_face.png")' }, // default structural fallback
-            'oGV': { color: '#7f8c8d', name: 'oGV Faction' },
-            'oGT': { color: '#f1c40f', name: 'oGT Faction' }
-        };
 
         class Entity {
             constructor(id, type, team, x, y, radius, mass) {
@@ -337,8 +336,8 @@
             const leftPositions = [ [70, 225], [190, 110], [190, 340], [330, 160], [330, 290] ];
             const rightPositions = [ [730, 225], [610, 110], [610, 340], [470, 160], [470, 290] ];
 
-            leftPositions.forEach((pos, i) => entities.push(new Entity(`p${i}`, 'player', 'player', pos[0], pos[1], 22, PLAYER_MASS)));
-            rightPositions.forEach((pos, i) => entities.push(new Entity(`o${i}`, 'player', 'oc', pos[0], pos[1], 22, PLAYER_MASS)));
+            leftPositions.forEach((pos, i) => entities.push(new Entity(`p${i}`, 'player', 'player', pos[0], pos[1], 24, PLAYER_MASS)));
+            rightPositions.forEach((pos, i) => entities.push(new Entity(`o${i}`, 'player', 'oc', pos[0], pos[1], 24, PLAYER_MASS)));
         }
 
         function getEventPos(e) {
@@ -379,7 +378,7 @@
             const distance = Math.sqrt(dx*dx + dy*dy);
             
             if (distance > 5) {
-                const powerScale = Math.min(distance * 0.12, 16) / distance;
+                const powerScale = Math.min(distance * 0.14, 18) / distance;
                 activePlayer.vx = dx * powerScale; activePlayer.vy = dy * powerScale;
             }
             activePlayer = null;
@@ -426,7 +425,6 @@
                 let dist = Math.sqrt(dx*dx + dy*dy);
                 
                 if (dist > 0) {
-                    // Precision shooting vectors
                     dx += (Math.random() - 0.5) * 15;
                     dy += (Math.random() - 0.5) * 15;
                     dist = Math.sqrt(dx*dx + dy*dy);
@@ -473,38 +471,48 @@
 
         function scoreGoal(team) {
             isPlaying = false; stopAI(); 
-            if (team === 'player') scorePlayer++; else scoreOC++;
+            if (team === 'player') scorePurple++; else scoreGold++;
             
-            document.getElementById('score-purple').innerText = scorePlayer;
-            document.getElementById('score-gold').innerText = scoreOC;
+            document.getElementById('score-purple').innerText = scorePurple;
+            document.getElementById('score-gold').innerText = scoreGold;
+
+            container.classList.remove('shake');
+            void container.offsetWidth;
+            container.classList.add('shake');
 
             container.style.boxShadow = `0 0 70px ${team === 'player' ? 'var(--player-color)' : 'var(--oc-color)'}`;
             setTimeout(() => {
-                container.style.boxShadow = '0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 50px rgba(0,0,0,0.5)';
+                container.style.boxShadow = '0 0 50px rgba(0, 0, 0, 0.9), inset 0 0 40px var(--player-color)';
                 setupFormation(); isPlaying = true; startAI(); gameLoop();
             }, 1000);
         }
 
+        // --- THEME SYNC ---
         function initTheme(factionKey) {
             selectedFaction = factionKey;
+            
+            // Note: Fixed quotes issue from previous version
             const map = {
-                'iGV': { color: '#3498db', name: 'iGV PANTHERS', img: 'url("/public/images/mascots/panthers.png")' },
-                'iGT': { color: '#ffffff', name: 'iGT ROCKETS', img: 'url("/public/images/mascots/rules_face.png")' }, // fallback
-                'oGV': { color: '#7f8c8d', name: 'oGV CUBS', img: 'url("/public/images/mascots/tigers.png")' },
-                'oGT': { color: '#f1c40f', name: 'oGT ASTRAL', img: 'url("/public/images/mascots/phoenix.png")' }
+                'iGV': { color: '#3498db', name: 'iGV PANTHERS', img: '/public/images/mascots/pantherface.png' },
+                'iGT': { color: '#ffffff', name: 'iGT WOLVES', img: '/public/images/mascots/wolfface.png' },
+                'oGV': { color: '#7f8c8d', name: 'oGV TIGERS', img: '/public/images/mascots/tigerface.png' },
+                'oGT': { color: '#f1c40f', name: 'oGT PHOENIX', img: '/public/images/mascots/phoenixface.png' }
             };
             const target = map[factionKey];
+            
             document.documentElement.style.setProperty('--player-color', target.color);
-            document.documentElement.style.setProperty('--player-img', target.img);
+            document.documentElement.style.setProperty('--player-img', `url('${target.img}')`);
 
             document.getElementById('player-name-display').innerText = target.name;
             document.getElementById('player-name-display').style.color = target.color;
-            document.getElementById('player-logo').src = target.img.replace('url("','').replace('")','');
+            document.getElementById('player-logo').src = target.img;
+            document.getElementById('player-logo').style.filter = `drop-shadow(0 0 10px ${target.color})`;
 
             document.getElementById('setup-screen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('setup-screen').style.display = 'none';
                 document.getElementById('main-ui').style.display = 'flex';
+                resizeGame();
                 document.getElementById('instructions-overlay').classList.remove('hidden');
             }, 500);
         }
@@ -528,7 +536,7 @@
             isPlaying = false; stopAI(); clearInterval(timerInterval);
             const overlay = document.getElementById('overlay');
             document.getElementById('overlay-title').innerText = "FULL TIME";
-            let winner = scorePlayer > scoreOC ? `${selectedFaction} FACTION WINS!` : (scoreOC > scorePlayer ? "THE OC WINS!" : "TACTICAL DRAW");
+            let winner = scorePurple > scoreGold ? `${selectedFaction.toUpperCase()} FACTION WINS!` : (scoreGold > scorePurple ? "THE OC WINS!" : "TACTICAL DRAW");
             document.getElementById('overlay-subtitle').innerText = "Uploading data vectors...";
             document.getElementById('resume-btn').style.display = "none";
             overlay.classList.remove('hidden');
@@ -538,10 +546,10 @@
                     const ref = db.collection('futsal_league').doc(selectedFaction.toLowerCase());
                     await ref.set({
                         matchesPlayed: firebase.firestore.FieldValue.increment(1),
-                        goalsFor: firebase.firestore.FieldValue.increment(scorePlayer),
-                        goalsAgainst: firebase.firestore.FieldValue.increment(scoreOC),
-                        wins: firebase.firestore.FieldValue.increment(scorePlayer > scoreOC ? 1 : 0),
-                        draws: firebase.firestore.FieldValue.increment(scorePlayer === scoreOC ? 1 : 0)
+                        goalsFor: firebase.firestore.FieldValue.increment(scorePurple),
+                        goalsAgainst: firebase.firestore.FieldValue.increment(scoreGold),
+                        wins: firebase.firestore.FieldValue.increment(scorePurple > scoreGold ? 1 : 0),
+                        draws: firebase.firestore.FieldValue.increment(scorePurple === scoreGold ? 1 : 0)
                     }, { merge: true });
                     document.getElementById('overlay-subtitle').innerText = `${winner}\nDatabase updated successfully.`;
                 } catch(e) { document.getElementById('overlay-subtitle').innerText = "Sync failure. System offline."; }
@@ -566,15 +574,12 @@
             }, 1000);
         }
 
+        // Direct Start from Instructions
         document.getElementById('close-instructions').addEventListener('click', () => {
             document.getElementById('instructions-overlay').classList.add('hidden');
-            document.getElementById('start-btn').classList.remove('hidden');
-        });
-
-        document.getElementById('start-btn').addEventListener('click', function() {
-            this.style.display = 'none';
             setupFormation(); isPlaying = true; startTimer(); startAI(); gameLoop();
         });
+
     </script>
 </body>
 </html>
