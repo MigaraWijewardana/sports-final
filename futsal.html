@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="/src/styles/global.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
@@ -28,10 +27,20 @@
         }
 
         body {
-            overflow-x: hidden;
-            touch-action: pan-y;
+            overflow: hidden;
+            touch-action: none;
             background-color: #0d0214;
             background-image: radial-gradient(circle at center, #1b072b 0%, #05010a 100%);
+        }
+
+        /* Portrait Lock Overlay */
+        #portrait-lock {
+            display: none;
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0d0214; flex-direction: column; justify-content: center; align-items: center;
+        }
+        @media (max-width: 850px) and (orientation: portrait) {
+            #portrait-lock { display: flex; }
         }
 
         /* Responsive Game Wrapper */
@@ -52,9 +61,9 @@
         .pitch-line { position: absolute; background: var(--line-color); }
         .center-line { width: 2px; height: 100%; left: 50%; transform: translateX(-50%); top: 0; box-shadow: 0 0 10px rgba(255,255,255,0.1); }
         .center-circle { width: 120px; height: 120px; border: 2px solid var(--line-color); border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; background: transparent; pointer-events: none; }
-        .center-dot { width: 10px; height: 10px; background: #fff; border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; pointer-events: none; box-shadow: 0 0 10px #fff;}
-        .penalty-area-left { width: 120px; height: 240px; border: 2px solid var(--line-color); border-left: none; left: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none; background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent); }
-        .penalty-area-right { width: 120px; height: 240px; border: 2px solid var(--line-color); border-right: none; right: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none; background: linear-gradient(-90deg, rgba(255,255,255,0.02), transparent); }
+        .center-dot { width: 10px; height: 8px; background: #fff; border-radius: 50%; left: 50%; top: 50%; transform: translate(-50%, -50%); position: absolute; pointer-events: none; box-shadow: 0 0 10px #fff;}
+        .penalty-area-left { width: 120px; height: 240px; border: 2px solid var(--line-color); border-left: none; left: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none; background: linear-gradient(90deg, rgba(255,255,255,0.01), transparent); }
+        .penalty-area-right { width: 120px; height: 240px; border: 2px solid var(--line-color); border-right: none; right: 0; top: 50%; transform: translateY(-50%); position: absolute; pointer-events: none; background: linear-gradient(-90deg, rgba(255,255,255,0.01), transparent); }
 
         /* Goals */
         .goal { position: absolute; width: 12px; height: 130px; top: 50%; transform: translateY(-50%); z-index: 20; border-radius: 4px; }
@@ -69,8 +78,8 @@
         }
 
         .player { 
-            width: 48px; height: 48px; 
-            background-size: cover; background-position: center; background-repeat: no-repeat; 
+            width: 46px; height: 46px; 
+            background-size: 85%; background-position: center; background-repeat: no-repeat; 
             cursor: pointer; z-index: 30; 
             transition: transform 0.1s ease;
         }
@@ -90,7 +99,7 @@
         .player:hover { filter: brightness(1.2); transform: translate(-50%, -50%) scale(1.05); }
 
         .ball {
-            width: 24px; height: 24px; background-color: #fff; border: 2px solid #000;
+            width: 22px; height: 24px; background-color: #fff; border: 2px solid #000;
             background-image: radial-gradient(circle at 35% 35%, #ffffff 0%, #a2a2a2 100%); 
             z-index: 25; box-shadow: 0 0 20px #fff;
         }
@@ -127,83 +136,84 @@
 </head>
 <body class="text-white font-['Poppins'] min-h-screen flex flex-col">
 
-    <!-- SELECTION HUB -->
+    <div id="portrait-lock">
+        <i class="fa-solid fa-mobile-screen text-[#FFB81C] text-6xl mb-6 animate-pulse rotate-90"></i>
+        <h2 class="font-freshman text-3xl text-white tracking-widest mb-4">ROTATE DEVICE</h2>
+        <p class="text-[#def5ff]/70 font-mono text-sm uppercase tracking-widest text-center px-6">The Arena requires a landscape perspective to function correctly.</p>
+    </div>
+
     <div id="setup-screen" class="overlay-screen">
         <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-[#561269]/30 rounded-full blur-[150px] -z-10"></div>
-        <img src="/public/images/logo.png" class="h-20 mb-6 opacity-40 grayscale" alt="Arena Logo">
-        <h1 class="font-freshman text-4xl md:text-6xl text-white mb-2 uppercase tracking-widest text-center">CHOOSE YOUR <span class="text-[#FFB81C]">FACTION</span></h1>
-        <p class="text-[#def5ff]/40 text-xs font-mono uppercase tracking-[0.3em] mb-12 border-b border-white/10 pb-4">Initialize synchronization profile</p>
+        <img src="/public/images/logo.png" class="h-16 md:h-20 mb-6 opacity-40 grayscale" alt="Arena Logo">
+        <h1 class="font-freshman text-3xl md:text-6xl text-white mb-2 uppercase tracking-widest text-center">CHOOSE YOUR <span class="text-[#FFB81C]">FACTION</span></h1>
+        <p class="text-[#def5ff]/40 text-[10px] md:text-xs font-mono uppercase tracking-[0.3em] mb-12 border-b border-white/10 pb-4">Initialize synchronization profile</p>
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-4xl px-4">
-            <button class="faction-btn glass-card p-6 border-blue-500/20 bg-blue-500/5 hover:border-blue-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGV')">
-                <img src="/public/images/mascots/pantherface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(52,152,219,0.5)] group-hover:scale-105 transition-transform" alt="iGV Face">
-                <span class="font-freshman text-xl text-[#3498db] tracking-wider">iGV</span>
+            <button class="faction-btn glass-card p-4 md:p-6 border-blue-500/20 bg-blue-500/5 hover:border-blue-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGV')">
+                <img src="/public/images/mascots/pantherface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(52,152,219,0.5)] group-hover:scale-105 transition-transform" alt="iGV">
+                <span class="font-freshman text-lg md:text-xl text-[#3498db] tracking-wider">iGV</span>
             </button>
-            <button class="faction-btn glass-card p-6 border-white/10 bg-white/5 hover:border-white rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGT')">
-                <img src="/public/images/mascots/wolfface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform" alt="iGT Face">
-                <span class="font-freshman text-xl text-[#ffffff] tracking-wider">iGT</span>
+            <button class="faction-btn glass-card p-4 md:p-6 border-white/10 bg-white/5 hover:border-white rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGT')">
+                <img src="/public/images/mascots/wolfface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform" alt="iGT">
+                <span class="font-freshman text-lg md:text-xl text-[#ffffff] tracking-wider">iGT</span>
             </button>
-            <button class="faction-btn glass-card p-6 border-gray-500/20 bg-gray-500/5 hover:border-gray-400 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGV')">
-                <img src="/public/images/mascots/tigerface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(127,140,141,0.5)] group-hover:scale-105 transition-transform" alt="oGV Face">
-                <span class="font-freshman text-xl text-[#7f8c8d] tracking-wider">oGV</span>
+            <button class="faction-btn glass-card p-4 md:p-6 border-gray-500/20 bg-gray-500/5 hover:border-gray-400 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGV')">
+                <img src="/public/images/mascots/tigerface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(127,140,141,0.5)] group-hover:scale-105 transition-transform" alt="oGV">
+                <span class="font-freshman text-lg md:text-xl text-[#7f8c8d] tracking-wider">oGV</span>
             </button>
-            <button class="faction-btn glass-card p-6 border-yellow-500/20 bg-yellow-500/5 hover:border-yellow-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGT')">
-                <img src="/public/images/mascots/phoenixface.png" class="h-20 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(241,196,15,0.5)] group-hover:scale-105 transition-transform" alt="oGT Face">
-                <span class="font-freshman text-xl text-[#f1c40f] tracking-wider">oGT</span>
+            <button class="faction-btn glass-card p-4 md:p-6 border-yellow-500/20 bg-yellow-500/5 hover:border-yellow-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGT')">
+                <img src="/public/images/mascots/phoenixface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(241,196,15,0.5)] group-hover:scale-105 transition-transform" alt="oGT">
+                <span class="font-freshman text-lg md:text-xl text-[#f1c40f] tracking-wider">oGT</span>
             </button>
         </div>
     </div>
 
-    <!-- ARENA HUD -->
-    <div id="main-ui" style="display: none;" class="w-full flex-grow flex flex-col pt-6 pb-6">
-        <nav class="w-full px-6 max-w-5xl mx-auto flex items-center justify-between mb-6">
+    <div id="main-ui" style="display: none;" class="w-full flex-grow flex flex-col pt-4 pb-4">
+        <nav class="w-full px-6 max-w-5xl mx-auto flex items-center justify-between mb-2 md:mb-6">
             <a href="index.html" class="inline-flex items-center text-[10px] font-mono tracking-[0.2em] font-bold uppercase text-white/50 hover:text-white transition-all bg-white/5 px-4 py-2 rounded border border-white/10">
-                <i class="fa-solid fa-terminal mr-2"></i> Disconnect Arena
+                <i class="fa-solid fa-terminal mr-2"></i> Disconnect
             </a>
         </nav>
 
-        <!-- ESPORTS SCOREBOARD -->
-        <div class="max-w-4xl mx-auto w-[92%] flex justify-between items-center bg-black/60 border border-white/10 rounded-2xl p-4 mb-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
+        <div class="max-w-4xl mx-auto w-[92%] flex justify-between items-center bg-black/60 border border-white/10 rounded-2xl p-2 md:p-4 mb-4 md:mb-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
             <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.02),transparent)] pointer-events-none"></div>
             
-            <div class="flex items-center gap-4 w-1/3">
+            <div class="flex items-center gap-2 md:gap-4 w-1/3">
                 <div class="p-1 rounded-full bg-white/5 border border-white/10">
-                    <img id="player-logo" src="" class="w-12 h-12 object-contain filter">
+                    <img id="player-logo" src="" class="w-8 h-8 md:w-12 md:h-12 object-contain filter">
                 </div>
                 <div class="text-left">
-                    <p id="player-name-display" class="font-freshman text-xl tracking-wider">FACTION</p>
-                    <span class="text-[9px] font-mono text-white/40 uppercase tracking-widest block">Home Team</span>
+                    <p id="player-name-display" class="font-freshman text-xs md:text-xl tracking-wider truncate">FACTION</p>
+                    <span class="text-[7px] md:text-[9px] font-mono text-white/40 uppercase tracking-widest block">Home Team</span>
                 </div>
             </div>
 
             <div class="text-center w-1/3 flex flex-col items-center">
-                <span id="match-phase" class="text-[9px] font-mono font-bold text-white/40 uppercase tracking-[0.2em] mb-1">1st Half</span>
-                <div id="timer" class="font-mono text-3xl font-black text-white tracking-widest bg-white/5 px-6 py-1.5 rounded-lg border border-white/10 shadow-inner">03:00</div>
+                <span id="match-phase" class="text-[7px] md:text-[9px] font-mono font-bold text-white/40 uppercase tracking-[0.2em] mb-1">1st Half</span>
+                <div id="timer" class="font-mono text-xl md:text-3xl font-black text-white tracking-widest bg-white/5 px-4 md:px-6 py-1 md:py-1.5 rounded-lg border border-white/10 shadow-inner">03:00</div>
             </div>
 
-            <div class="flex items-center gap-4 w-1/3 justify-end">
+            <div class="flex items-center gap-2 md:gap-4 w-1/3 justify-end">
                 <div class="text-right">
-                    <p class="font-freshman text-xl text-[#b84dd9] tracking-widest">THE OC</p>
-                    <span class="text-[9px] font-mono tracking-widest text-white/50 uppercase block">Away Team</span>
+                    <p class="font-freshman text-xs md:text-xl text-[#b84dd9] tracking-widest">THE OC</p>
+                    <span class="text-[7px] md:text-[9px] font-mono tracking-widest text-white/50 uppercase block">Away Team</span>
                 </div>
                 <div class="p-1 rounded-full border border-[#b84dd9]/40 bg-[#561269]/10">
-                    <img src="/public/images/logo.png" class="w-12 h-12 object-contain filter drop-shadow-[0_0_8px_#b84dd9]">
+                    <img src="/public/images/logo.png" class="w-8 h-8 md:w-12 md:h-12 object-contain filter drop-shadow-[0_0_8px_#b84dd9]">
                 </div>
             </div>
         </div>
 
-        <!-- DIGITS DASHBOARD -->
-        <div class="max-w-xs mx-auto flex items-center justify-center gap-8 mb-8">
+        <div class="max-w-xs mx-auto flex items-center justify-center gap-6 md:gap-8 mb-4 md:mb-8">
             <div class="text-center">
-                <span id="score-purple" class="font-freshman text-5xl sm:text-6xl text-white text-shadow">0</span>
+                <span id="score-purple" class="font-freshman text-4xl md:text-6xl text-white text-shadow">0</span>
             </div>
-            <div class="font-freshman text-2xl text-white/20">-</div>
+            <div class="font-freshman text-xl md:text-2xl text-white/20">-</div>
             <div class="text-center">
-                <span id="score-gold" class="font-freshman text-2xl sm:text-6xl text-white/40">0</span>
+                <span id="score-gold" class="font-freshman text-4xl md:text-6xl text-white/40">0</span>
             </div>
         </div>
 
-        <!-- STAGE CONTAINER -->
         <div id="game-wrapper">
             <div id="game-container">
                 <div class="pitch-line center-line"></div>
@@ -219,8 +229,7 @@
             </div>
         </div>
 
-        <!-- CONTROLS DASHBOARD UNDER THE GAME BOX -->
-        <div class="max-w-md mx-auto w-[90%] mt-8 grid grid-cols-2 gap-4 text-center">
+        <div class="max-w-md mx-auto w-[90%] mt-4 md:mt-8 grid grid-cols-2 gap-4 text-center hidden md:grid">
             <div class="bg-black/40 border border-white/5 rounded-xl p-3">
                 <span class="block text-[9px] font-mono uppercase text-white/40 tracking-wider mb-1"><i class="fa-solid fa-desktop mr-1"></i> PC Interface</span>
                 <p class="text-xs text-white/80 font-semibold">Click / Drag Mallet Backwards</p>
@@ -232,29 +241,27 @@
         </div>
     </div>
 
-    <!-- POPUP MODALS -->
     <div id="overlay" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden backdrop-blur-md">
         <div class="text-center bg-[#1A0524] p-8 md:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.2)] mx-4 max-w-sm w-full">
-            <h2 id="overlay-title" class="font-freshman text-4xl text-white mb-2 tracking-widest">HALF TIME</h2>
-            <p id="overlay-subtitle" class="text-[#def5ff]/70 text-xs tracking-widest uppercase mb-8 font-mono">Switching Arena Sides...</p>
-            <button id="resume-btn" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all">Resume Engine</button>
+            <h2 id="overlay-title" class="font-freshman text-3xl md:text-4xl text-white mb-2 tracking-widest">HALF TIME</h2>
+            <p id="overlay-subtitle" class="text-[#def5ff]/70 text-[10px] md:text-xs tracking-widest uppercase mb-8 font-mono">Switching Arena Sides...</p>
+            <button id="resume-btn" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3 md:py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all text-xs md:text-base">Resume Engine</button>
         </div>
     </div>
 
     <div id="instructions-overlay" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center hidden backdrop-blur-md">
-        <div class="text-center bg-[#1A0524] p-8 md:p-12 border border-white/10 rounded-2xl max-w-lg mx-4">
-            <h2 class="font-freshman text-3xl text-white tracking-wider mb-4">TACTICAL PROTOCOL</h2>
-            <div class="text-left text-[#def5ff]/70 space-y-4 mb-8 text-sm font-mono border-t border-b border-white/5 py-6">
+        <div class="text-center bg-[#1A0524] p-6 md:p-12 border border-white/10 rounded-2xl max-w-lg mx-4">
+            <h2 class="font-freshman text-2xl md:text-3xl text-white tracking-wider mb-4">TACTICAL PROTOCOL</h2>
+            <div class="text-left text-[#def5ff]/70 space-y-3 md:space-y-4 mb-6 md:mb-8 text-xs md:text-sm font-mono border-t border-b border-white/5 py-4 md:py-6">
                 <p><i class="fa-solid fa-crosshairs text-[#FFB81C] w-6"></i> Slingshot Mechanics: Click and drag backward from your mallet to store momentum.</p>
                 <p><i class="fa-solid fa-bolt text-[#FFB81C] w-6"></i> The further back you pull, the faster your striker fires.</p>
                 <p><i class="fa-solid fa-microchip text-[#FFB81C] w-6"></i> The OC AI tracks the ball automatically and responds instantly.</p>
             </div>
-            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all">Synchronize & Start Match</button>
+            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3 md:py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all text-xs md:text-base">Synchronize & Start Match</button>
         </div>
     </div>
 
     <script>
-        // --- GAME ENGINE SETUP ---
         const wrapper = document.getElementById('game-wrapper');
         const container = document.getElementById('game-container');
         const width = 800; 
@@ -266,13 +273,22 @@
         
         function resizeGame() {
             const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            
+            // Calculate available space to ensure the pitch NEVER exceeds the viewport height on mobile
             const maxWidth = Math.min(800, screenWidth - 20);
-            scale = maxWidth / width;
+            const maxHeight = Math.min(450, screenHeight - 160); // 160px buffer for mobile HUD
+            
+            // We scale by whichever dimension restricts the box more
+            const scaleX = maxWidth / width;
+            const scaleY = maxHeight / height;
+            
+            scale = Math.min(scaleX, scaleY);
+            
             container.style.transform = `scale(${scale})`;
             wrapper.style.height = `${height * scale}px`;
         }
         window.addEventListener('resize', resizeGame);
-        resizeGame();
 
         let isPlaying = false, timeRemaining = 180, isFirstHalf = true, scorePurple = 0, scoreGold = 0, timerInterval, aiInterval; 
 
@@ -336,8 +352,8 @@
             const leftPositions = [ [70, 225], [190, 110], [190, 340], [330, 160], [330, 290] ];
             const rightPositions = [ [730, 225], [610, 110], [610, 340], [470, 160], [470, 290] ];
 
-            leftPositions.forEach((pos, i) => entities.push(new Entity(`p${i}`, 'player', 'player', pos[0], pos[1], 24, PLAYER_MASS)));
-            rightPositions.forEach((pos, i) => entities.push(new Entity(`o${i}`, 'player', 'oc', pos[0], pos[1], 24, PLAYER_MASS)));
+            leftPositions.forEach((pos, i) => entities.push(new Entity(`p${i}`, 'player', 'player', pos[0], pos[1], 23, PLAYER_MASS)));
+            rightPositions.forEach((pos, i) => entities.push(new Entity(`o${i}`, 'player', 'oc', pos[0], pos[1], 23, PLAYER_MASS)));
         }
 
         function getEventPos(e) {
@@ -378,7 +394,7 @@
             const distance = Math.sqrt(dx*dx + dy*dy);
             
             if (distance > 5) {
-                const powerScale = Math.min(distance * 0.14, 18) / distance;
+                const powerScale = Math.min(distance * 0.12, 16) / distance;
                 activePlayer.vx = dx * powerScale; activePlayer.vy = dy * powerScale;
             }
             activePlayer = null;
@@ -417,7 +433,6 @@
             });
 
             if (closest) {
-                // Hard AI calculation: Aim directly to shoot past defenders towards goal line
                 let targetX = ball.x; let targetY = ball.y;
                 if (ball.x < width / 2) targetX -= 30; // Push forward aggressively
                 
@@ -490,8 +505,6 @@
         // --- THEME SYNC ---
         function initTheme(factionKey) {
             selectedFaction = factionKey;
-            
-            // Note: Fixed quotes issue from previous version
             const map = {
                 'iGV': { color: '#3498db', name: 'iGV PANTHERS', img: '/public/images/mascots/pantherface.png' },
                 'iGT': { color: '#ffffff', name: 'iGT WOLVES', img: '/public/images/mascots/wolfface.png' },
@@ -499,7 +512,6 @@
                 'oGT': { color: '#f1c40f', name: 'oGT PHOENIX', img: '/public/images/mascots/phoenixface.png' }
             };
             const target = map[factionKey];
-            
             document.documentElement.style.setProperty('--player-color', target.color);
             document.documentElement.style.setProperty('--player-img', `url('${target.img}')`);
 
@@ -574,12 +586,10 @@
             }, 1000);
         }
 
-        // Direct Start from Instructions
         document.getElementById('close-instructions').addEventListener('click', () => {
             document.getElementById('instructions-overlay').classList.add('hidden');
             setupFormation(); isPlaying = true; startTimer(); startAI(); gameLoop();
         });
-
     </script>
 </body>
 </html>
