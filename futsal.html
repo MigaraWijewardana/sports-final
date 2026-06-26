@@ -428,30 +428,46 @@
         }
 
         // --- BOT AI (UPGRADED) ---
+        // --- BOT AI (UPGRADED: CORNER TRAP FIXED) ---
         function updateBot() {
             let targetX, targetY;
             
             if (ball.x > GAME_W/2 - 150) {
-                // Intercept & Attack
-                targetX = ball.x + 15; 
-                targetY = ball.y;
+                // Ball is in the OC's half.
                 
-                // Bot Dash Logic: If perfectly lined up with ball and goal, SMASH IT
-                const distToBall = Math.hypot(ball.x - p2.x, ball.y - p2.y);
-                if(distToBall < 100 && Math.abs(p2.y - GAME_H/2) < 80 && ball.x < p2.x && Math.random() < 0.05) {
-                    triggerDash(p2);
+                // ANTI-TRAP LOGIC: If the ball is dangerously close to the right wall, 
+                // the bot must stop trying to get behind it and instead dig it out from the front/side.
+                if (ball.x > GAME_W - 60) {
+                    targetX = ball.x - 40; // Stand in front of the ball
+                    // Approach from above or below depending on which corner it is stuck in
+                    targetY = ball.y > GAME_H/2 ? ball.y - 40 : ball.y + 40; 
+                } else {
+                    // Normal Attack: Intercept and push left
+                    targetX = ball.x + 15; 
+                    targetY = ball.y;
+                    
+                    // Bot Dash Logic: SMASH IT if lined up
+                    const distToBall = Math.hypot(ball.x - p2.x, ball.y - p2.y);
+                    if(distToBall < 100 && Math.abs(p2.y - GAME_H/2) < 80 && ball.x < p2.x && Math.random() < 0.05) {
+                        triggerDash(p2);
+                    }
                 }
             } else {
                 // Defend Goal
                 targetX = GAME_W - 80;
-                targetY = Math.max(Math.min(ball.y, GAME_H/2 + 50), GAME_H/2 - 50); 
+                targetY = Math.max(Math.min(ball.y, GAME_H/2 + 60), GAME_H/2 - 60); 
             }
+
+            // BOUNDARY CHECK: Force the bot's target to always exist inside the physical pitch
+            targetX = Math.max(30, Math.min(targetX, GAME_W - 30));
+            targetY = Math.max(30, Math.min(targetY, GAME_H - 30));
 
             const dx = targetX - p2.x;
             const dy = targetY - p2.y;
             const dist = Math.hypot(dx, dy);
 
-            if (dist > 15) {
+            // Move towards target
+            if (dist > 10) {
                 applyForce(p2, (dx/dist)*p2.speed, (dy/dist)*p2.speed);
             }
         }
