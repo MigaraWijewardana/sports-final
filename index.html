@@ -605,6 +605,78 @@
                 console.warn("Firebase not initialized. Live tracker unavailable.");
             }
         });
+
+        // --- FUTSAL LEAGUE TABLE LOGIC ---
+        async function initFutsalLeaderboard() {
+            const tableBody = document.getElementById('league-table-body');
+            
+            if (!tableBody || typeof db === 'undefined') return;
+
+            db.collection("futsal_league").onSnapshot((snapshot) => {
+                let teamsData = [];
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const gf = data.goalsFor || 0;
+                    const ga = data.goalsAgainst || 0;
+                    const matches = data.matchesPlayed || 0;
+                    const wins = data.wins || 0;
+                    const draws = data.draws || 0;
+                    
+                    const gd = gf - ga;
+                    const pts = (wins * 3) + (draws * 1);
+
+                    teamsData.push({
+                        id: doc.id,
+                        name: doc.id.toUpperCase(),
+                        p: matches,
+                        gf: gf,
+                        ga: ga,
+                        gd: gd,
+                        pts: pts
+                    });
+                });
+
+                // Sort: Points > Goal Difference > Goals For
+                teamsData.sort((a, b) => {
+                    if (b.pts !== a.pts) return b.pts - a.pts;
+                    if (b.gd !== a.gd) return b.gd - a.gd;
+                    return b.gf - a.gf;
+                });
+
+                tableBody.innerHTML = '';
+
+                if (teamsData.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-white/30 font-mono text-xs">NO MATCHES PLAYED YET</td></tr>`;
+                    return;
+                }
+
+                teamsData.forEach((team, index) => {
+                    const rankClass = index === 0 ? 'text-[#FFB81C]' : (index === 1 ? 'text-gray-300' : (index === 2 ? 'text-yellow-600' : 'text-white/50'));
+                    const gdColor = team.gd > 0 ? 'text-green-400' : (team.gd < 0 ? 'text-red-400' : 'text-white/70');
+
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                            <td class="py-4 pl-2 ${rankClass}">${index + 1}</td>
+                            <td class="py-4 font-freshman tracking-widest">${team.name}</td>
+                            <td class="py-4 text-center text-white/70">${team.p}</td>
+                            <td class="py-4 text-center text-white/90">${team.gf}</td>
+                            <td class="py-4 text-center text-white/50">${team.ga}</td>
+                            <td class="py-4 text-center ${gdColor}">${team.gd > 0 ? '+'+team.gd : team.gd}</td>
+                            <td class="py-4 text-center text-[#FFB81C] text-lg font-black drop-shadow-md">${team.pts}</td>
+                        </tr>
+                    `;
+                });
+            }, (error) => {
+                console.error("League sync error:", error);
+            });
+        }
+
+        // Add this to your existing DOMContentLoaded listener:
+        document.addEventListener('DOMContentLoaded', () => {
+            initLiveTracker(); // Existing
+            initFutsalLeaderboard(); // New
+        });
     </script>
 </body>
 </html>
