@@ -497,9 +497,10 @@
             document.getElementById('score-purple').innerText = scorePurple;
             document.getElementById('score-gold').innerText = scoreGold;
 
-            container.classList.remove('shake');
-            void container.offsetWidth;
-            container.classList.add('shake');
+            // Apply the shake to the WRAPPER instead of the container so it doesn't break the scale
+            wrapper.classList.remove('shake');
+            void wrapper.offsetWidth;
+            wrapper.classList.add('shake');
 
             container.style.boxShadow = `0 0 70px ${team === 'player' ? 'var(--player-color)' : 'var(--oc-color)'}`;
             setTimeout(() => {
