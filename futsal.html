@@ -46,7 +46,7 @@
 
         /* Responsive Game Wrapper */
         #game-wrapper {
-            width: 100%; display: flex; justify-content: center; overflow: hidden; padding: 0 10px;
+            width: 100%; display: flex; justify-content: center; overflow: hidden; padding: 0 5px;
         }
 
         #game-container {
@@ -170,14 +170,14 @@
         </div>
     </div>
 
-    <div id="main-ui" style="display: none;" class="w-full flex-grow flex flex-col pt-4 pb-4">
-        <nav class="w-full px-6 max-w-5xl mx-auto flex items-center justify-between mb-2 md:mb-6">
+    <div id="main-ui" style="display: none;" class="w-full flex-grow flex flex-col pt-3 pb-3">
+        <nav class="w-full px-6 max-w-5xl mx-auto flex items-center justify-between mb-2 md:mb-4">
             <a href="index.html" class="inline-flex items-center text-[10px] font-mono tracking-[0.2em] font-bold uppercase text-white/50 hover:text-white transition-all bg-white/5 px-4 py-2 rounded border border-white/10">
                 <i class="fa-solid fa-terminal mr-2"></i> Disconnect
             </a>
         </nav>
 
-        <div class="max-w-4xl mx-auto w-[92%] flex justify-between items-center bg-black/60 border border-white/10 rounded-2xl p-2 md:p-4 mb-4 md:mb-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
+        <div class="max-w-4xl mx-auto w-[92%] flex justify-between items-center bg-black/60 border border-white/10 rounded-2xl p-2 md:p-4 mb-3 md:mb-4 shadow-2xl backdrop-blur-md relative overflow-hidden">
             <div class="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.02),transparent)] pointer-events-none"></div>
             
             <div class="flex items-center gap-2 md:gap-4 w-1/3">
@@ -206,7 +206,7 @@
             </div>
         </div>
 
-        <div class="max-w-xs mx-auto flex items-center justify-center gap-6 md:gap-8 mb-4 md:mb-8">
+        <div class="max-w-xs mx-auto flex items-center justify-center gap-6 md:gap-8 mb-3 md:mb-6">
             <div class="text-center">
                 <span id="score-purple" class="font-freshman text-4xl md:text-6xl text-white text-shadow">0</span>
             </div>
@@ -231,7 +231,7 @@
             </div>
         </div>
 
-        <div class="max-w-md mx-auto w-[90%] mt-4 md:mt-8 grid grid-cols-2 gap-4 text-center hidden md:grid">
+        <div class="max-w-md mx-auto w-[90%] mt-3 md:mt-6 grid grid-cols-2 gap-4 text-center hidden md:grid">
             <div class="bg-black/40 border border-white/5 rounded-xl p-3">
                 <span class="block text-[9px] font-mono uppercase text-white/40 tracking-wider mb-1"><i class="fa-solid fa-desktop mr-1"></i> PC Interface</span>
                 <p class="text-xs text-white/80 font-semibold">Click / Drag Mallet Backwards</p>
@@ -277,8 +277,12 @@
             const screenWidth = window.innerWidth;
             const screenHeight = window.innerHeight;
             
-            const maxWidth = Math.min(800, screenWidth - 20);
-            const maxHeight = Math.min(450, screenHeight - 160); 
+            // Reduced buffer to allow pitch to be larger on mobile
+            const isMobile = screenWidth <= 850;
+            const verticalBuffer = isMobile ? 110 : 160; 
+            
+            const maxWidth = Math.min(800, screenWidth - 10);
+            const maxHeight = Math.min(450, screenHeight - verticalBuffer); 
             
             const scaleX = maxWidth / width;
             const scaleY = maxHeight / height;
@@ -358,7 +362,6 @@
         }
 
         function getEventPos(e) {
-            // Fix for TouchEnd passing changedTouches instead of active touches
             if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
             if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
             return { x: e.clientX, y: e.clientY };
@@ -381,9 +384,7 @@
 
         function handleMove(e) {
             if (!isDragging) return;
-            // Prevent scrolling on mobile ONLY when actively dragging the slingshot
             if (e.cancelable) e.preventDefault(); 
-            
             const pos = getEventPos(e); const rect = container.getBoundingClientRect();
             updateAimLine((pos.x - rect.left) / scale, (pos.y - rect.top) / scale);
         }
@@ -440,7 +441,7 @@
 
             if (closest) {
                 let targetX = ball.x; let targetY = ball.y;
-                if (ball.x < width / 2) targetX -= 30; 
+                if (ball.x < width / 2) targetX -= 30; // Push forward aggressively
                 
                 let dx = targetX - closest.x; let dy = targetY - closest.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
@@ -497,7 +498,7 @@
             document.getElementById('score-purple').innerText = scorePurple;
             document.getElementById('score-gold').innerText = scoreGold;
 
-            // Apply the shake to the WRAPPER instead of the container so it doesn't break the scale
+            // Apply screen shake to the wrapper so scale ratio stays intact
             wrapper.classList.remove('shake');
             void wrapper.offsetWidth;
             wrapper.classList.add('shake');
