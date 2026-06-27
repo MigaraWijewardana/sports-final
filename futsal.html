@@ -27,8 +27,9 @@
         }
 
         body {
-            overflow: hidden;
-            touch-action: none;
+            overflow-x: hidden;
+            overflow-y: auto; 
+            touch-action: pan-y; 
             background-color: #0d0214;
             background-image: radial-gradient(circle at center, #1b072b 0%, #05010a 100%);
         }
@@ -55,6 +56,7 @@
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), inset 0 0 40px var(--player-color);
             transform-origin: top center; user-select: none; -webkit-user-select: none;
             transition: box-shadow 0.5s ease;
+            touch-action: none; 
         }
 
         /* Cyber Pitch Markings */
@@ -275,11 +277,9 @@
             const screenWidth = window.innerWidth;
             const screenHeight = window.innerHeight;
             
-            // Calculate available space to ensure the pitch NEVER exceeds the viewport height on mobile
             const maxWidth = Math.min(800, screenWidth - 20);
-            const maxHeight = Math.min(450, screenHeight - 160); // 160px buffer for mobile HUD
+            const maxHeight = Math.min(450, screenHeight - 160); 
             
-            // We scale by whichever dimension restricts the box more
             const scaleX = maxWidth / width;
             const scaleY = maxHeight / height;
             
@@ -289,6 +289,7 @@
             wrapper.style.height = `${height * scale}px`;
         }
         window.addEventListener('resize', resizeGame);
+        resizeGame();
 
         let isPlaying = false, timeRemaining = 180, isFirstHalf = true, scorePurple = 0, scoreGold = 0, timerInterval, aiInterval; 
 
@@ -357,7 +358,9 @@
         }
 
         function getEventPos(e) {
+            // Fix for TouchEnd passing changedTouches instead of active touches
             if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
             return { x: e.clientX, y: e.clientY };
         }
 
@@ -378,6 +381,9 @@
 
         function handleMove(e) {
             if (!isDragging) return;
+            // Prevent scrolling on mobile ONLY when actively dragging the slingshot
+            if (e.cancelable) e.preventDefault(); 
+            
             const pos = getEventPos(e); const rect = container.getBoundingClientRect();
             updateAimLine((pos.x - rect.left) / scale, (pos.y - rect.top) / scale);
         }
@@ -434,7 +440,7 @@
 
             if (closest) {
                 let targetX = ball.x; let targetY = ball.y;
-                if (ball.x < width / 2) targetX -= 30; // Push forward aggressively
+                if (ball.x < width / 2) targetX -= 30; 
                 
                 let dx = targetX - closest.x; let dy = targetY - closest.y;
                 let dist = Math.sqrt(dx*dx + dy*dy);
