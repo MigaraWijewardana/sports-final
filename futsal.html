@@ -28,10 +28,9 @@
 
         body {
             overflow-x: hidden;
-            overflow-y: auto; 
-            touch-action: pan-y; 
             background-color: #0d0214;
             background-image: radial-gradient(circle at center, #1b072b 0%, #05010a 100%);
+            /* Removed global scroll locks so the page scrolls natively */
         }
 
         /* Portrait Lock Overlay */
@@ -62,7 +61,7 @@
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), inset 0 0 40px var(--player-color);
             transform-origin: top center; user-select: none; -webkit-user-select: none;
             transition: box-shadow 0.5s ease;
-            touch-action: none; 
+            touch-action: none; /* Only the pitch stops scrolling so you can drag players */
         }
 
         /* Cyber Pitch Markings */
@@ -132,10 +131,15 @@
         }
         #aim-arrow { position: absolute; right: -12px; top: -6px; color: #fff; font-size: 16px; transform: rotate(90deg); text-shadow: 0 0 10px var(--player-color); }
 
-        /* Gateway Overlay */
+        /* Overlay Scrolling Fixes */
         .overlay-screen {
             position: fixed; inset: 0; background: rgba(10, 3, 18, 0.96); backdrop-filter: blur(10px);
-            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; transition: opacity 0.5s;
+            z-index: 100; transition: opacity 0.5s;
+            overflow-y: auto; /* Allows scrolling inside overlays */
+            -webkit-overflow-scrolling: touch;
+        }
+        .overlay-content-wrapper {
+            min-height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1rem; width: 100%; relative;
         }
         .faction-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .faction-btn:hover { transform: scale(1.05) translateY(-5px); }
@@ -150,28 +154,30 @@
     </div>
 
     <div id="setup-screen" class="overlay-screen">
-        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-[#561269]/30 rounded-full blur-[150px] -z-10"></div>
-        <img src="/public/images/logo.png" class="h-16 md:h-20 mb-6 opacity-40 grayscale" alt="Arena Logo">
-        <h1 class="font-freshman text-3xl md:text-6xl text-white mb-2 uppercase tracking-widest text-center">CHOOSE YOUR <span class="text-[#FFB81C]">FACTION</span></h1>
-        <p class="text-[#def5ff]/40 text-[10px] md:text-xs font-mono uppercase tracking-[0.3em] mb-12 border-b border-white/10 pb-4">Initialize synchronization profile</p>
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-4xl px-4">
-            <button class="faction-btn glass-card p-4 md:p-6 border-blue-500/20 bg-blue-500/5 hover:border-blue-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGV')">
-                <img src="/public/images/mascots/pantherface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(52,152,219,0.5)] group-hover:scale-105 transition-transform" alt="iGV">
-                <span class="font-freshman text-lg md:text-xl text-[#3498db] tracking-wider">iGV</span>
-            </button>
-            <button class="faction-btn glass-card p-4 md:p-6 border-white/10 bg-white/5 hover:border-white rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGT')">
-                <img src="/public/images/mascots/wolfface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform" alt="iGT">
-                <span class="font-freshman text-lg md:text-xl text-[#ffffff] tracking-wider">iGT</span>
-            </button>
-            <button class="faction-btn glass-card p-4 md:p-6 border-gray-500/20 bg-gray-500/5 hover:border-gray-400 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGV')">
-                <img src="/public/images/mascots/tigerface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(127,140,141,0.5)] group-hover:scale-105 transition-transform" alt="oGV">
-                <span class="font-freshman text-lg md:text-xl text-[#7f8c8d] tracking-wider">oGV</span>
-            </button>
-            <button class="faction-btn glass-card p-4 md:p-6 border-yellow-500/20 bg-yellow-500/5 hover:border-yellow-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGT')">
-                <img src="/public/images/mascots/phoenixface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(241,196,15,0.5)] group-hover:scale-105 transition-transform" alt="oGT">
-                <span class="font-freshman text-lg md:text-xl text-[#f1c40f] tracking-wider">oGT</span>
-            </button>
+        <div class="overlay-content-wrapper">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#561269]/30 rounded-full blur-[150px] -z-10"></div>
+            <img src="/public/images/logo.png" class="h-16 md:h-20 mb-6 opacity-40 grayscale" alt="Arena Logo">
+            <h1 class="font-freshman text-3xl md:text-6xl text-white mb-2 uppercase tracking-widest text-center">CHOOSE YOUR <span class="text-[#FFB81C]">FACTION</span></h1>
+            <p class="text-[#def5ff]/40 text-[10px] md:text-xs font-mono uppercase tracking-[0.3em] mb-12 border-b border-white/10 pb-4">Initialize synchronization profile</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-4xl px-2">
+                <button class="faction-btn glass-card p-4 md:p-6 border-blue-500/20 bg-blue-500/5 hover:border-blue-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGV')">
+                    <img src="/public/images/mascots/pantherface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(52,152,219,0.5)] group-hover:scale-105 transition-transform" alt="iGV">
+                    <span class="font-freshman text-lg md:text-xl text-[#3498db] tracking-wider">iGV</span>
+                </button>
+                <button class="faction-btn glass-card p-4 md:p-6 border-white/10 bg-white/5 hover:border-white rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('iGT')">
+                    <img src="/public/images/mascots/wolfface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform" alt="iGT">
+                    <span class="font-freshman text-lg md:text-xl text-[#ffffff] tracking-wider">iGT</span>
+                </button>
+                <button class="faction-btn glass-card p-4 md:p-6 border-gray-500/20 bg-gray-500/5 hover:border-gray-400 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGV')">
+                    <img src="/public/images/mascots/tigerface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(127,140,141,0.5)] group-hover:scale-105 transition-transform" alt="oGV">
+                    <span class="font-freshman text-lg md:text-xl text-[#7f8c8d] tracking-wider">oGV</span>
+                </button>
+                <button class="faction-btn glass-card p-4 md:p-6 border-yellow-500/20 bg-yellow-500/5 hover:border-yellow-500 rounded-xl flex flex-col items-center group shadow-xl" onclick="initTheme('oGT')">
+                    <img src="/public/images/mascots/phoenixface.png" class="h-16 md:h-24 mb-4 drop-shadow-[0_0_15px_rgba(241,196,15,0.5)] group-hover:scale-105 transition-transform" alt="oGT">
+                    <span class="font-freshman text-lg md:text-xl text-[#f1c40f] tracking-wider">oGT</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -251,23 +257,27 @@
         </div>
     </div>
 
-    <div id="overlay" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden backdrop-blur-md">
-        <div class="text-center bg-[#1A0524] p-8 md:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.2)] mx-4 max-w-sm w-full">
-            <h2 id="overlay-title" class="font-freshman text-3xl md:text-4xl text-white mb-2 tracking-widest">HALF TIME</h2>
-            <p id="overlay-subtitle" class="text-[#def5ff]/70 text-[10px] md:text-xs tracking-widest uppercase mb-8 font-mono">Switching Arena Sides...</p>
-            <button id="resume-btn" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3 md:py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all text-xs md:text-base">Resume Engine</button>
+    <div id="overlay" class="fixed inset-0 bg-black/90 z-50 overflow-y-auto backdrop-blur-md hidden">
+        <div class="overlay-content-wrapper">
+            <div class="text-center bg-[#1A0524] p-8 md:p-12 border-2 border-[#FFB81C] rounded-2xl shadow-[0_0_50px_rgba(255,184,28,0.2)] max-w-sm w-full">
+                <h2 id="overlay-title" class="font-freshman text-3xl md:text-4xl text-white mb-2 tracking-widest">HALF TIME</h2>
+                <p id="overlay-subtitle" class="text-[#def5ff]/70 text-[10px] md:text-xs tracking-widest uppercase mb-8 font-mono">Switching Arena Sides...</p>
+                <button id="resume-btn" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3 md:py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all text-xs md:text-base">Resume Engine</button>
+            </div>
         </div>
     </div>
 
-    <div id="instructions-overlay" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center hidden backdrop-blur-md">
-        <div class="text-center bg-[#1A0524] p-6 md:p-12 border border-white/10 rounded-2xl max-w-lg mx-4">
-            <h2 class="font-freshman text-2xl md:text-3xl text-white tracking-wider mb-4">TACTICAL PROTOCOL</h2>
-            <div class="text-left text-[#def5ff]/70 space-y-3 md:space-y-4 mb-6 md:mb-8 text-xs md:text-sm font-mono border-t border-b border-white/5 py-4 md:py-6">
-                <p><i class="fa-solid fa-crosshairs text-[#FFB81C] w-6"></i> Slingshot Mechanics: Click and drag backward from your squad members to store momentum.</p>
-                <p><i class="fa-solid fa-bolt text-[#FFB81C] w-6"></i> The further back you pull, the faster your striker fires.</p>
-                <p><i class="fa-solid fa-microchip text-[#FFB81C] w-6"></i> The OC AI commands 5 defenders. Defeat them before the timer runs out.</p>
+    <div id="instructions-overlay" class="fixed inset-0 bg-black/95 z-50 overflow-y-auto backdrop-blur-md hidden">
+        <div class="overlay-content-wrapper">
+            <div class="text-center bg-[#1A0524] p-6 md:p-12 border border-white/10 rounded-2xl max-w-lg w-full">
+                <h2 class="font-freshman text-2xl md:text-3xl text-white tracking-wider mb-4">TACTICAL PROTOCOL</h2>
+                <div class="text-left text-[#def5ff]/70 space-y-3 md:space-y-4 mb-6 md:mb-8 text-xs md:text-sm font-mono border-t border-b border-white/5 py-4 md:py-6">
+                    <p><i class="fa-solid fa-crosshairs text-[#FFB81C] w-6"></i> Slingshot Mechanics: Click and drag backward from your squad members to store momentum.</p>
+                    <p><i class="fa-solid fa-bolt text-[#FFB81C] w-6"></i> The further back you pull, the faster your striker fires.</p>
+                    <p><i class="fa-solid fa-microchip text-[#FFB81C] w-6"></i> The OC AI commands 5 defenders. Defeat them before the timer runs out.</p>
+                </div>
+                <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3 md:py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all text-xs md:text-base">Synchronize & Start Match</button>
             </div>
-            <button id="close-instructions" class="w-full bg-[#FFB81C] text-[#1A0524] font-bold py-3 md:py-3.5 rounded uppercase tracking-widest hover:bg-white transition-all text-xs md:text-base">Synchronize & Start Match</button>
         </div>
     </div>
 
@@ -345,6 +355,7 @@
 
                 this.x += this.vx; this.y += this.vy;
 
+                // Border Handlers
                 if (this.x - this.radius < 0) { 
                     if (this.type === 'ball' && this.y > goalTop && this.y < goalBottom) { scoreGoal('oc'); return; }
                     this.x = this.radius; this.vx *= -BOUNCE; 
@@ -364,6 +375,7 @@
             document.querySelectorAll('.entity').forEach(e => e.remove());
             entities = [];
 
+            // Puck
             entities.push(new Entity('ball', 'ball', null, width/2, height/2, 12, BALL_MASS));
 
             // 5v5 SQUAD FORMATION 
@@ -381,9 +393,9 @@
         }
 
         function startDrag(e, player) {
-            if (e.cancelable) e.preventDefault(); 
             if (!isPlaying || player.team !== 'player') return;
             if (Math.abs(player.vx) > 0.5 || Math.abs(player.vy) > 0.5) return;
+            if (e.cancelable) e.preventDefault(); 
             
             isDragging = true; activePlayer = player;
             const pos = getEventPos(e); const rect = container.getBoundingClientRect();
