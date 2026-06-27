@@ -28,9 +28,12 @@
 
         body {
             overflow-x: hidden;
+            overflow-y: auto; 
+            touch-action: pan-y; 
             background-color: #0d0214;
             background-image: radial-gradient(circle at center, #1b072b 0%, #05010a 100%);
-            /* Removed global scroll locks so the page scrolls natively */
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
         }
 
         /* Portrait Lock Overlay */
@@ -61,7 +64,7 @@
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), inset 0 0 40px var(--player-color);
             transform-origin: top center; user-select: none; -webkit-user-select: none;
             transition: box-shadow 0.5s ease;
-            touch-action: none; /* Only the pitch stops scrolling so you can drag players */
+            touch-action: none; 
         }
 
         /* Cyber Pitch Markings */
@@ -77,7 +80,7 @@
         .goal-left { left: 0; background: var(--player-color); box-shadow: 0 0 25px var(--player-color); }
         .goal-right { right: 0; background: var(--oc-color); box-shadow: 0 0 25px var(--oc-color); }
 
-        /* Physics Objects - Esports Pod Design */
+        /* Physics Objects */
         .entity {
             position: absolute; border-radius: 50%; transform: translate(-50%, -50%);
             display: flex; align-items: center; justify-content: center;
@@ -86,8 +89,9 @@
 
         .player { 
             background-size: 85%; background-position: center; background-repeat: no-repeat; 
-            cursor: pointer; z-index: 30; 
-            transition: transform 0.1s ease;
+            z-index: 30; 
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), filter 0.15s;
+            pointer-events: none; /* Let the container handle the touch maths */
         }
         
         .player.team-player { 
@@ -102,7 +106,6 @@
             background-image: var(--oc-img); 
             box-shadow: 0 0 12px var(--oc-color), inset 0 0 8px rgba(255,255,255,0.2);
         }
-        .player:hover { filter: brightness(1.3); transform: translate(-50%, -50%) scale(1.08); }
 
         .ball {
             width: 22px; height: 24px; background-color: #fff; border: 2px solid #000;
@@ -135,8 +138,7 @@
         .overlay-screen {
             position: fixed; inset: 0; background: rgba(10, 3, 18, 0.96); backdrop-filter: blur(10px);
             z-index: 100; transition: opacity 0.5s;
-            overflow-y: auto; /* Allows scrolling inside overlays */
-            -webkit-overflow-scrolling: touch;
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
         .overlay-content-wrapper {
             min-height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem 1rem; width: 100%; relative;
@@ -245,7 +247,7 @@
             </div>
         </div>
 
-        <div class="mobile-hide-landscape max-w-md mx-auto w-[90%] mt-4 md:mt-8 grid grid-cols-2 gap-4 text-center">
+        <div class="mobile-hide-landscape max-w-md mx-auto w-[90%] mt-4 md:mt-8 grid grid-cols-2 gap-4 text-center hidden md:grid">
             <div class="bg-black/40 border border-white/5 rounded-xl p-3">
                 <span class="block text-[9px] font-mono uppercase text-white/40 tracking-wider mb-1"><i class="fa-solid fa-desktop mr-1"></i> PC Interface</span>
                 <p class="text-xs text-white/80 font-semibold">Click / Drag Player Backwards</p>
@@ -272,7 +274,7 @@
             <div class="text-center bg-[#1A0524] p-6 md:p-12 border border-white/10 rounded-2xl max-w-lg w-full">
                 <h2 class="font-freshman text-2xl md:text-3xl text-white tracking-wider mb-4">TACTICAL PROTOCOL</h2>
                 <div class="text-left text-[#def5ff]/70 space-y-3 md:space-y-4 mb-6 md:mb-8 text-xs md:text-sm font-mono border-t border-b border-white/5 py-4 md:py-6">
-                    <p><i class="fa-solid fa-crosshairs text-[#FFB81C] w-6"></i> Slingshot Mechanics: Click and drag backward from your squad members to store momentum.</p>
+                    <p><i class="fa-solid fa-crosshairs text-[#FFB81C] w-6"></i> Slingshot Mechanics: Drag backward from anywhere near your squad members to store momentum.</p>
                     <p><i class="fa-solid fa-bolt text-[#FFB81C] w-6"></i> The further back you pull, the faster your striker fires.</p>
                     <p><i class="fa-solid fa-microchip text-[#FFB81C] w-6"></i> The OC AI commands 5 defenders. Defeat them before the timer runs out.</p>
                 </div>
@@ -341,11 +343,8 @@
                 this.el.className = `entity ${type} ${team ? 'team-' + team : ''}`;
                 this.el.style.width = `${radius * 2}px`; this.el.style.height = `${radius * 2}px`;
                 container.appendChild(this.el);
-
-                if (type === 'player') {
-                    this.el.addEventListener('mousedown', (e) => startDrag(e, this));
-                    this.el.addEventListener('touchstart', (e) => startDrag(e, this), { passive: false });
-                }
+                
+                // Note: Mouse/Touch listeners are now handled globally on the container for forgiving hitboxes.
             }
 
             update() {
@@ -355,7 +354,6 @@
 
                 this.x += this.vx; this.y += this.vy;
 
-                // Border Handlers
                 if (this.x - this.radius < 0) { 
                     if (this.type === 'ball' && this.y > goalTop && this.y < goalBottom) { scoreGoal('oc'); return; }
                     this.x = this.radius; this.vx *= -BOUNCE; 
@@ -375,7 +373,6 @@
             document.querySelectorAll('.entity').forEach(e => e.remove());
             entities = [];
 
-            // Puck
             entities.push(new Entity('ball', 'ball', null, width/2, height/2, 12, BALL_MASS));
 
             // 5v5 SQUAD FORMATION 
@@ -387,46 +384,80 @@
         }
 
         function getEventPos(e) {
-            if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
             if (e.changedTouches && e.changedTouches.length > 0) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+            if (e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
             return { x: e.clientX, y: e.clientY };
         }
 
-        function startDrag(e, player) {
-            if (!isPlaying || player.team !== 'player') return;
-            if (Math.abs(player.vx) > 0.5 || Math.abs(player.vy) > 0.5) return;
-            if (e.cancelable) e.preventDefault(); 
+        // --- NEW FORGIVING TOUCH SYSTEM ---
+        function handleStart(e) {
+            if (!isPlaying) return;
             
-            isDragging = true; activePlayer = player;
-            const pos = getEventPos(e); const rect = container.getBoundingClientRect();
-            
-            dragStartX = (pos.x - rect.left) / scale;
-            dragStartY = (pos.y - rect.top) / scale;
-            
-            aimLine.style.display = 'block';
-            updateAimLine(dragStartX, dragStartY);
+            const pos = getEventPos(e); 
+            const rect = container.getBoundingClientRect();
+            const logicalX = (pos.x - rect.left) / scale;
+            const logicalY = (pos.y - rect.top) / scale;
+
+            // Find closest player to touch point (within massive 90px forgiving radius)
+            let closestPlayer = null;
+            let minDist = 90; 
+
+            entities.forEach(ent => {
+                // Increased speed threshold to 1.5 so you don't have to wait for a perfect dead stop
+                if (ent.team === 'player' && Math.abs(ent.vx) <= 1.5 && Math.abs(ent.vy) <= 1.5) {
+                    const dist = Math.hypot(ent.x - logicalX, ent.y - logicalY);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closestPlayer = ent;
+                    }
+                }
+            });
+
+            if (closestPlayer) {
+                if (e.cancelable) e.preventDefault(); // Only prevent default if we actually grabbed a player
+                isDragging = true;
+                activePlayer = closestPlayer;
+                
+                dragStartX = logicalX;
+                dragStartY = logicalY;
+                
+                aimLine.style.display = 'block';
+                updateAimLine(logicalX, logicalY);
+
+                // Visual Pop when selected
+                activePlayer.el.style.transform = 'translate(-50%, -50%) scale(1.3)';
+                activePlayer.el.style.filter = 'brightness(1.5)';
+            }
         }
 
+        container.addEventListener('mousedown', handleStart);
+        container.addEventListener('touchstart', handleStart, { passive: false });
+
         function handleMove(e) {
-            if (!isDragging) return;
+            if (!isDragging || !activePlayer) return;
             if (e.cancelable) e.preventDefault(); 
             const pos = getEventPos(e); const rect = container.getBoundingClientRect();
             updateAimLine((pos.x - rect.left) / scale, (pos.y - rect.top) / scale);
         }
 
-        function endDrag(e) {
-            if (!isDragging) return;
+        function handleEnd(e) {
+            if (!isDragging || !activePlayer) return;
             isDragging = false; aimLine.style.display = 'none';
+            
+            // Reset Visual Pop
+            activePlayer.el.style.transform = 'translate(-50%, -50%) scale(1)';
+            activePlayer.el.style.filter = '';
+
             const pos = getEventPos(e); const rect = container.getBoundingClientRect();
             
             const endX = (pos.x - rect.left) / scale;
             const endY = (pos.y - rect.top) / scale;
 
             let dx = dragStartX - endX; let dy = dragStartY - endY;
-            const distance = Math.sqrt(dx*dx + dy*dy);
+            const distance = Math.hypot(dx, dy);
             
             if (distance > 5) {
-                const powerScale = Math.min(distance * 0.12, 16) / distance;
+                const powerScale = Math.min(distance * 0.12, 17) / distance;
                 activePlayer.vx = dx * powerScale; activePlayer.vy = dy * powerScale;
             }
             activePlayer = null;
@@ -434,8 +465,8 @@
 
         window.addEventListener('mousemove', handleMove, { passive: false });
         window.addEventListener('touchmove', handleMove, { passive: false });
-        window.addEventListener('mouseup', endDrag);
-        window.addEventListener('touchend', endDrag);
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('touchend', handleEnd);
 
         function updateAimLine(mouseX, mouseY) {
             if(!activePlayer) return;
@@ -447,6 +478,7 @@
             aimLine.style.width = `${distance}px`; aimLine.style.transform = `translateY(-50%) rotate(${angle}deg)`;
         }
 
+        // --- HARD AI ALGORITHM ---
         function startAI() { if (aiInterval) clearInterval(aiInterval); aiInterval = setInterval(aiTakeTurn, 1200); }
         function stopAI() { if (aiInterval) clearInterval(aiInterval); }
 
@@ -454,7 +486,7 @@
             if (!isPlaying) return;
             const ocPlayers = entities.filter(e => e.team === 'oc');
             const ball = entities.find(e => e.type === 'ball');
-            if (!ball || ocPlayers.length === 0) return;
+            if (!ball) return;
 
             let closest = null; let minDist = Infinity;
             ocPlayers.forEach(p => {
