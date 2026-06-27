@@ -605,8 +605,18 @@
                         draws: firebase.firestore.FieldValue.increment(scorePurple === scoreGold ? 1 : 0)
                     }, { merge: true });
                     document.getElementById('overlay-subtitle').innerText = `${winner}\nDatabase updated successfully.`;
-                } catch(e) { document.getElementById('overlay-subtitle').innerText = "Sync failure. System offline."; }
+                    document.getElementById('overlay-subtitle').style.color = "#2ecc71";
+                } catch(e) { 
+                    console.error("Firebase Sync Error: ", e);
+                    document.getElementById('overlay-subtitle').innerText = "Sync failure. System offline."; 
+                    document.getElementById('overlay-subtitle').style.color = "#e74c3c";
+                }
+            } else {
+                // If the firebase.js file is missing, this will catch it
+                document.getElementById('overlay-subtitle').innerText = "ERROR: Firebase not connected.";
+                document.getElementById('overlay-subtitle').style.color = "#e74c3c";
             }
+            
             setTimeout(() => {
                 document.getElementById('resume-btn').style.display = "inline-block";
                 document.getElementById('resume-btn').innerText = "Re-initialize";
