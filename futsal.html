@@ -343,8 +343,6 @@
                 this.el.className = `entity ${type} ${team ? 'team-' + team : ''}`;
                 this.el.style.width = `${radius * 2}px`; this.el.style.height = `${radius * 2}px`;
                 container.appendChild(this.el);
-                
-                // Note: Mouse/Touch listeners are now handled globally on the container for forgiving hitboxes.
             }
 
             update() {
@@ -389,7 +387,6 @@
             return { x: e.clientX, y: e.clientY };
         }
 
-        // --- NEW FORGIVING TOUCH SYSTEM ---
         function handleStart(e) {
             if (!isPlaying) return;
             
@@ -398,12 +395,10 @@
             const logicalX = (pos.x - rect.left) / scale;
             const logicalY = (pos.y - rect.top) / scale;
 
-            // Find closest player to touch point (within massive 90px forgiving radius)
             let closestPlayer = null;
             let minDist = 90; 
 
             entities.forEach(ent => {
-                // Increased speed threshold to 1.5 so you don't have to wait for a perfect dead stop
                 if (ent.team === 'player' && Math.abs(ent.vx) <= 1.5 && Math.abs(ent.vy) <= 1.5) {
                     const dist = Math.hypot(ent.x - logicalX, ent.y - logicalY);
                     if (dist < minDist) {
@@ -414,7 +409,7 @@
             });
 
             if (closestPlayer) {
-                if (e.cancelable) e.preventDefault(); // Only prevent default if we actually grabbed a player
+                if (e.cancelable) e.preventDefault(); 
                 isDragging = true;
                 activePlayer = closestPlayer;
                 
@@ -424,7 +419,6 @@
                 aimLine.style.display = 'block';
                 updateAimLine(logicalX, logicalY);
 
-                // Visual Pop when selected
                 activePlayer.el.style.transform = 'translate(-50%, -50%) scale(1.3)';
                 activePlayer.el.style.filter = 'brightness(1.5)';
             }
@@ -444,7 +438,6 @@
             if (!isDragging || !activePlayer) return;
             isDragging = false; aimLine.style.display = 'none';
             
-            // Reset Visual Pop
             activePlayer.el.style.transform = 'translate(-50%, -50%) scale(1)';
             activePlayer.el.style.filter = '';
 
@@ -478,7 +471,6 @@
             aimLine.style.width = `${distance}px`; aimLine.style.transform = `translateY(-50%) rotate(${angle}deg)`;
         }
 
-        // --- HARD AI ALGORITHM ---
         function startAI() { if (aiInterval) clearInterval(aiInterval); aiInterval = setInterval(aiTakeTurn, 1200); }
         function stopAI() { if (aiInterval) clearInterval(aiInterval); }
 
@@ -486,7 +478,7 @@
             if (!isPlaying) return;
             const ocPlayers = entities.filter(e => e.team === 'oc');
             const ball = entities.find(e => e.type === 'ball');
-            if (!ball) return;
+            if (!ball || ocPlayers.length === 0) return;
 
             let closest = null; let minDist = Infinity;
             ocPlayers.forEach(p => {
@@ -497,17 +489,22 @@
 
             if (closest) {
                 let targetX = ball.x; let targetY = ball.y;
-                if (ball.x < width / 2) targetX -= 30; 
+                
+                // DYNAMIC DIFFICULTY LOGIC
+                let maxPower = isFirstHalf ? 10 : 16; 
+                let inaccuracy = isFirstHalf ? 50 : 10; 
+
+                if (ball.x < width / 2) targetX -= (isFirstHalf ? 15 : 40); 
                 
                 let dx = targetX - closest.x; let dy = targetY - closest.y;
                 let aimDist = Math.sqrt(dx*dx + dy*dy);
                 
                 if (aimDist > 0) {
-                    dx += (Math.random() - 0.5) * 15;
-                    dy += (Math.random() - 0.5) * 15;
+                    dx += (Math.random() - 0.5) * inaccuracy;
+                    dy += (Math.random() - 0.5) * inaccuracy;
                     aimDist = Math.sqrt(dx*dx + dy*dy);
                     
-                    const power = Math.min((minDist * 0.12), 15.5); 
+                    const power = Math.min((minDist * 0.12), maxPower); 
                     closest.vx = (dx / aimDist) * power; closest.vy = (dy / aimDist) * power;
 
                     closest.el.style.filter = 'brightness(2) drop-shadow(0 0 10px var(--oc-color))';
