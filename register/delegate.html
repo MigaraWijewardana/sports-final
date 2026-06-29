@@ -91,8 +91,8 @@
                     </div>
 
                     <div class="flex flex-col">
-                        <label class="text-xs font-bold tracking-wider text-[#def5ff]/80 uppercase mb-2">Position in Football</label>
-                        <select id="football-position" required class="bg-[#1A0524]/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFB81C] focus:ring-1 focus:ring-[#FFB81C] transition-all appearance-none cursor-pointer">
+                        <label class="text-xs font-bold tracking-wider text-[#def5ff]/80 uppercase mb-2">Position in Football (Optional)</label>
+                        <select id="football-position" class="bg-[#1A0524]/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#FFB81C] focus:ring-1 focus:ring-[#FFB81C] transition-all appearance-none cursor-pointer">
                             <option value="" disabled selected>Select...</option>
                             <option value="Attacker">Attacker</option>
                             <option value="Mid-field">Mid-field</option>
@@ -123,10 +123,21 @@
         </div>
     </main>
 
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', function() {
+            const posSelect = document.getElementById('football-position');
+            // If the select is still on the disabled default placeholder
+            if (!posSelect.value) {
+                const positions = ["Attacker", "Mid-field", "Defence", "Goalie"];
+                const randomPos = positions[Math.floor(Math.random() * positions.length)];
+                posSelect.value = randomPos;
+            }
+        });
+    </script>
+
     <script src="/src/js/firebase.js"></script>
     <script src="/src/js/delegate.js"></script>
     
-    <!-- Script to dynamically hide text for IG and Alumni -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParamsCheck = new URLSearchParams(window.location.search);
